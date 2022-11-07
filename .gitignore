@@ -1,7 +1,8 @@
-*.*
-!*.txt
-!*.c
-!*.sh
-!*.md
-!.myfuncs
+*
+!**/
+!**/*.c
+!**/*.h
+!**/*.md
 !.gitignore
+!.myfuncs
+
