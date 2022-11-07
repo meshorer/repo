@@ -2,5 +2,6 @@
 !*.txt
 !*.c
 !*.sh
+!*.md
 !.myfuncs
 !.gitignore
