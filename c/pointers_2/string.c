@@ -15,7 +15,7 @@ char *StrCpy(char *dest, const char *src)
 }	
 	
 
-char *StrNCpy(char *dest, const char *src, size_t n)
+char *StrNcpy(char *dest, const char *src, size_t n)
 {
 	size_t i = 0; 
 	while (*(src+i) != '\0' && i<n)
@@ -60,16 +60,27 @@ return res;
 }
 
 
-int StrNcmp(const char *s1, const char *s2, size_t n)
+int StrNcmp(const char *str1, const char *str2, size_t n)
 
 {
 	size_t i = 0;
+	int res = 0;
 	while (str1[i] == str2[i] && str1[i] != '\0' && str2[i] != '\0' && i<n)
 	{
-		
+		i++;	
 	}
-}
+	
+	if (str1[i] > str2[i])
+	{
+	res = 1;
+	}
 
+	else if (str2[i] > str1[i])
+	{
+	res = -1;
+	}
+	return res;	
+}
 
 
 
