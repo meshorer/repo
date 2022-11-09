@@ -5,7 +5,7 @@ char *StrCpy(char *dest, const char *src)
 
 	int i = 0;
 	
-	while (*(src+i) != '\0' || *(dest+i) != '\0')
+	while (*(src+i) != '\0')
 	{
 		*(dest+i) = *(src+i);
 		i++;
@@ -81,6 +81,11 @@ int StrNcmp(const char *str1, const char *str2, size_t n)
 	}
 	return res;	
 }
+
+
+
+
+
 
 
 
