@@ -143,27 +143,85 @@ char *StrChr(const char *s, int c)
 }
 
 
-char *StrDup(const char *s)
+
+ char *Strcat(char *dest, const char *src)
 {
-	char * dup = NULL;
-	char *ptr = NULL;
-	dup= malloc(sizeof(s));
-	if (!dup)
+
+	while (*dest)
 	{
-		return NULL;
-	}
-	else
-	{
-		ptr = dup;
-		while (s)
-		{
-			*dup = *s;
-			s++;
-			dup++;
-		}
-	
-		return ptr;
+		dest++;
 	}
 
+	while (*src)
+	{
+		*dest = *src;
+		dest++;
+		src++;	
+	}
+	
+	return dest;   
+} 
+
+
+ char *StrNcat(char *dest, const char *src, size_t n)
+{
+	size_t i = 0;
+
+	while (*dest)
+	{
+		dest++;
+	}
+	
+	while (*src && i !=n)
+	{
+		*dest = *src;
+		dest++;
+		src++;	
+		i++;
+	}
+	
+	return dest;   
+    
 }
+
+
+char *StrStr(const char *haystack, const char *needle)
+{
+	
+	char *start = NULL;
+	char *start_n = (char*) needle;
+	while (*haystack)
+	{
+
+		if (*haystack == *needle)
+		{
+			start = (char *) haystack;
+		
+			while (*haystack == *needle && *needle)
+			{
+				haystack++;
+				needle++;
+
+			}
+
+			if (!*needle) 
+			{
+				return start;
+			}
+			else 
+			{
+
+				haystack = (char*) start;
+				
+			}
+		}
+		haystack++;
+		needle = start_n;
+	}	
+	return NULL;
+}
+
+
+
+
 

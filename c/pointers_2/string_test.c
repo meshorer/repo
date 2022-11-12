@@ -55,16 +55,36 @@ int main()
 	/*declerations for strchr*/
 	const char ch[] = "danielmeshorer@gmail.com";
 	const char chnull[] = {'d','a','n','i','\0'};
-	int c = '\0';
+	int c = '@';
 	char *ptr;
 	
 	/*declerations for strdup*/
-	char const str_dup[] = "hello";
-	char *ptr_dup;
-	int i_dup = 0;
 	
 	
+	/*declerations for strcat*/
+	char ch1[100] = "you ma";
+	char ch2[] = "de it!";
+	char ch3[100] = "you ma";
+	char ch4[] = "de it!";
 	
+	/*declerations for strcat*/
+	char ch1_ncat[100] = "you ma";
+	char ch2_ncat[] = "de it!";
+	size_t stop = 5;
+	char ch3_ncat[100] = "you ma";
+ 	char ch4_ncat[] = "de it!";
+ 	
+ 	
+ 	/*declerations for strstr*/
+ 	
+ 	char haystack_1[] = "he asked what is your proffesion?";
+	char needle_1[] = "what is your proffesion?";
+	char *ptr_haystack_1;
+	char haystack_2[] = "he asked what is your proffesion?";
+	char needle_2[] = "what is your proffesion?";
+	char *ptr_haystack_2;
+	
+ 	
 	/*  test for StrCpy */
 	printf("----------------------\n");
 	printf("\n");
@@ -213,13 +233,73 @@ int main()
 	printf("the locale of the character %c is %s\n", c, ptr); 
 	}
 	
-	/* tests for strdup*/
+	/* tests for strcat*/
+	printf("\n");
 	printf("----------------------\n");
 	printf("\n");
-	ptr_dup = StrDup(str_dup);
-	while (*(ptr_dup+i_dup))
+	printf("tests for strcat:\n");
+	printf("\n");
+	printf("original func:\n");
+	strcat(ch3,ch4);
+	printf("result is: ");
+	puts(ch3);
+	printf("our func:\n");
+	Strcat(ch1,ch2);
+	printf("result is: ");
+	puts (ch1);
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+
+	/* tests for strncat*/
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+	printf("tests for strncat:\n");
+	printf("\n");
+	printf("original func:\n");
+	strncat(ch3_ncat,ch4_ncat,stop);
+	printf("result is: ");
+	puts(ch3_ncat);
+	printf("our func:\n");
+	StrNcat(ch1_ncat,ch2_ncat,stop);
+	printf("result is: ");
+	puts(ch1_ncat);
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+	
+	/* tests for strstr*/
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+	printf("tests for strstr:\n");
+	printf("\n");
+	ptr_haystack_2 = (char*) strstr(haystack_2,needle_2);
+	ptr_haystack_1 =(char*) StrStr(haystack_2,needle_2);
+	printf("original func:\n");
+	if (!ptr_haystack_1)
 	{
-		printf("%p", ptr_dup);	
+		printf("null");
+	}
+	
+	else
+	{
+		
+		printf("the result is  %s\n", ptr_haystack_2); 
+	}
+	printf("our func:\n");
+
+	
+	if (!ptr_haystack_1)
+	{
+		printf("null");
+	}
+	
+	else
+	{
+		
+		printf("the result is  %s\n", ptr_haystack_1); 
 	}
 	
 	return 0;	
