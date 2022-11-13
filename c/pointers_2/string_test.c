@@ -3,7 +3,7 @@
 
 int main()
 {
-	
+
 	/* declerations for StrLen*/
 	char arr_len[] = {"programer"};
 	size_t result_len; 
@@ -65,8 +65,11 @@ int main()
 	char *ptr_chr1;
 	
 	/*declerations for strdup*/
+	extern char* strdup(const char*);
 	char const str_dup[] = "what is up";
+	char const str_dup1[] = "what is up";
 	char *ptr_dup;
+	char *ptr_dup1;
 	
 	/*declerations for strcat*/
 	char ch1[100] = "you ma";
@@ -258,7 +261,7 @@ int main()
 	printf("the string is: ");
 	puts (ch_chr);
 	ptr_chr= strchr(ch_chr,c);
-	ptr_chr1 = strchr(ch_chr,c);
+	ptr_chr1 = StrChr(ch_chr,c);
 	printf("origin function:\n");
 	if (ptr_chr == 0)
 	{
@@ -286,11 +289,13 @@ int main()
 	printf("tests for strdup:\n");
 	printf("\n");
 	printf("original func:\n");
-	printf("need to check, sf:\n");
+	ptr_dup1 =  (char *) strdup(str_dup1);
+	printf("%s\n", ptr_dup1);
 	printf("our func:\n");
 	ptr_dup =  (char *) StrDup(str_dup);
 	printf("%s\n", ptr_dup);
 	free(ptr_dup);
+	free(ptr_dup1);
 	
 	/* tests for strcat*/
 	printf("\n");
@@ -303,7 +308,7 @@ int main()
 	printf("result is: ");
 	puts(ch3);
 	printf("our func:\n");
-	StrCat(ch1,ch2);
+	strcat(ch1,ch2);
 	printf("result is: ");
 	puts (ch1);
 	printf("\n");
@@ -363,6 +368,7 @@ int main()
 		printf("the result is  %s\n", ptr_haystack_2); 
 	}
 	
-	return 0;	
+
 }
+	return 0;	
 }

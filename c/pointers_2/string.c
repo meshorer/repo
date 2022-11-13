@@ -45,31 +45,29 @@ char *StrNcpy(char *dest, const char *src, size_t n)
 	}
 
 	
-	if (sizeof(dest)>n)
-	{
 		for (; i<n; i++)
 		{
 			dest[i] = '\0';
 		}
-	}
+	
 	
 	return dest;	
 }
 
 int StrCmp (const char* str1, const char* str2)
 {
-int res = 0;
-while (*str1 == *str2 && str1 && str2) 
-{
-	str1++;
-	str2++;
-}
+	int res = 0;
+	while (*str1 == *str2 && str1) 
+	{
+		str1++;
+		str2++;
+	}
 
-if (*str1 != *str2)
-{
-	res = *str1 - *str2;
-}
-return res;
+	if (*str1 != *str2)
+	{
+		res = *str1 - *str2;
+	}
+	return res;
 
 }
 
@@ -86,14 +84,9 @@ int StrNcmp(const char *str1, const char *str2, size_t n)
 		i++;
 	}
 	
-	if (*str1 > *str2)
+	if (*str1 != *str2)
 	{
-	res = 1;
-	}
-
-	else if (*str2 > *str1)
-	{
-	res = -1;
+		res = *str1 - *str2;
 	}
 	return res;	
 }
@@ -101,7 +94,6 @@ int StrNcmp(const char *str1, const char *str2, size_t n)
 
 int StrCasecmp(const char *str1, const char *str2)
 {
-	int res = 0;
 	int i = 0;
 	char ctmp1;
 	char ctmp2;
@@ -114,7 +106,6 @@ int StrCasecmp(const char *str1, const char *str2)
 		if (ctmp1 >= 'A' && ctmp1 <= 'Z')
 		{
 			ctmp1 = ctmp1+32;
-			printf("1 if\n");
 		}
 	
 		if (ctmp2 >= 'A' && ctmp2 <= 'Z')
@@ -124,35 +115,23 @@ int StrCasecmp(const char *str1, const char *str2)
 	
 		if (ctmp1 != ctmp2)
 		{
-			break;
+			return ctmp1 - ctmp2;
 		}
 	}
 
 	i++;
 	}
-
-	if (ctmp1 > ctmp2)
-	{
-		res = 1;
-	}
-
-	else if (ctmp1 < ctmp2)
-	{
-		res = -1;
-	}
-	return res;
+	return 0;
 }
 	
 
 char *StrChr(const char *s, int c)
 {
-	char *res = (char *)*s;
 	while (s && *s != c)
 	{
 		s++;
 	}
-
-	return res;
+	return (char *)s;
 }
 
 
@@ -178,7 +157,7 @@ return s_sec-len;
 
  char *StrCat(char *dest, const char *src)
 {
-
+	char *tmp = dest;
 	while (*dest)
 	{
 		dest++;
@@ -191,20 +170,20 @@ return s_sec-len;
 		src++;	
 	}
 	
-	return dest;   
+	return tmp;   
 } 
 
 
  char *StrNcat(char *dest, const char *src, size_t n)
 {
 	size_t i = 0;
-
+	char * tmp = dest;
 	while (*dest)
 	{
 		dest++;
 	}
 	
-	while (*src && i !=n)
+	while (*src && i < n)
 	{
 		*dest = *src;
 		dest++;
@@ -212,7 +191,7 @@ return s_sec-len;
 		i++;
 	}
 	
-	return dest;   
+	return tmp;   
     
 }
 
@@ -241,19 +220,13 @@ char *StrStr(const char *haystack, const char *needle)
 			{
 				return (char *) start;
 			}
-			else 
-			{
-
-				haystack = (char*) start;
-				
-			}
+			
 		}
 		haystack++;
 		needle = start_n;
 	}	
 	return NULL;
 }
-
 
 
 
