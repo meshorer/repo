@@ -4,6 +4,11 @@
 int main()
 {
 	
+	/* declerations for StrLen*/
+	char arr_len[] = {"programer"};
+	size_t result_len; 
+	size_t result_len1;
+	
 	/* declerations for StrCpy*/
 	
 	char src_cpy[5] = {'m','i','k','g'};
@@ -44,22 +49,24 @@ int main()
 	/*declerations for StrNcmp*/
 	char arr1_ncmp[] = "ABC";
 	char arr2_ncmp[] = "ABCD";
-	size_t n_ncmp = 2;
+	size_t n_ncmp = 1;
 	int res_ncmp = 0;
-	
+	int res1_ncmp = 0;
 	/*declerations for StrCasecmp*/
 	char arr1_strcase[7] = {'A','b','c','d','e','l'};
 	char arr2_strcase[7] = {'A','B','E','D','e','l'};
 	int res_strcase = 0;
+	int res_strcase1 = 0;
 	
 	/*declerations for strchr*/
-	const char ch[] = "danielmeshorer@gmail.com";
-	const char chnull[] = {'d','a','n','i','\0'};
+	const char ch_chr[] = "danielmeshorer@gmail.com";
 	int c = '@';
-	char *ptr;
+	char *ptr_chr;
+	char *ptr_chr1;
 	
 	/*declerations for strdup*/
-	
+	char const str_dup[] = "what is up";
+	char *ptr_dup;
 	
 	/*declerations for strcat*/
 	char ch1[100] = "you ma";
@@ -84,6 +91,16 @@ int main()
 	char needle_2[] = "what is your proffesion?";
 	char *ptr_haystack_2;
 	
+ 	/*  test for strlen */
+ 	printf("----------------------\n");
+	printf("\n");
+	printf("tests for strlen func:\n");
+	printf("original func:\n");
+	result_len1 = strlen (arr_len);
+	printf("%lu \n", result_len1);
+	printf("our func:\n");
+ 	result_len = StrLen (arr_len);
+	printf("%lu \n", result_len);
  	
 	/*  test for StrCpy */
 	printf("----------------------\n");
@@ -179,19 +196,41 @@ int main()
 	printf("tests for strncmp func:\n");
 	printf("\n");
 	printf("1. compare not same length :\n");
-	/*res_ncmp = StrNcmp(arr_ncmp,arr1_ncmp,n_ncmp);*/
-	/*res1_ncmp = StrNcmp(arr2_ncmp,arr3_ncmp,n1_ncmp);*/
+	res_ncmp = StrNcmp(arr1_ncmp,arr2_ncmp,n_ncmp);
+	res1_ncmp = strncmp(arr1_ncmp,arr2_ncmp,n_ncmp);
 	printf("original func:\n");
-	printf("test for StrNcmp fun is : %d\n", res_ncmp);
+	printf("result is : %d\n", res1_ncmp);
+	printf("\n");
+	printf("our func:\n");
+	printf("result is : %d\n", res_ncmp);
 	printf("\n");
 	printf("----------------------\n");
 	printf("\n");
 	
 	/* tests for StrCasecmp*/
-	printf("tests for strcmp func:\n");
+	printf("tests for strcasecmp func:\n");
 	printf("\n");
 	res_strcase = StrCasecmp(arr1_strcase,arr2_strcase);
-	printf("test for StrCasecmp: %d\n", res_strcase);
+	res_strcase1 = strcasecmp(arr1_strcase,arr2_strcase);
+	printf("test for StrCasecmp:\n");
+	printf("original func\n");
+	printf("result: %d\n", res_strcase1);
+	if (res_strcase1 > 0)
+	{
+		printf("first string is bigger\n");
+	}
+	
+	else if (res_strcase1 < 0)
+	{
+		printf("second string is bigger\n");
+	}
+	
+	else
+	{
+		printf("strings are equal\n");
+	}
+	printf("our func\n");
+	printf("result: %d\n", res_strcase1);
 	if (res_strcase > 0)
 	{
 		printf("first string is bigger\n");
@@ -206,32 +245,52 @@ int main()
 	{
 		printf("strings are equal\n");
 	}
-	
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
 	
 	/* tests for strchr*/
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+	printf("tests for strchr func:\n");
+	printf("\n");
 	printf("the string is: ");
-	puts (ch);
-	ptr = strchr(ch,c);
+	puts (ch_chr);
+	ptr_chr= strchr(ch_chr,c);
+	ptr_chr1 = strchr(ch_chr,c);
 	printf("origin function:\n");
-	if (ptr == 0)
+	if (ptr_chr == 0)
 	{
 		printf("NULL\n");
 	}
 	
 	else
 	{
-	printf("the locale of the character %c is %s\n", c, ptr); 
+	printf("the locale of the character %c is %s\n", c, ptr_chr); 
 	}
-	ptr = strchr(chnull,c);
-	if (ptr == 0)
+	printf("our func:\n");
+	if (ptr_chr1 == 0)
 	{
 		printf("NULL\n");
 	}
 	
 	else
 	{
-	printf("the locale of the character %c is %s\n", c, ptr); 
-	}
+	printf("the locale of the character %c is %s\n", c, ptr_chr1); 
+	
+	/* tests for strdup*/
+	printf("\n");
+	printf("----------------------\n");
+	printf("\n");
+	printf("tests for strdup:\n");
+	printf("\n");
+	printf("original func:\n");
+	printf("need to check, sf:\n");
+	printf("our func:\n");
+	ptr_dup =  (char *) StrDup(str_dup);
+	printf("%s\n", ptr_dup);
+	free(ptr_dup);
 	
 	/* tests for strcat*/
 	printf("\n");
@@ -240,11 +299,11 @@ int main()
 	printf("tests for strcat:\n");
 	printf("\n");
 	printf("original func:\n");
-	strcat(ch3,ch4);
+	StrCat(ch3,ch4);
 	printf("result is: ");
 	puts(ch3);
 	printf("our func:\n");
-	Strcat(ch1,ch2);
+	StrCat(ch1,ch2);
 	printf("result is: ");
 	puts (ch1);
 	printf("\n");
@@ -275,21 +334,9 @@ int main()
 	printf("\n");
 	printf("tests for strstr:\n");
 	printf("\n");
-	ptr_haystack_2 = (char*) strstr(haystack_2,needle_2);
-	ptr_haystack_1 =(char*) StrStr(haystack_2,needle_2);
+	ptr_haystack_1 = (char *) strstr(haystack_1,needle_1);
+	ptr_haystack_2 = (char *) StrStr(haystack_2,needle_2);
 	printf("original func:\n");
-	if (!ptr_haystack_1)
-	{
-		printf("null");
-	}
-	
-	else
-	{
-		
-		printf("the result is  %s\n", ptr_haystack_2); 
-	}
-	printf("our func:\n");
-
 	
 	if (!ptr_haystack_1)
 	{
@@ -302,5 +349,20 @@ int main()
 		printf("the result is  %s\n", ptr_haystack_1); 
 	}
 	
+	printf("our func:\n");
+
+	
+	if (!ptr_haystack_2)
+	{
+		printf("null");
+	}
+	
+	else
+	{
+		
+		printf("the result is  %s\n", ptr_haystack_2); 
+	}
+	
 	return 0;	
+}
 }

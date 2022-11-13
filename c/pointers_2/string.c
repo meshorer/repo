@@ -1,5 +1,22 @@
 #include "string.h"
 
+
+
+size_t StrLen(const char *s)
+
+{
+    
+    size_t counter = 0; 
+    while (*s)
+   {
+     counter++;  
+     s++;
+   }
+   
+  return counter;
+}
+
+
 char *StrCpy(char *dest, const char *src)
 {
 
@@ -62,7 +79,7 @@ int StrNcmp(const char *str1, const char *str2, size_t n)
 {
 	size_t i = 0;
 	int res = 0;
-	while (*str1 == *str2 && str1 && str2 && i<n)
+	while (*str1 == *str2 && *str1 && *str2 && i<n)
 	{
 		str1++;
 		str2++;	
@@ -92,7 +109,6 @@ int StrCasecmp(const char *str1, const char *str2)
 	{
 	ctmp1 = str1[i];
 	ctmp2 = str2[i];
-	printf("ctmps are %c %c \n",ctmp1,ctmp2);
 	if (str1[i] != str2[i])
 	{
 		if (ctmp1 >= 'A' && ctmp1 <= 'Z')
@@ -104,13 +120,10 @@ int StrCasecmp(const char *str1, const char *str2)
 		if (ctmp2 >= 'A' && ctmp2 <= 'Z')
 		{
 			ctmp2 = ctmp2+32;
-			printf("2 if\n");
-			printf("now they %c %c \n",ctmp1,ctmp2);
 		}
 	
 		if (ctmp1 != ctmp2)
 		{
-			printf("need to exit\n");
 			break;
 		}
 	}
@@ -143,8 +156,27 @@ char *StrChr(const char *s, int c)
 }
 
 
+char *StrDup(const char *s)
+{
 
- char *Strcat(char *dest, const char *src)
+size_t len = StrLen(s);
+
+char *s_sec = malloc((len*sizeof(char)));
+while (*s)
+{
+	*s_sec = *s;
+	s++;
+	s_sec++;
+}
+
+return s_sec-len;
+}
+
+
+
+
+
+ char *StrCat(char *dest, const char *src)
 {
 
 	while (*dest)
@@ -187,15 +219,16 @@ char *StrChr(const char *s, int c)
 
 char *StrStr(const char *haystack, const char *needle)
 {
-	
-	char *start = NULL;
-	char *start_n = (char*) needle;
+
+	const char *start = haystack;
+	const char *start_n = (char*) needle;
+	start = haystack;
 	while (*haystack)
 	{
 
 		if (*haystack == *needle)
 		{
-			start = (char *) haystack;
+			start = haystack;
 		
 			while (*haystack == *needle && *needle)
 			{
@@ -206,7 +239,7 @@ char *StrStr(const char *haystack, const char *needle)
 
 			if (!*needle) 
 			{
-				return start;
+				return (char *) start;
 			}
 			else 
 			{
