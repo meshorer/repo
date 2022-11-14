@@ -1,59 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 
 int main(int argc, char **argv, char** envp)
 {
-	size_t counter = 0, counter_2 = 0;	
-	char **buf;
-	char **buf2;
-	char **tmp = buf;
+	
+	size_t counter = 0;
 	char **envp_start = envp;
-		
-	while (*envp)
+	char **arr = NULL;
+	char **arr_start = NULL;
+	int j, k;
+	while (*envp) /* find out size of envp and malloc it  */
 	{
 		counter++;
 		envp++;
-
 	}
+	
 	envp = envp_start;
 	printf("counter is %lu\n", counter);
-	
-	buf =  (char **) malloc (sizeof(char)*counter);
-	while (*envp)
+	arr = malloc(counter*sizeof(char*));
+	arr_start = arr;
+	while ('\0' != *envp) /* find out size of every string, malloc and copy it */
 	{
-		while (**envp)
+		*arr = malloc((strlen(*envp)+1)*sizeof(char));
+		strcpy(*arr,*envp);
+		j = 0, k = 0;
+		while ('\0' != *(*(arr)+j)) /* lowercases */
 		{
-			printf("check\n");
-			counter_2++;
-			*envp++;
+			
+			*(*(arr)+j) = tolower(*(*(arr)+j));
+			j++;
+
 		}
-	printf("counter2 is %lu\n", counter_2);
-	buf2 = (char **) malloc(counter_2*sizeof(char));
-	envp++;
+		printf("%s\n", *arr);
+		free(*arr);
+		*envp++;
+		*arr++;
 	}
-}
 
-/*
-int main(int argc, char **argv, char** env)
-{
-	while (*env)
-	printf("%s\n", *env);
+	envp = envp_start;
+	arr = arr_start;
+	free(arr);
+	
 	return 0;
+	
 }
-
-while (*src)
-	{
-		*tmp = *src;
-		tmp++;
-		src++;
-	}	
-	*tmp = '\0';
-	return dest;
-
-
-
-
-*/
-
 	
