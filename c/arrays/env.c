@@ -19,7 +19,6 @@ int main(int argc, char **argv, char** envp)
 	}
 	
 	envp = envp_start;
-	printf("counter is %lu\n", counter);
 	arr = malloc(counter*sizeof(char*));
 	arr_start = arr;
 	while ('\0' != *envp) /* find out size of every string, malloc and copy it */
