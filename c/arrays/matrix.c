@@ -35,13 +35,3 @@ void sum_matrix( int r, int c, int arr[2][3], int *res)
 	}
 }
 
-
-/*
-rowCalc(arr1, res, 4, 4);
-	for (; k < 4; k++)
-	{
-		printf("%d ",res[k]);
-	}
-	printf("\n");
-
-*/
