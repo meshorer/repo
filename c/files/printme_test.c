@@ -13,7 +13,7 @@ int main ()
 	
 		str[i].num = i;
 		str[i].print = Print_num;
-		str[i].print(i);
+		str[i].print(str[i].num);
 	}
 
 
