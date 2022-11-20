@@ -4,19 +4,11 @@ int Cmp(char *buffer, char *command_name)
 {
 	int res;
 	res = strcmp(buffer, command_name);
-	printf("command is %s , buffer is %s ", command_name, buffer);
-	if ( 10 == res)
+	if ( 10 != res)
 	{
-		printf("match found\n");
+		res = 0;
 		
 	}
-	else
-	{
-		printf("no match for strings!\n", buffer, command_name);
-		res = 0;
-	}
-	printf("res in cmp is now %d\n", res);
-	printf("\n");
 	return res;
 
 }
@@ -27,7 +19,6 @@ int Rm(char *buffer, char *file_name)
 	res = remove(file_name);
 	if (0 == res)
 	{
-		printf("file removed\n");
 		res = 1;
 	}
 	return res;	
@@ -40,7 +31,7 @@ int Esc(char *str1, char *str2)
 
 int Count(char *buffer, char *file_name)
 {
-	FILE *fp;
+	FILE *fp = NULL;
 	char chr;
 	int count = 0;
 	fp = fopen(file_name,"r");
@@ -63,46 +54,68 @@ int Count(char *buffer, char *file_name)
 	return 1;
 }
 
-int Cmp_3(char *buffer, char *file_name)
+int Cmp_3(char *buffer, char *command_name)
 {
-	FILE *fp;
+
+	int res;
 	char chr;
-	int count = 0;
+	chr = buffer[0];
+    	if ('<' == chr)
+    	{
+    		res = 1;
+    		
+    	}
+	else
+	{
+		res = 0;
+	}
+	return res;
+
+}
+
+
+int Begin(char* buffer, char *file_name)
+{
+	FILE *fp = NULL;
+	FILE * tmp_fp = fopen("tmp.txt", "a+");
+	char chr;
 	fp = fopen(file_name,"r");
+	
 	if (fp == NULL)
     	{
         	printf("Could not open file %s\n", file_name);
         	return 1;
     	}
-    	chr = getc(fp);
-    	if ('<' == chr)
+    	++buffer;
+    	fprintf(tmp_fp, "%s", buffer);
+    	
+    	chr = fgetc(fp);
+    	while (chr != EOF)
     	{
-    		
+    		fputc(chr,tmp_fp);
+    		chr = fgetc(fp);
     	}
-    	return 1;
-}
-
-
-int Begin(char *str1, char *str2)
-{
-	
+    	Rm(buffer, file_name);
+    	rename("tmp.txt",file_name);
+	fclose(fp);  
+	fclose(tmp_fp);    
 	return 1;
 }
 
 int Exec(char* buffer, char *file_name)
 {
-	FILE *fp;
+
+	FILE *fp = NULL;
 	fp = fopen(file_name, "a+");  
 	if (NULL == fp)
 	{
 		printf("error didnt open file\n");
-		return;
+		return 1 ;
 	}
-		
-    	
+	
     	fprintf(fp, "%s", buffer);
 	fclose(fp);   
-       	return;	 	
+       	return 1;	 	
 }
 
 
@@ -123,7 +136,7 @@ int main(int argc, char *argv[])
 	op[2].cmp = Cmp;
 	op[2].exec = Count;
 	op[3].command_name  = "<";
-	op[3].cmp = Cmp;
+	op[3].cmp = Cmp_3;
 	op[3].exec = Begin;
 	op[4].command_name  = "append";
 	op[4].cmp = Cmp;
@@ -132,30 +145,24 @@ int main(int argc, char *argv[])
 	while ( 1)
 	{
 		fgets( buffer, 1000, stdin);
-		printf("string recieved - %s \n", buffer);
-		printf("before cmp loop res is %d\n", res);
+
 			while (0 == res && i < 5)
 			{
-				printf("send to compare struct number %d \n", i);
 				res = op[i].cmp(buffer,op[i].command_name);
 				i++;
 			}
 		i--;
-		printf("now i is %d\n", i);
-		printf("after second loop\n");
-		printf("now res is %d\n", res);
-		if ( 0 == res)
+		/*if ( 0 == res)
 		{
 		
 			op[4].exec(buffer, argv[1]);
-			printf("string added to file\n");
 		}
 		else
 		{
-			printf("i am here\n");
 			res = op[i].exec(buffer,argv[1]); 
 		}
-
+*/
+		res = op[i].exec(buffer,argv[1]);
 		i = 0;
 		res = 0;
        	}	

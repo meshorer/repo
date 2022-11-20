@@ -1,3 +1,7 @@
+#ifndef __FILES_H__
+#define __FILES_H__
+
+
 #include <stdio.h>  
 #include <string.h>  /* for strcmp*/
 #include <stdlib.h>  /* for exit*/
@@ -20,3 +24,5 @@ int Cmp_3(char *buffer, char *file_name);
 int Begin(char *str1, char *str2);
 int Exec(char* buffer, char *file_name);
 
+
+#endif
