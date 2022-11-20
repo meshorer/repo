@@ -79,7 +79,7 @@ int Begin(char* buffer, char *file_name)
 	FILE *fp = NULL;
 	FILE * tmp_fp = fopen("tmp.txt", "a+");
 	char chr;
-	fp = fopen(file_name,"r");
+	fp = fopen(file_name,"a+");
 	
 	if (fp == NULL)
     	{
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	op[0].command_name  = "-remove";
 	op[0].cmp = Cmp;
 	op[0].exec = Rm;
-	op[1].command_name  = "-escape";
+	op[1].command_name  = "-exit";
 	op[1].cmp = Cmp;
 	op[1].exec = Esc;
 	op[2].command_name  = "-count";
@@ -152,16 +152,7 @@ int main(int argc, char *argv[])
 				i++;
 			}
 		i--;
-		/*if ( 0 == res)
-		{
 		
-			op[4].exec(buffer, argv[1]);
-		}
-		else
-		{
-			res = op[i].exec(buffer,argv[1]); 
-		}
-*/
 		res = op[i].exec(buffer,argv[1]);
 		i = 0;
 		res = 0;
