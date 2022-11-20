@@ -1,5 +1,7 @@
 #include "logger.h"
 
+/* phase 1 reviewed by Yosef    */ 
+/* phase 2 reviewed by Guy    */ 
 int Cmp(char *buffer, char *command_name)
 {
 	int res;
@@ -13,23 +15,28 @@ int Cmp(char *buffer, char *command_name)
 
 }
 
-int Rm(char *buffer, char *file_name)
+enum test Rm (char *buffer, char *file_name)
 {
 	int res = 0;
 	res = remove(file_name);
 	if (0 == res)
 	{
 		res = 1;
+		return SUCCESS;
 	}
-	return res;	
+	else
+	{
+		return FAIL;
+	}
 }
 
-int Esc(char *str1, char *str2)
+enum test Esc(char *str1, char *str2)
 {
 	exit(0);
+	return SUCCESS;
 }
 
-int Count(char *buffer, char *file_name)
+enum test Count(char *buffer, char *file_name)
 {
 	FILE *fp = NULL;
 	char chr;
@@ -38,7 +45,7 @@ int Count(char *buffer, char *file_name)
 	if (fp == NULL)
     	{
         	printf("Could not open file %s", file_name);
-        	return 1;
+        	return FAIL;
     	}
     	chr = getc(fp);
     	while (chr != EOF)
@@ -51,10 +58,10 @@ int Count(char *buffer, char *file_name)
     	}
 	fclose(fp);
 	printf("the file has %d lines\n", count);
-	return 1;
+	return SUCCESS;
 }
 
-int Cmp_3(char *buffer, char *command_name)
+int Cmp_begin(char *buffer, char *command_name)
 {
 
 	int res;
@@ -74,7 +81,7 @@ int Cmp_3(char *buffer, char *command_name)
 }
 
 
-int Begin(char* buffer, char *file_name)
+enum test Begin(char* buffer, char *file_name)
 {
 	FILE *fp = NULL;
 	FILE * tmp_fp = fopen("tmp.txt", "a+");
@@ -84,7 +91,7 @@ int Begin(char* buffer, char *file_name)
 	if (fp == NULL)
     	{
         	printf("Could not open file %s\n", file_name);
-        	return 1;
+        	return FAIL;
     	}
     	++buffer;
     	fprintf(tmp_fp, "%s", buffer);
@@ -99,10 +106,10 @@ int Begin(char* buffer, char *file_name)
     	rename("tmp.txt",file_name);
 	fclose(fp);  
 	fclose(tmp_fp);    
-	return 1;
+	return SUCCESS;
 }
 
-int Exec(char* buffer, char *file_name)
+enum test Exec(char* buffer, char *file_name)
 {
 
 	FILE *fp = NULL;
@@ -110,12 +117,12 @@ int Exec(char* buffer, char *file_name)
 	if (NULL == fp)
 	{
 		printf("error didnt open file\n");
-		return 1 ;
+		return FAIL;
 	}
 	
     	fprintf(fp, "%s", buffer);
 	fclose(fp);   
-       	return 1;	 	
+       	return SUCCESS;	 	
 }
 
 
@@ -136,7 +143,7 @@ int main(int argc, char *argv[])
 	op[2].cmp = Cmp;
 	op[2].exec = Count;
 	op[3].command_name  = "<";
-	op[3].cmp = Cmp_3;
+	op[3].cmp = Cmp_begin;
 	op[3].exec = Begin;
 	op[4].command_name  = "append";
 	op[4].cmp = Cmp;

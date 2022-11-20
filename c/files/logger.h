@@ -6,23 +6,23 @@
 #include <string.h>  /* for strcmp*/
 #include <stdlib.h>  /* for exit*/
 
-
+enum test {FAIL, SUCCESS};
 
 struct operation{
 	
 	char * command_name;
 	int (*cmp)(char*, char*);
-	int (*exec)(char*,char*);
+	enum test (*exec)(char*,char*);
 };
 
 
 int Cmp(char *buffer, char *command_name);
-int Rm(char *buffer, char *file_name);
-int Esc(char *str1, char *str2);
-int Count(char *buffer, char *file_name);
-int Cmp_3(char *buffer, char *file_name);
-int Begin(char *str1, char *str2);
-int Exec(char* buffer, char *file_name);
+enum test Rm(char *buffer, char *file_name);
+enum test Esc(char *str1, char *str2);
+enum test Count(char *buffer, char *file_name);
+int Cmp_begin(char *buffer, char *file_name);
+enum test Begin(char *str1, char *str2);
+enum test Exec(char* buffer, char *file_name);
 
 
 #endif
