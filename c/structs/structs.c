@@ -13,9 +13,9 @@ void AddFloat(void *ptr, int num_to_add)
 }
 
 
-void AddString(void *ptr, int num_to_add)
+void AddString(void *ptr, int num_to_add) 
 {
-	printf("ok");
+	sprintf(ptr, "%s%d", ptr, num_to_add);
 }
 
 
@@ -34,6 +34,9 @@ void PrintString(void *ptr)
 printf("%s\n", (char *)ptr);
 }
 
+void Cleanup(void *ptr)
+{
+	free(ptr);
+}
 
 
-/*float f = *(float *) &ptr; */

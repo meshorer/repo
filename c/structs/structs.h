@@ -1,11 +1,22 @@
-#include <stdio.h>
 
+#ifndef __STRUCTS_H__
+#define __STRUCTS_H__
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX2(x,y) ((x>y)?x:y)
+#define MAX3(x,y,z) \
+(x>y && x> z) ? x; (y > z) ? y:z)
+#define my_sizeof(type) (char *)(&type+1)-(char*)(&type)
 
 struct mixed_types{
 
 	void *element;
 	void (*add)(void *, int);
 	void (*print)(void *);
+	void (*clean)(void *);
 };
 
 void AddInt(void *ptr, int num_to_add);
@@ -14,3 +25,14 @@ void AddString(void *ptr, int num_to_add);
 void PrintInt(void *ptr);
 void PrintFloat(void *ptr);
 void PrintString(void *ptr);
+void Cleanup(void *ptr);
+
+
+
+
+
+
+
+
+
+#endif
