@@ -1,6 +1,6 @@
 #include "structs.h"
 
-
+/* reviewed by MrArthur  */
 int main()
 {
 
@@ -12,7 +12,7 @@ int main()
 
 	struct mixed_types str[3];
 	char string[20] = "whatsup";
-	char * ptr_str = (char *) malloc (strlen(string)+sizeof(char)*4);
+	char * ptr_str = (char *) malloc (strlen(string)+sizeof(int)*1);
 	
 	strcpy(ptr_str, string);
 	
@@ -31,7 +31,7 @@ int main()
 	
 	
 	
-	for ( i; i < 3; i++)
+	for ( i = 0 ; i < 3; i++)
 	{
 		str[i].print(str[i].element);
 	}

@@ -15,7 +15,7 @@ void AddFloat(void *ptr, int num_to_add)
 
 void AddString(void *ptr, int num_to_add) 
 {
-	sprintf(ptr, "%s%d", ptr, num_to_add);
+	sprintf(ptr, "%s%d", (char *)ptr, num_to_add);
 }
 
 
