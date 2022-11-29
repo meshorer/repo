@@ -5,7 +5,12 @@ void Itoa10(int num, char *str, int base)
 	
 	int sign = 0;
 	char * ptr = str;
-	int count = 0;	
+	int count = 0;
+	int chr = '0';
+	if ( base > 25)
+	{
+		chr+=7;
+	}
 	
 	if ( num < 0)
 	{
@@ -17,13 +22,17 @@ void Itoa10(int num, char *str, int base)
 	
 	while ( num >= base)
 	{
-		*ptr = (num % base) + '0';
+		*ptr = (num % base) + chr;
 		count ++;
 		num = num / base;
 		ptr++;
 	}
+	if (base > 25 && num < 9)
+	{
+		chr = '0';
+	}
 	count ++;
-	*ptr = num + '0';
+	*ptr = num + chr;
 	*(ptr+1) = '\0';
 	
 	Reverse((str + sign), count);
@@ -53,7 +62,6 @@ int Atoi10(const char * str)
 	int res = 0;
 	int sign = 1;
 	char * ptr = (char *)str;
-	puts(ptr);
 	if ( '-' == *ptr)
 	{
 		sign = -1;
