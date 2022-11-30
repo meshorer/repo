@@ -81,36 +81,56 @@ int Atoi10(const char * str, int base)
 	return res*sign;
 }
 
-
-
-/*
-
-
-int Atoi10(const char * str)
+int Endian()
 {
-
-	int res = 0;
-	int sign = 1;
-	char * ptr = (char *)str;
+/* return 0 if little, 1 if big */
+	int check = 1;
+	char *ptr = (char *) &check;
 	
-	if ( '-' == *ptr)
+	if (0 == *ptr)
 	{
-		sign = -1;
-		ptr++;
-	}
-	res = *ptr - '0';
-	ptr++;
-	
-	while ( '\0' != *ptr)
-	{
-		res *=10;
-		res += *ptr - '0';
-		ptr++;
+		check = 0;	
 	}
 	
-	
-	return res*sign;
+	return check;
 }
-	res += *ptr -'0' -(*str > '9') * ('A' - '9' -1);
-*/
+
+
+void AppearsTwo(char *str1, char * str2, char * str3, int len1, int len2, int len3)
+{
+	int i = 0;
+	int help_str[256] = {0};
+	
+	for ( i = 0; i < len1; i++)
+	{
+		if ( 0 == help_str[(int)str1[i]])
+		{
+			help_str[(int)str1[i]]++;
+		}
+	} 
+	
+	for ( i = 0; i < len2; i++)
+	{
+		if ( 1 == help_str[(int)str2[i]])
+		{
+			help_str[(int)str2[i]]++;
+		}
+	} 
+	
+	for ( i = 0; i < len3; i++)
+	{	
+		help_str[(int)str3[i]]--;
+	} 	
+	
+	for (i = 0; i < 256; i++)
+	{
+		if ( 2 == help_str[i])
+		{
+			printf("%c ",i);
+		}
+	}
+
+	printf("\n");
+}
+
 

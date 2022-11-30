@@ -17,6 +17,16 @@ int res_atoi1 = 0;
 char max_int[11] = "2147483647";
 
 
+
+/*declerations for appears two */
+	char str1[5] = {'a', 'b', 'c', 'd', 'e'};
+	char str2[7] = {'e', 'b', 'c', 'd', 'e', 'f', 'e'};
+	char str3[4] = {'b', 'x', 'a', 'a'};
+	
+	char str4[16] = "hello world 90%";
+	char str5[16] = "world hello 99%";
+	char str6[18] = "hello warning 71#";	
+
 /* tests for itoa */
 
 Itoa10(num_itoa, buffer_itoa, 2);
@@ -62,13 +72,24 @@ res_atoi = Atoi10(max_int, 10);
 PRINT_TESTS(INT_MAX != res_atoi);
 res_atoi = Atoi10("1G", 35);
 PRINT_TESTS(51 != res_atoi);
-printf("%d\n", res_atoi);
 
-/* original func: */
+
+/* original func: atoi */
 res_atoi1 = atoi(buffer_atoi);
 PRINT_TESTS(6234 != res_atoi1);
 res_atoi1 = atoi(max_int);
 PRINT_TESTS(INT_MAX != res_atoi1);
+
+
+/* test for endian func (originally should return 1, but the header computed to 0: */
+PRINT_TESTS(Endian() != 1);
+
+
+	/*tests for appears two */
+	AppearsTwo(str1, str2, str3, 5, 7, 3);
+	AppearsTwo(str4, str5, str6, 16, 16, 18);
+
+IS_BIG_ENDIAN;
 
 
 	return 0;
