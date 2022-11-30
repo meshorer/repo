@@ -56,12 +56,43 @@ void Reverse(char * str, int count)
 }
 
 
+int Atoi10(const char * str, int base)
+{
+
+	int res = 0;
+	int sign = 1;
+	char * ptr = (char *)str;
+
+	if ( '-' == *ptr)
+	{
+		sign = -1;
+		ptr++;
+	}
+	
+	while ( '\0' != *ptr)
+	{
+		res *=base;
+	
+		res += *ptr -'0' -(*ptr > '9') * ('A' - '9' -1);
+		++ptr;
+	}
+	
+	
+	return res*sign;
+}
+
+
+
+/*
+
+
 int Atoi10(const char * str)
 {
 
 	int res = 0;
 	int sign = 1;
 	char * ptr = (char *)str;
+	
 	if ( '-' == *ptr)
 	{
 		sign = -1;
@@ -80,5 +111,6 @@ int Atoi10(const char * str)
 	
 	return res*sign;
 }
-
+	res += *ptr -'0' -(*str > '9') * ('A' - '9' -1);
+*/
 

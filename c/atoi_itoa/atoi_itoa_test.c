@@ -49,17 +49,20 @@ Itoa10(num_itoa, buffer_itoa, 35);
 PRINT_TESTS(strcmp("P", buffer_itoa));
 Itoa10(num_itoa, buffer_itoa, 36);
 PRINT_TESTS(strcmp("P", buffer_itoa));
-
-
+Itoa10(34, buffer_itoa, 25);
+PRINT_TESTS(strcmp("19", buffer_itoa));
 Itoa10(sanity, buffer_itoa, 33);
 PRINT_TESTS(strcmp("1TA", buffer_itoa));
 
 
 /* tests for atoi */
-res_atoi = Atoi10(buffer_atoi);
+res_atoi = Atoi10(buffer_atoi, 10);
 PRINT_TESTS(6234 != res_atoi);
-res_atoi = Atoi10(max_int);
+res_atoi = Atoi10(max_int, 10);
 PRINT_TESTS(INT_MAX != res_atoi);
+res_atoi = Atoi10("1G", 35);
+PRINT_TESTS(51 != res_atoi);
+printf("%d\n", res_atoi);
 
 /* original func: */
 res_atoi1 = atoi(buffer_atoi);

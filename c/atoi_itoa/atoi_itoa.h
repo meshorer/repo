@@ -13,7 +13,7 @@
 
 void Reverse(char * str, int count);
 void Itoa10(int num, char *str, int base);
-int Atoi10(const char * str);
+int Atoi10(const char * str, int base);
 
 
 
