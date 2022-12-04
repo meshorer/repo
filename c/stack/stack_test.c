@@ -21,12 +21,11 @@ int main()
 	{
 		printf("pop failed\n");
 	}	
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < 10; i++)
 	{
 		StackPush(stack1,(char *)ptr_x+i);
 	}
-	/*StackPush(stack1, ptr_x);
-	StackPush(stack1, ptr_x);*/
+	
 	printf("stack amount: %lu\n", StackSize(stack1));
 	printf("peak is : %p\n", StackPeek(stack1));
 	

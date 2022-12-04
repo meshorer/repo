@@ -32,8 +32,8 @@ int StackDestroy(stack_t *stack)
 
 void StackPush(stack_t *stack ,const void *elem)
 {		
-	stack->top =stack->top + stack->elem_size;
 	memcpy(stack->top,elem,stack->elem_size);
+	stack->top =stack->top + stack->elem_size;
 	
 }
 
@@ -44,7 +44,7 @@ void StackPop(stack_t *stack)
 
 void *StackPeek(const stack_t *stack)
 {
-	return stack->top;
+	return stack->top - stack->elem_size;
 
 }
 
