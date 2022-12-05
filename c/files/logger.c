@@ -1,6 +1,6 @@
 #include "logger.h"
 
-/* phase 1 reviewed by Yosef    */ 
+/* phase 1 reviewed by Yosef     */ 
 /* phase 2 reviewed by Guy    */ 
 int Cmp(char *buffer, char *command_name)
 {
