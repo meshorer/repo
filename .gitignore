@@ -4,5 +4,6 @@
 !**/*.h
 !**/*.md
 !.gitignore
+!makefile
 !.myfuncs
 

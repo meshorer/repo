@@ -1,4 +1,5 @@
 #include <stdio.h>
+void sum_matrix(int arr[][3], int r, int c, int *res);
 
 int main()
 {
@@ -19,7 +20,7 @@ int main()
 
 
 
-void sum_matrix( int r, int c, int arr[2][3], int *res)
+void sum_matrix(int arr[][3], int r, int c, int *res)
 {
 	int i = 0;
 	for (i = 0; i < r; i++)
@@ -28,7 +29,7 @@ void sum_matrix( int r, int c, int arr[2][3], int *res)
 		int j = 0;
 		for (j = 0; j < c; j++)
 		{
-			sum = sum + arr[i] [j];
+			sum = sum + arr[i][j];
 		}
 		*res = sum;
 		res++;	

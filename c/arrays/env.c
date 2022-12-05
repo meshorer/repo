@@ -35,8 +35,8 @@ int main(int argc, char **argv, char** envp)
 		}
 		printf("%s\n", *arr);
 		free(*arr);
-		*envp++;
-		*arr++;
+		envp++;
+		arr++;
 	}
 
 	envp = envp_start;
