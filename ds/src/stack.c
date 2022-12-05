@@ -1,5 +1,7 @@
 #include "stack.h"
 
+/*reviewed by Or*/
+
 struct stack{
 
 	char *base;
