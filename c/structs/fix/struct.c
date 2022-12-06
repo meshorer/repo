@@ -1,4 +1,4 @@
-#include "structstest.h"
+#include "struct.h"
 
 /*
 void AddInt(void *ptr, int num_to_add)

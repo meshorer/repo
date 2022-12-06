@@ -43,7 +43,7 @@ int main() {
     
 	/* ----anser 1----------------------------------------------------*/
 	
-	long * ptr = (long *)&x;   /* option a - using ptr */
+	/*long * ptr = (long *)&x;  */ /* option a - using ptr */
   	*ptr = 1337;
   	
   /*	y = (long)&x;			/* option b - y becomes a pointer */

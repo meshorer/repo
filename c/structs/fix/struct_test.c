@@ -1,4 +1,4 @@
-#include "structstest.h"
+#include "struct.h"
 
 /* reviewed by MrArthur  */
 int main()
