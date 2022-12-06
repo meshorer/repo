@@ -4,25 +4,26 @@ CFLAGS = -I include/
 CPPFLAGS = -ansi -pedantic-errors -Wall -Wextra 
 SRC = src/stack.c test/stack_test.c
 
-out:
-	 @$(CC)  $(CPPFLAGS) $(CFLAGS) $(SRC) -o stack.out
+
+stack.out: src/stack.c test/stack_test.c include/stack.h
+	@$(CC)  $(CPPFLAGS) $(CFLAGS) $(SRC) -o stack.out
 	 
-obj:
+obj: src/stack.c test/stack_test.c include/stack.h
 	@$(CC) -c $(CPPFLAGS) $(CFLAGS) $(SRC) 
 
 
-debug:
-	 @$(CC)  $(CPPFLAGS) -g $(CFLAGS) $(SRC) -o stackdb.out
+stackdebug.out: src/stack.c test/stack_test.c include/stack.h
+	 @$(CC)  $(CPPFLAGS) -g $(CFLAGS) $(SRC) -o stackdebug.out
 
-release:
+stack_release.out: src/stack.c test/stack_test.c include/stack.h
 	@$(CC)  $(CPPFLAGS) -O3 $(CFLAGS) $(SRC) -o stack_release.out
 
 
-all: out obj debug release
+all: stack.out obj stackdebug.out stack_release.out
 
 clean:
-	@rm stack.out
-	@rm stackdb.out
-	@rm stack_release.out
-	@rm stack.o
-	@rm stack_test.o
+	@rm -f stack.out
+	@rm -f stackdebug.out
+	@rm -f stack_release.out
+	@rm -f stack.o
+	@rm -f stack_test.o
