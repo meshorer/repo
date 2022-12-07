@@ -2,10 +2,6 @@
 #ifndef __STRUCTS_H__
 #define __STRUCTS_H__
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #define MAX2(x,y) ((x>y)?x:y)
 #define MAX3(x,y,z) \
 (x>y && x> z) ? x; (y > z) ? y:z)
