@@ -20,9 +20,9 @@ void func2(void *arg) {
  
     /* AREA2 */
     	
-	/*try to find the return address of func 1 in main,
-	and change the address of main to that */
-	
+	 *(&f2 + 3) = *((long*)arg +3);
+   	 *(&f2 + 2) = *((long*)arg +2);
+
 
 
 	printf("Exit func2\n");
@@ -44,7 +44,7 @@ int main() {
 	/* ----anser 1----------------------------------------------------*/
 	
 	/*long * ptr = (long *)&x;  */ /* option a - using ptr */
-  	*ptr = 1337;
+  /*	*ptr = 1337;  */
   	
   /*	y = (long)&x;			/* option b - y becomes a pointer */
   /*	*(long *)y = 1337;    */
