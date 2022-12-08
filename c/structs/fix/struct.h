@@ -2,9 +2,9 @@
 #ifndef __STRUCTS_H__
 #define __STRUCTS_H__
 
-#define MAX2(x,y) ((x>y)?x:y)
+#define MAX2(x,y) ((x > y)? x: y)
 #define MAX3(x,y,z) \
-(x>y && x> z) ? x; (y > z) ? y:z)
+(((MAX2(x,y) > MAX2(y,z)) ? MAX2(x,y) : MAX2(y,z)))
 #define my_sizeof(type) (char *)(&type+1)-(char*)(&type)
 
 struct mixed_types{
