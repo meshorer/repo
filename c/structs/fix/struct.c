@@ -10,7 +10,7 @@
 
 /*date: Dec 6
 description: add int to int
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void AddInt(void *ptr, int num_to_add)
@@ -24,7 +24,7 @@ void AddInt(void *ptr, int num_to_add)
 
 /*date: Dec 6
 description: add int to float
-Reviewer: 
+Reviewer: MrArthur MrArthur 
 */
 
 void AddFloat(void *ptr, int num_to_add)
@@ -38,7 +38,7 @@ void AddFloat(void *ptr, int num_to_add)
 
 /*date: Dec 6
 description: add int to string
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void AddString(void **ptr, int num_to_add) /* receives **ptr to make sure the realloc ptr will not delete after returning from the function */
@@ -57,7 +57,7 @@ void AddString(void **ptr, int num_to_add) /* receives **ptr to make sure the re
 
 /*date: Dec 6
 description: print int
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void PrintInt(void *ptr)
@@ -71,7 +71,7 @@ void PrintInt(void *ptr)
 
 /*date: Dec 6
 description: print float
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void PrintFloat(void *ptr)
@@ -85,7 +85,7 @@ void PrintFloat(void *ptr)
 
 /*date: Dec 6
 description: print string
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void PrintString(void *ptr)
@@ -99,7 +99,7 @@ void PrintString(void *ptr)
 
 /*date: Dec 6
 description: free dynamic allocation
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void Cleanup(void *ptr)
@@ -114,7 +114,7 @@ void Cleanup(void *ptr)
 
 /*date: Dec 6
 description: fake function
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 void Empty()
@@ -126,7 +126,7 @@ void Empty()
 
 /*date: Dec 6
 description: initialize float structure
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 struct mixed_types InitFloat(float num)
@@ -145,7 +145,7 @@ struct mixed_types InitFloat(float num)
 
 /*date: Dec 6
 description: initialize int structure
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 struct mixed_types InitInt(int num)
@@ -165,7 +165,7 @@ struct mixed_types InitInt(int num)
 
 /*date: Dec 6
 description: initialize string structure
-Reviewer: 
+Reviewer: MrArthur 
 */
 
 struct mixed_types InitString(char *ptr)

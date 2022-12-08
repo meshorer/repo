@@ -17,7 +17,7 @@ struct vector{
 /*Date: Dec 7
 Description: initialize the vecetor 
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 
@@ -42,7 +42,7 @@ vector_t *VectorCreate(size_t capacity, size_t elem_size)
  /*Date: Dec 7
 Description: peak the element by particular index
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 void *VectorAccess(vector_t *vec, size_t index)
@@ -55,7 +55,7 @@ void *VectorAccess(vector_t *vec, size_t index)
 /*Date: Dec 7
 Description: resize the capacity of the vector
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 int VectorResize(vector_t *vec, size_t size)
@@ -79,7 +79,7 @@ int VectorResize(vector_t *vec, size_t size)
 /*Date: Dec 7
 Description: free the vector from the memory (allocated memory) 
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 void VectorDestroy(vector_t *vec)
@@ -94,7 +94,7 @@ void VectorDestroy(vector_t *vec)
 Date: Dec 7
 Description: add element to the back of the vector
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 void VectorPushBack(vector_t *vec, const void *data)
@@ -113,7 +113,7 @@ void VectorPushBack(vector_t *vec, const void *data)
 /*Date: Dec 7
 Description: pop - erase the back element from vector
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 void VectorPopBack(vector_t *vec)
@@ -126,7 +126,7 @@ void VectorPopBack(vector_t *vec)
 /*Date: Dec 7
 Description: shrink the capacity of the vector to the number of elements + additional 10% memory of the previous size  
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 void VectorShrink(vector_t *vec) 
@@ -139,7 +139,7 @@ void VectorShrink(vector_t *vec)
 /*Date: Dec 7
 Description: returns how many elements are in the vector
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 size_t VectorSize(const vector_t *vec)
@@ -152,7 +152,7 @@ size_t VectorSize(const vector_t *vec)
 /*Date: Dec 7
 Description: returns the capacity in the vector
 Status: done
-Reviewer: 
+Reviewer :Or 
 */
 
 size_t VectorCapacity(const vector_t *vec)
