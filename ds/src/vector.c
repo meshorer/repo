@@ -14,9 +14,9 @@ struct vector{
 };
 
 /************************************/
-/*date: Dec 7
-description: initialize the vecetor 
-status: done
+/*Date: Dec 7
+Description: initialize the vecetor 
+Status: done
 Reviewer: 
 */
 
@@ -39,9 +39,9 @@ vector_t *VectorCreate(size_t capacity, size_t elem_size)
 	
 /************************************/
  
- /*date: Dec 7
-description: peak the element by particular index
-status: done
+ /*Date: Dec 7
+Description: peak the element by particular index
+Status: done
 Reviewer: 
 */
 
@@ -52,28 +52,33 @@ void *VectorAccess(vector_t *vec, size_t index)
 
 /************************************/
 
-/*date: Dec 7
-description: resize the capacity of the vector
-status: done
+/*Date: Dec 7
+Description: resize the capacity of the vector
+Status: done
 Reviewer: 
 */
 
-void VectorResize(vector_t *vec, size_t size)
+int VectorResize(vector_t *vec, size_t size)
 {
-	vec->data = realloc (vec->data,size);
-	if (NULL == vec)
+	int res = 0;
+	vec->data = realloc (vec->data, size * vec->elem_size);
+	if (NULL == vec->data)
 	{
-		printf("allocation failed!\n");
+		res =  1;
 	}
+	else
+	{
+		vec->capacity = size;
+	}  
 	
-	vec->capacity = size;
+	return res;
 }
 
 /************************************/
 
-/*date: Dec 7
-description: free the vector from the memory (allocated memory) 
-status: done
+/*Date: Dec 7
+Description: free the vector from the memory (allocated memory) 
+Status: done
 Reviewer: 
 */
 
@@ -85,9 +90,10 @@ void VectorDestroy(vector_t *vec)
 	
 /************************************/
 
-/*date: Dec 7
-description: add element to the back of the vector
-status: done
+/*
+Date: Dec 7
+Description: add element to the back of the vector
+Status: done
 Reviewer: 
 */
 
@@ -95,8 +101,7 @@ void VectorPushBack(vector_t *vec, const void *data)
 {
 	if (vec->total_elem == vec->capacity)
 	{
-		vec->data = realloc (vec->data,((vec->capacity*2))*vec->elem_size);
-		vec->capacity*=2;
+		VectorResize(vec->data, vec->capacity*2);
 	}
 	memcpy((char *)vec->data +(vec->total_elem*vec->elem_size),data, vec->elem_size) ;
 	vec->total_elem++;
@@ -105,62 +110,54 @@ void VectorPushBack(vector_t *vec, const void *data)
 
 /************************************/
 
-/*date: Dec 7
-description: pop - erase the back element from vector
-status: done
+/*Date: Dec 7
+Description: pop - erase the back element from vector
+Status: done
 Reviewer: 
 */
 
 void VectorPopBack(vector_t *vec)
 {
-	vec->data = '\0';
 	vec->total_elem--;
 }
 
 /************************************/
 
-/*date: Dec 7
-description: shrink the capacity of the vector to the number of elements + additional 10% memory of the previous size  
-status: done
+/*Date: Dec 7
+Description: shrink the capacity of the vector to the number of elements + additional 10% memory of the previous size  
+Status: done
 Reviewer: 
 */
 
 void VectorShrink(vector_t *vec) 
 {
-	vec->data = realloc (vec->data,(vec->total_elem + (vec->capacity/10))*vec->elem_size);
-	if (NULL == vec)
-	{
-		printf("allocation failed!\n");
-	}
-	vec->capacity = vec->total_elem + (vec->capacity/10);
+	VectorResize(vec,(vec->total_elem + (vec->capacity/10)));  
 }	
 
 /************************************/
 
-/*date: Dec 7
-description: returns how many elements are in the vector
-status: done
+/*Date: Dec 7
+Description: returns how many elements are in the vector
+Status: done
 Reviewer: 
 */
 
 size_t VectorSize(const vector_t *vec)
 {
 	return vec->total_elem;
-
 }
 
 /************************************/
 
-/*date: Dec 7
-description: returns the capacity in the vector
-status: done
+/*Date: Dec 7
+Description: returns the capacity in the vector
+Status: done
 Reviewer: 
 */
 
 size_t VectorCapacity(const vector_t *vec)
 {
 	return vec->capacity;
-
 }
 
 /************************************/

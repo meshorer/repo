@@ -8,7 +8,7 @@ typedef struct vector vector_t;
 
 vector_t *VectorCreate(size_t capacity, size_t elem_size);
 void *VectorAccess(vector_t *vec, size_t index);
-void VectorResize(vector_t *vec, size_t size);
+int VectorResize(vector_t *vec, size_t size);
 void VectorDestroy(vector_t *vec);
 void VectorPushBack(vector_t *vec, const void *data);
 void VectorPopBack(vector_t *vec);

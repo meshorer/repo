@@ -4,7 +4,7 @@
 int main()
 {
 
-
+ 
 	
 	struct mixed_types str[3];
 	 int i = 0;
