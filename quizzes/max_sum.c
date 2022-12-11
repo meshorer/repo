@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+ 
 void maxSubArray(int *arr, int size, int *result)
  {
    
