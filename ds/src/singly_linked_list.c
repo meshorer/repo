@@ -17,7 +17,6 @@ struct s_list_node
 struct s_list
 {
 	struct s_list_node *head;
-	struct s_list_node *tail;
 	struct s_list_node *next;
 };
 
@@ -32,7 +31,6 @@ s_list_t *SListCreate()
 	dummy_node->next = NULL;
 	
 	new->head = dummy_node;
-	new->tail = dummy_node; 
 	
 	return new;
 	
@@ -101,17 +99,18 @@ Reviewer :
 void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data)
 {
 
-	if (0 == IterCmp(s_list->head,iter))
-	{
-		iter->data = (void *)data;
-	}
+	assert(NULL != iter->next);
 	
+	/*
 	while (0 != IterCmp(s_list->next,iter) && (NULL != s_list->next))
 	{
 		s_list->next = SListNext(s_list->next);
 	}
 	
+	iter->data = (void *)data; */
+	
 	iter->data = (void *)data;
+	
 }
 
 
@@ -142,25 +141,6 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 
 /************************************/
 
-
-void SListDestroy(s_list_t *s_list)
-{
-	s_list_iterator_t tmp = NULL;
-	s_list_iterator_t iter = s_list->head;
-	
-	while (iter->next != NULL)
-	{
-		tmp = iter;
-		iter = iter->next;
-		free(tmp);
-	}
-	free(iter);
-	free(s_list);
-}
-
-
-/************************************/
-
 /*
 Name: SListSize
 Date: Dec 11
@@ -185,6 +165,46 @@ size_t SListSize(const s_list_t *s_list)
 }
 
 
+
+/************************************/
+
+/*
+Name: SListDestroy
+Date: Dec 11
+Description: free all
+Status: writing
+Reviewer : 
+*/
+
+
+void SListDestroy(s_list_t *s_list)
+{
+
+	s_list_iterator_t tmp = NULL;
+	s_list_iterator_t iter = s_list->head;
+	
+	while (iter->next != NULL)
+	{
+		tmp = iter;
+		iter = iter->next;
+		free(tmp);
+	}
+	free(iter);
+	free(s_list);
+	
+
+
+	/*
+	s_list_iterator_t tmp = s_list->head;
+	while (SListSize(s_list) > 0)
+	{
+		s_list_iterator_t iter = SListEnd(s_list);
+		
+		free(iter);
+	}
+	
+	free(s_list);  */
+}
 
 /************************************/
 
@@ -257,20 +277,6 @@ s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 /************************************/
 
 /*
-Name: SListForEach
-Date: Dec 11
-Description: runs through the SList in certain range including the edges using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed
-Reviewer : 
-*/
-/*
-int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter)
-{
-
-}
-*/
-/************************************/
-
-/*
 Name: SListFind
 Date: Dec 11
 Description: runs through the SList in certain range including the edges, matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found
@@ -303,3 +309,22 @@ int match_func(const void *data, void *parameter)
 	return result;
 
 }
+
+
+
+/************************************/
+
+/*
+Name: SListForEach
+Date: Dec 11
+Description: runs through the SList in certain range including the edges using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed
+Reviewer : 
+*/
+/*
+int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter)
+{
+
+}
+*/
+
+/************************************/
