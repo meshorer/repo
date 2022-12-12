@@ -4,6 +4,7 @@
 
 #include <stdlib.h>  /* for malloc, realloc */
 #include <assert.h>  /* for asserts */
+#include <string.h>  /* for strcmp */
 
 
 
@@ -18,14 +19,14 @@ struct s_list
 	struct s_list_node *head;
 	struct s_list_node *tail;
 	struct s_list_node *next;
-	size_t size;
 };
 
+/************************************/
 
 s_list_t *SListCreate()
 {
 	struct s_list *new = (struct s_list *)malloc(sizeof(struct s_list));
-	struct s_list_node *dummy_node = malloc(sizeof(struct s_list_node));
+	struct s_list_node *dummy_node = (struct s_list_node *)malloc(sizeof(struct s_list_node));
 	
 	dummy_node->data = NULL;
 	dummy_node->next = NULL;
@@ -69,6 +70,27 @@ s_list_iterator_t SListNext(const s_list_iterator_t iter)
 /************************************/
 
 /*
+Name: SListEnd
+Date: Dec 11
+Description: returns iterator to last node
+Status: writing
+Reviewer : 
+*/
+
+s_list_iterator_t SListEnd(const s_list_t *s_list)
+{
+	s_list_iterator_t iter = s_list->head;
+	
+	while (iter->next->next != NULL)
+	{
+		iter = iter->next;	
+	}
+	
+	return iter;
+}
+/************************************/
+
+/*
 Name: SListSet
 Date: Dec 11
 Description: Update Data in SList in iterator position
@@ -107,15 +129,13 @@ Reviewer :
 
 void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 {
-	if (0 == IterCmp(s_list->head,iter))
-	{
-		return iter->data;
-	}
+
+	s_list_iterator_t head_iter = s_list->head;
 	
-	while (0 != IterCmp(s_list->next,iter) && (NULL != s_list->next))
+	while (0 != IterCmp(head_iter,iter) && (NULL != head_iter))
 	{
-		s_list->next = SListNext(s_list->next);
-	}
+		head_iter = head_iter->next;
+	} 
 	
 	return iter->data;
 }
@@ -125,16 +145,19 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 
 void SListDestroy(s_list_t *s_list)
 {
+	s_list_iterator_t tmp = NULL;
+	s_list_iterator_t iter = s_list->head;
 	
-	while (s_list->next != NULL)
+	while (iter->next != NULL)
 	{
-		free(s_list->next);
-		s_list->next = SListNext(s_list->next);
+		tmp = iter;
+		iter = iter->next;
+		free(tmp);
 	}
-	
-	free(s_list->head);
+	free(iter);
 	free(s_list);
 }
+
 
 /************************************/
 
@@ -148,18 +171,27 @@ Reviewer :
 
 size_t SListSize(const s_list_t *s_list)
 {
-	return s_list->size;
+	size_t count = 0;
+	
+	s_list_iterator_t head_iter = s_list->head;
+	
+	while (head_iter->next != NULL)
+	{
+		count++;
+		head_iter = head_iter->next;	
+	}
+	
+	return count;
 }
 
 
 
 /************************************/
 
-int IterCmp(s_list_iterator_t iter1,s_list_iterator_t iter2)
+int IterCmp(s_list_iterator_t iter1, s_list_iterator_t iter2)
 {
 	return iter1 - iter2;
 }
-
 
 
 /************************************/
@@ -174,34 +206,100 @@ Reviewer :
 
 s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const void *data)
 {
-	/*if (0 == IterCmp(s_list->head,iter)
-	{
-		struct s_list_node *new_node = malloc(sizeof(s_list_node));
-		new_node->data = iter->data;
-		new->node->next = iter->next;
 	
-		iter->data = data;
-		iter->next = &new_node;	
-		
-		return iter;
-	} */
-		struct s_list_node *new_node = malloc(sizeof(struct s_list_node));
-		
-	while (0 != IterCmp(s_list->next,position) && (NULL != s_list->next))
-	{
-		s_list->next = SListNext(s_list->next);
-	}
+	/*s_list_iterator_t head_iter = s_list->head; */
 	
-
+	struct s_list_node *new_node = malloc(sizeof(struct s_list_node));
+	/*
+	while (0 != IterCmp(head_iter,position) && (NULL != head_iter))
+	{
+		head_iter = head_iter->next;
+	} 
+	
+	*/
+	
 	new_node->data = position->data;
 	new_node->next = position->next;
 	
 	position->data = (void *)data;
 	position->next = new_node;
 	
-	s_list->size++;
+
+	
 	return position;
 } 
 
+/************************************/
 
-/************************************/   
+
+/*
+Name: SListRemove
+Date: Dec 11
+Description: Function to Delete Certain Node from SList using iterator linking the nodes before and after, return the iterator to the next node
+Reviewer : 
+*/
+
+s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
+{
+
+	s_list_iterator_t saved_iter_next = iter->next;
+	
+	iter->data = (iter->next)->data;
+	iter->next = (iter->next)->next;
+	
+	free(saved_iter_next);
+
+	
+	return iter;
+}
+
+
+/************************************/
+
+/*
+Name: SListForEach
+Date: Dec 11
+Description: runs through the SList in certain range including the edges using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed
+Reviewer : 
+*/
+/*
+int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter)
+{
+
+}
+*/
+/************************************/
+
+/*
+Name: SListFind
+Date: Dec 11
+Description: runs through the SList in certain range including the edges, matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found
+Reviewer : 
+*/
+
+s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function_t match_func, void *parameter)
+{
+	
+	while (iter_from != iter_to && NULL != iter_from)
+	{
+		if (match_func(iter_from ->data, parameter) == 0)
+		{
+			return iter_from;
+		}
+		
+		iter_from = iter_from->next;
+	}
+	
+	return NULL;
+}
+
+/************************************/
+   
+   
+int match_func(const void *data, void *parameter)
+{
+	int result = strcmp(data,parameter);
+	
+	return result;
+
+}
