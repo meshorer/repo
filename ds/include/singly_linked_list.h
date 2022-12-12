@@ -26,7 +26,7 @@ size_t SListSize(const s_list_t *s_list); /* To Get Size Of SList */
 
 int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action action_func, void *parameter); /* runs through the SList in certain range including the edges using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed */
 
-s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function match_func, void *parameter); /* runs through the SList in certain range including the edges, matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found*/
+s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function match_func_t, void *parameter); /* runs through the SList in certain range including the edges, matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found*/
 
 s_list_iterator_t SListBegin(const s_list_t *s_list); /* returns iterator of the beggining of the SList */
 
