@@ -1,16 +1,16 @@
 
 #include "singly_linked_list.h"
 
-#include <stdio.h> /* for print */
+
 #include <stdlib.h>  /* for malloc, realloc */
 #include <assert.h>  /* for asserts */
-#include <string.h>  /* for memcpy */
+
 
 
 struct s_list_node
 {
 	void *data;
-	struct node *next;
+	struct s_list_node *next;
 };
 
 struct s_list
@@ -19,19 +19,21 @@ struct s_list
 	struct s_list_node *tail;
 	struct s_list_node *next;
 	size_t size;
-}
+};
 
 
 s_list_t *SListCreate()
 {
-	struct s_list *new = malloc(sizeof(s_list));
-	struct s_list_node *dummy_node = malloc(sizeof(s_list_node));
+	struct s_list *new = (struct s_list *)malloc(sizeof(struct s_list));
+	struct s_list_node *dummy_node = malloc(sizeof(struct s_list_node));
 	
 	dummy_node->data = NULL;
-	dummy->node->next = NULL;
+	dummy_node->next = NULL;
 	
 	new->head = dummy_node;
 	new->tail = dummy_node; 
+	
+	return new;
 	
 }
 
@@ -77,17 +79,17 @@ Reviewer :
 void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data)
 {
 
-	if (0 == IterCmp(s_list->head,iter)
+	if (0 == IterCmp(s_list->head,iter))
 	{
-		iter->data = data;
+		iter->data = (void *)data;
 	}
 	
-	while (0 != IterCmp(s_list->next,iter && NULL != s_list->next)
+	while (0 != IterCmp(s_list->next,iter) && (NULL != s_list->next))
 	{
 		s_list->next = SListNext(s_list->next);
 	}
 	
-	iter->data = data;
+	iter->data = (void *)data;
 }
 
 
@@ -105,12 +107,12 @@ Reviewer :
 
 void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 {
-	if (0 == IterCmp(s_list->head,iter)
+	if (0 == IterCmp(s_list->head,iter))
 	{
 		return iter->data;
 	}
 	
-	while (0 != IterCmp(s_list->next,iter && NULL != s_list->next)
+	while (0 != IterCmp(s_list->next,iter) && (NULL != s_list->next))
 	{
 		s_list->next = SListNext(s_list->next);
 	}
@@ -123,7 +125,15 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 
 void SListDestroy(s_list_t *s_list)
 {
-
+	
+	while (s_list->next != NULL)
+	{
+		free(s_list->next);
+		s_list->next = SListNext(s_list->next);
+	}
+	
+	free(s_list->head);
+	free(s_list);
 }
 
 /************************************/
@@ -138,14 +148,14 @@ Reviewer :
 
 size_t SListSize(const s_list_t *s_list)
 {
-	return list->size;
+	return s_list->size;
 }
 
 
 
 /************************************/
 
-int IterCmp(s_list_iterator_t iter1,s_list_iterator_t iter2 )
+int IterCmp(s_list_iterator_t iter1,s_list_iterator_t iter2)
 {
 	return iter1 - iter2;
 }
@@ -164,7 +174,7 @@ Reviewer :
 
 s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const void *data)
 {
-	if (0 == IterCmp(s_list->head,iter)
+	/*if (0 == IterCmp(s_list->head,iter)
 	{
 		struct s_list_node *new_node = malloc(sizeof(s_list_node));
 		new_node->data = iter->data;
@@ -174,22 +184,24 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 		iter->next = &new_node;	
 		
 		return iter;
-	}
-	
-	while (0 != IterCmp(s_list->next,iter && NULL != s_list->next)
+	} */
+		struct s_list_node *new_node = malloc(sizeof(struct s_list_node));
+		
+	while (0 != IterCmp(s_list->next,position) && (NULL != s_list->next))
 	{
 		s_list->next = SListNext(s_list->next);
 	}
 	
-	struct s_list_node *new_node = malloc(sizeof(s_list_node));
-	new_node->data = iter->data;
-	new->node->next = iter->next;
+
+	new_node->data = position->data;
+	new_node->next = position->next;
 	
-	iter->data = data;
-	iter->next = &new_node;
+	position->data = (void *)data;
+	position->next = new_node;
 	
-	return iter;
+	s_list->size++;
+	return position;
 } 
 
 
-/************************************/
+/************************************/   

@@ -4,6 +4,11 @@ CFLAGS = -I include/
 CPPFLAGS = -ansi -pedantic-errors -Wall -Wextra 
 SRC_STACK = src/stack.c test/stack_test.c
 SRC_VECTOR = src/vector.c test/vector_test.c
+SRC_SINGLY = src/singly_linked_list.c test/singly_linked_list_test.c
+
+
+singly_list.out: $(SRC_SINGLY)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_SINGLY) -o singly_list.out
 
 vector.out: $(SRC_VECTOR)
 	@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_VECTOR) -o vector.out
