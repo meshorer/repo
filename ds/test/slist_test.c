@@ -1,6 +1,6 @@
 #include <stdio.h> /* for print */
 #include <string.h>  /* for strcmp */
-#include "singly_linked_list.h"
+#include "slist.h"
 
 int match_func(const void *data, void *parameter);
 int action_func(void *data, void *parameter);
