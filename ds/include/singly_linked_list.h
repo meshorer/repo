@@ -40,6 +40,6 @@ s_list_iterator_t SListEnd(const s_list_t *s_list);
 
 int IterCmp(s_list_iterator_t iter1,s_list_iterator_t iter2);
 
-int match_func(const void *data, void *parameter);
+
 
 #endif  /* __SINGLE_LINKED_LIST_H__ILRD__CR3_ */ 

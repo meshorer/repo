@@ -1,8 +1,9 @@
 #include <stdio.h> /* for print */
-
+#include <string.h>  /* for strcmp */
 #include "singly_linked_list.h"
 
-
+int match_func(const void *data, void *parameter);
+int action_func(void *data, void *parameter);
 
 int main()
 {
@@ -14,6 +15,7 @@ int main()
 	char str4 [] = "node 4";
 	char str5 [] = "node 5";
 	char str6 [] = "node 6";
+	char str7 [] = "node 8";
 	
 	s_list_t *list1 = SListCreate(); 
 
@@ -47,10 +49,23 @@ int main()
 	
 	next = SListAdd(list1,next,str6);
 	puts(SListGet(list1, next));
-	next = SListNext(next);
+	
 	
 	printf("\n");
 	printf("-----------------------------\n");
+	printf("\n");
+	
+	printf("test for set function !\n");
+	printf("\n");
+	printf("node was: ");
+	puts(SListGet(list1, next));
+	SListSet(list1, next, str7); 
+	printf("after set node is: ");
+	puts(SListGet(list1, next));
+
+	printf("\n");
+	printf("-----------------------------\n");
+	printf("\n");
 	
 	printf("test for size function !\n");
 	printf("\n");
@@ -92,21 +107,71 @@ int main()
 	}
 		
 	printf("-----------------------------\n");
-	
 	printf("\n");
-	printf("-----------------------------\n");
-	printf("\n");
+
+
 	printf("test for end function !\n");
 	printf("\n");
 	next = start;
 	next = SListEnd(list1);
-	puts(SListGet(list1, next));
+	printf("dummy is: %d\n",SListGet(list1, next));
 	
 	
+	printf("\n");
+	printf("-----------------------------\n");
+	printf("\n");
+	
+	printf("test for SListForEach function !\n");
+	printf("\n");
+	
+	
+	if (SListForEach(list1,start,next,action_func, "each") == 0)
+	{
+		printf("action complete\n");
+	}
+	else
+	{
+		printf("action failed\n");
+	}
+
+	printf("\n");
+	
+	next = start;
+	for (i = 0; i < 5; i++)
+	{
+		puts(SListGet(list1, next));
+		next = SListNext(next);
+	}
+	printf("\n");
+	printf("-----------------------------\n");
+	printf("\n");
 	SListDestroy(list1);
 	
 	
 	return 0;
 	
 }
+
+
+   
+int match_func(const void *data, void *parameter)
+{
+	int result = strcmp(data,parameter);
+	
+	return result;
+}
+	
+int action_func(void *data, void *parameter)
+{
+	int result = 1; 
+	
+	memcpy((void *)data,parameter,strlen(parameter));
+	result = strcmp(data,parameter);
+	
+	return result;
+}
+
+
+
+
 

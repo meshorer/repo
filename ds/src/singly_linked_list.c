@@ -4,7 +4,7 @@
 
 #include <stdlib.h>  /* for malloc, realloc */
 #include <assert.h>  /* for asserts */
-#include <string.h>  /* for strcmp */
+
 
 
 
@@ -79,7 +79,7 @@ s_list_iterator_t SListEnd(const s_list_t *s_list)
 {
 	s_list_iterator_t iter = s_list->head;
 	
-	while (iter->next->next != NULL)
+	while (iter->next != NULL)
 	{
 		iter = iter->next;	
 	}
@@ -279,14 +279,14 @@ s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 /*
 Name: SListFind
 Date: Dec 11
-Description: runs through the SList in certain range including the edges, matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found
+Description: runs through the SList in certain range including the front edge without end edge matching parameter to each node in the range using match_function, return the iterator to the matching node if found, NULL if wasnt found
 Reviewer : 
 */
 
 s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function_t match_func, void *parameter)
 {
 	
-	while (iter_from != iter_to && NULL != iter_from)
+	while (iter_from != iter_to && NULL != iter_from->next)
 	{
 		if (match_func(iter_from ->data, parameter) == 0)
 		{
@@ -301,30 +301,33 @@ s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_
 
 /************************************/
    
-   
-int match_func(const void *data, void *parameter)
-{
-	int result = strcmp(data,parameter);
-	
-	return result;
-
-}
-
-
 
 /************************************/
 
 /*
 Name: SListForEach
 Date: Dec 11
-Description: runs through the SList in certain range including the edges using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed
+Description: runs through the SList in certain range including the front edge without end edge using action_func on each node, keeping certain data in parameter if needed, return 0 if action_func succeeded, not 0 if failed
 Reviewer : 
 */
-/*
+
 int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter)
 {
+	
+	int result = 0;
+	
+	while (iter_from != iter_to && NULL != iter_from->next)
+	{
+		if (action_func(iter_from ->data, parameter) == 0)
+		{
+			result++;
+		}
+		
+		iter_from = iter_from->next;
+	}
+	
+	return (SListSize(s_list)) - result;
 
 }
-*/
 
 /************************************/
