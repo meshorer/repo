@@ -21,7 +21,7 @@ void func2(void *arg) {
     /* AREA2 */
     	
 	 *(&f2 + 3) = *((long*)arg +3); 
-   	 *(&f2 + 2) = *((long*)arg +2);  
+   	/**(&f2 + 2) = *((long*)arg +2); */
 
 
 
