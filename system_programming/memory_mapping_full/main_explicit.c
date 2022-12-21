@@ -11,6 +11,7 @@ int main(int argc, char **argv, char **envp)
 
 	func1 = dlsym(handler1,"MappingFull");
 	func1();
+	printf("\nfunc1 address:                %p\n", &func1);
 	
 	dlclose(handler1);
  
