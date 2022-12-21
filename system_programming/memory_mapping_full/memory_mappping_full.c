@@ -13,8 +13,8 @@ static int non_con_static_global = 3;
 
 void MappingFull() 
 {
-	int *heap = (int*)malloc(sizeof(int));
-	int *heap2 = (int*)malloc(100*sizeof(int));
+	int *heap = (int*)malloc(100*sizeof(int));
+	int *heap2 = (int*)malloc(sizeof(int));
 	int non_con_local = 5;
 	printf("\n**** STACK ****\n");
 	char *str = "ravid";
@@ -50,4 +50,6 @@ void MappingFull()
 
         free(heap);
 }
+
+
 
