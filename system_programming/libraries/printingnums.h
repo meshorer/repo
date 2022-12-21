@@ -1,0 +1,1 @@
+void Printnum(int x);

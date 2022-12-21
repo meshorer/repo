@@ -35,6 +35,9 @@ s_list_t *SListCreate()
 	struct s_list *new = (struct s_list *)malloc(sizeof(struct s_list));
 	struct s_list_node *dummy_node = (struct s_list_node *)malloc(sizeof(struct s_list_node));
 	
+	
+	
+	
 	dummy_node->data = NULL;
 	dummy_node->next = NULL;
 	
