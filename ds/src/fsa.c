@@ -35,6 +35,7 @@ fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 	size_t block_plus_header = 0;
 	size_t num_blocks = 0;
 	size_t counter = 0;
+	char *check_aligned = (char*)start;
 	fsa_t *new_fsa = NULL;
 	
 	assert(suggested_size>sizeof(new_fsa));
@@ -44,11 +45,12 @@ fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 		block_size += sizeof(char);
 	} 
 	
-	while (0 != (long)start % WORD_SIZE)  /* check address allignment */
+	while (0 != (long)check_aligned % WORD_SIZE)  /* check address allignment */
 	{
-		start += sizeof(char);
+		check_aligned += sizeof(char);
 	} 
 	
+	start = (long*)check_aligned;
 	block_plus_header = block_size + WORD_SIZE; 
 	
 	new_fsa = (fsa_t*)start; /*assign struct in allocated dest */
