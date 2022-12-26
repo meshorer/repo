@@ -14,13 +14,44 @@ Write a function to examine whether the pairs of parentheses { , } , ( , ) , [ ,
 
 int CheckClose(char *str,int parent)
 {
+	int normal_open = 0;
+	int curley_open = 0;
+	int square_open = 0;
+	int sum = 0;
 	char *ptr = str;
+	ptr++;
 	while (*ptr != parent)
 	{
-		ptr++;
+		if (*ptr == '(')
+			{
+				normal_open+=1;
+			}
+		if (*ptr == '{')
+			{
+				curley_open+=1;
+			}
+		if (*ptr == '[')
+			{
+				square_open+=1;
+			}
+			
+		if (*ptr == ')')
+			{
+				normal_open-=1;
+			}
+		if (*ptr == '}')
+			{
+				curley_open-=1;
+			}
+		if (*ptr == ']')
+			{
+				square_open-=1;
+			}	
+
+		ptr++;	
 	}
-	
-	if (*ptr == parent)
+	sum = normal_open + curley_open + square_open;
+	if (*ptr == parent && sum == 0)
 	{
 		return 0;
 	}
@@ -67,31 +98,31 @@ void CheckParenthesis(char *str)
 			if (*str == '(')
 			{
 				normal_open+=1;
-				/*if (1 == CheckClose(str,')'))
+				if (1 == CheckClose(str,')'))
 				{
 					flag = 1;
 					break;
-				} */
+				} 
 			}
 				
 			if (*str == '{')
 			{
 				curley_open+=1;
-				/*if (1 == CheckClose(str,'}'))
+				if (1 == CheckClose(str,'}'))
 				{
 					flag = 1;
 					break;
-				}*/
+				}
 			}
 
 			if (*str == '[')
 			{
 				square_open+=1;
-				/*if (1 == CheckClose(str,']'))
+				if (1 == CheckClose(str,']'))
 				{
 					flag = 1;
 					break;
-				}*/
+				}
 			}
 			
 			if (*str == ')')
@@ -131,9 +162,11 @@ void CheckParenthesis(char *str)
 int main()
 {
 	char str[] = "[()](){[()]()}";
+	char str1[] = "[()](){[()]]()}";
 	char str2[] = "[{}(])";
-	char str3[] = "[{]}";
+	char str3[] = "[{(})]";
 	CheckParenthesis(str);
+	CheckParenthesis(str1);
 	CheckParenthesis(str2);
 	CheckParenthesis(str3);
 	return 0;
