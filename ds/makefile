@@ -5,7 +5,11 @@ CPPFLAGS = -ansi -pedantic-errors -Wall -Wextra
 SRC_STACK = src/stack.c test/stack_test.c
 SRC_VECTOR = src/vector.c test/vector_test.c
 SRC_SINGLY = src/slist.c test/slist_test.c
+SRC_FSA = src/fsa.c test/fsa_test.c
 
+
+fsa.out: $(SRC_FSA)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_FSA) -o fsa.out
 
 slist.out: $(SRC_SINGLY)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_SINGLY) -o slist.out
