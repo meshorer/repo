@@ -23,7 +23,7 @@ size_t FsaSuggestedSize(size_t num_blocks, size_t block_size)
 		block_size += sizeof(char);
 	}  
 	
-	optimized = sizeof(struct fsa) + (num_blocks * WORD_SIZE) + (block_size * num_blocks); 
+	optimized = sizeof(struct fsa) + (num_blocks * WORD_SIZE) + (block_size * num_blocks) + WORD_SIZE-1; /* word-1 in case the address is not aligned */
 	
 	return optimized;
 }
@@ -31,7 +31,7 @@ size_t FsaSuggestedSize(size_t num_blocks, size_t block_size)
 /* Description: the function creates the managment struct (and headers) ,and returns the pointer to that struct */
 fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 {
-	long *start = (long*)alloc_dest;
+	size_t *start = (size_t*)alloc_dest;
 	size_t block_plus_header = 0;
 	size_t num_blocks = 0;
 	size_t counter = 0;
@@ -45,12 +45,12 @@ fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 		block_size += sizeof(char);
 	} 
 	
-	while (0 != (long)check_aligned % WORD_SIZE)  /* check address allignment */
+	while (0 != (size_t)check_aligned % WORD_SIZE)  /* check address allignment */
 	{
-		check_aligned += sizeof(char);
+		check_aligned += sizeof(char); /* use char * pointer to increment one byet at a time instead of 8*/
 	} 
 	
-	start = (long*)check_aligned;
+	start = (size_t*)check_aligned;
 	block_plus_header = block_size + WORD_SIZE; 
 	
 	new_fsa = (fsa_t*)start; /*assign struct in allocated dest */
@@ -62,19 +62,19 @@ fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 	printf("block size is : %lu\n",new_fsa->block_size);
 	new_fsa->count_free = num_blocks;
 	
-	new_fsa->next_free = (long*)start+sizeof(struct fsa)/WORD_SIZE;
+	new_fsa->next_free = (size_t*)start+sizeof(struct fsa)/WORD_SIZE;
 	printf("first next is  : %p\n",new_fsa->next_free);
 	
 	
 	
-	*(long*)&start += sizeof(struct fsa); /*jump after struct to first header*/
+	*(size_t*)&start += sizeof(struct fsa); /*jump after struct to first header*/
 	
 	while (counter < num_blocks) /* assign headers in their place  */
 	{
-		*(long *)start = (long)start + block_plus_header; /*  assign the pointer to point to the next header   */
+		*(size_t *)start = (size_t)start + block_plus_header; /*  assign the pointer to point to the next header   */
 		printf("header is : %p \n",start);
 
-		start = (long*)start + block_plus_header/WORD_SIZE; /*  jump to next header */
+		start = (size_t*)start + block_plus_header/WORD_SIZE; /*  jump to next header */
 
 		counter++;
 	}
@@ -82,14 +82,13 @@ fsa_t *FsaInit(void *alloc_dest, size_t block_size, size_t suggested_size)
 	start = NULL;  /* assign the last header to point to null  */
 	
 	return new_fsa;
-	
 }
 
 
 
 void *FsaAlloc(fsa_t *fsa)
 {
-	long *tmp = (long*)fsa->next_free;  /* save the current next free in tmp   */
+	size_t *tmp = (size_t*)fsa->next_free;  /* save the current next free in tmp   */
 		
 	if(0 == fsa->count_free)
 	{
@@ -101,14 +100,14 @@ void *FsaAlloc(fsa_t *fsa)
 	fsa->count_free--;	
 	
 	
-	return (long *)tmp+1; /* return the tmp plus wordsize to get to the block   */
+	return (size_t *)tmp+1; /* return the tmp plus wordsize to get to the block   */
 }
 
 
 void FsaFree(fsa_t *fsa, void *block)
 {
-	*((long *)block - 1) = (long)fsa->next_free;  /*  -1 to get the header, assign it to point to the next free    */
-	fsa->next_free = (long*)(block) - 1;  /* assign the next free to point to the freed block   */
+	*((size_t *)block - 1) = (size_t)fsa->next_free;  /*  -1 to get the header, assign it to point to the next free    */
+	fsa->next_free = (size_t*)(block) - 1;  /* assign the next free to point to the freed block   */
 	
 	fsa->count_free++;
 }
