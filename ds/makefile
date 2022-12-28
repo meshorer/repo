@@ -6,7 +6,10 @@ SRC_STACK = src/stack.c test/stack_test.c
 SRC_VECTOR = src/vector.c test/vector_test.c
 SRC_SINGLY = src/slist.c test/slist_test.c
 SRC_FSA = src/fsa.c test/fsa_test.c
+SRC_COMP_SORTS = src/comparison_sort.c test/comparison_sort_test.c
 
+comp_sorts.out: $(SRC_COMP_SORTS)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_COMP_SORTS) -o comp_sorts.out
 
 fsa.out: $(SRC_FSA)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_FSA) -o fsa.out
