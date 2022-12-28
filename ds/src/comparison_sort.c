@@ -32,10 +32,9 @@ void Selection(int *arr, size_t size)
 	size_t i = 0;
 	size_t j = 0;
 	int tmp = 0;
-	int count = 0;
 	int idx_min = 0;
 	
-	for (i = 0; i < size-1; i++)
+	for (i = 0; i < size; i++)
 	{
 	
 		for (j = i; j < size; j++)
@@ -43,20 +42,16 @@ void Selection(int *arr, size_t size)
 			if(arr[j] < min)
 			{
 				min = arr[j];
-				count = 1;
 				idx_min = j;
 			}
 		
 		} 
 
-		if( 1 == count)
-		{
-			tmp = arr[i];
-			arr[i] = arr[idx_min];
-			arr[idx_min] = tmp; 
-		}
+		tmp = arr[i];
+		arr[i] = arr[idx_min];
+		arr[idx_min] = tmp; 
 		min = INT_MAX;
-		count = 0;
+
 	
 	}
 
