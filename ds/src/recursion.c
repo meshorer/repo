@@ -88,12 +88,19 @@ char *strcpyRecursion(char *dest, const char *src)
 	*dest = *src;
 	
 	return strcpyRecursion((dest+1),(src+1))-1;/* -1 come back to the begining of the return value(dest)   */
-
+}
 	
 char *strcatRecursion(char *dest, const char *src)
 {
 	
-
+	if ('\0' == *dest)
+	{
+		 return strcpyRecursion(dest,src);
+	}
+	
+	return strcatRecursion((dest+1),src)-1;
+	
+	
 }
 	
 

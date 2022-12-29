@@ -15,6 +15,8 @@ int main()
 	char string[] = "string";
 	char srccpy[7] = "yosef";
 	char destcpy[7] = "daniel";
+	char srccat[7] = "second";
+	char destcat[14] = "first";
 	 
 	
 	printf("tets for fibonacci - iteratively: \n");
@@ -88,7 +90,10 @@ int main()
 	
 	printf("tests for strcpy - Recursion: \n");
 	strcpyRecursion(destcpy,srccpy);
-	printf(" strcpy for maskit: %s\n",destcpy);
+	printf(" strcpy for yosef: %s\n",destcpy);
+	
+	
+	printf("test for strcat: %s\n",strcatRecursion(destcat,srccat));
 	
 	return 0;
 }
