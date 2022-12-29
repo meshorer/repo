@@ -7,7 +7,11 @@ SRC_VECTOR = src/vector.c test/vector_test.c
 SRC_SINGLY = src/slist.c test/slist_test.c
 SRC_FSA = src/fsa.c test/fsa_test.c
 SRC_COMP_SORTS = src/comparison_sort.c test/comparison_sort_test.c
+SRC_RECURSION = src/recursion.c test/recursion_test.c
 
+recursion.out: $(SRC_RECURSION)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_RECURSION) -o recursion.out
+		
 comp_sorts.out: $(SRC_COMP_SORTS)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_COMP_SORTS) -o comp_sorts.out
 

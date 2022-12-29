@@ -74,8 +74,17 @@ int main()
 	start = clock();
 	Insertion(arr,5000);
 	end = clock();
+	for (i = 0; i < 5000; i++)
+	{
+		printf("%d ", arr[i]);
+	}
 	printf("Time elapsed for Insertion: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
-
+	
+	printf("when the array is sorted already: \n");
+	start = clock();
+	Insertion(arr,5000);
+	end = clock();
+	printf("Time elapsed for Insertion: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 
 
 	printf("\n");

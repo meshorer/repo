@@ -8,10 +8,10 @@ void Bubble(int *arr, size_t size)
 	size_t i = 0;
 	size_t j = 0;
 	int tmp = 0;
-	
+	int counter = 0;
 	for (i = 0; i < size -1; i++)
 	{
-	
+		counter = 0;
 		for (j = 0; j < size -1; j++)
 		{
 			if (arr[j] > arr[j+1])
@@ -20,6 +20,10 @@ void Bubble(int *arr, size_t size)
 				arr[j] = arr[j+1];
 				arr[j+1] = tmp;
 			}
+		}
+		if ( 0 == counter)
+		{
+			break;
 		}
 	}
 }
