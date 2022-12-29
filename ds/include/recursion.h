@@ -2,6 +2,7 @@
 #include <assert.h> /* assert */
 #include <stdio.h> 
 #include <stdlib.h>
+#include <string.h> /* strncmp */
 #include <stdlib.h> /* malloc */
 
 typedef struct node Node;
@@ -13,5 +14,7 @@ int Fibonacciyar(int element_index);
 Node *FlipList(Node *node);
 size_t StrlenRecursion(const char *s);
 int StrcmpRecursion(const char *s1, const char *s2);
-char *strcpyRecursion(char *dest, const char *src);
-char *strcatRecursion(char *dest, const char *src);
+char *StrcpyRecursion(char *dest, const char *src);
+char *StrcatRecursion(char *dest, const char *src);
+char *StrstrRecursion(const char *haystack, const char *needle);
+

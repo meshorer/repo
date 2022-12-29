@@ -77,7 +77,7 @@ int StrcmpRecursion(const char *s1, const char *s2)
 	return StrcmpRecursion((s1+1),(s2+1));
 }
 
-char *strcpyRecursion(char *dest, const char *src)
+char *StrcpyRecursion(char *dest, const char *src)
 {
 	if ('\0' == *src)
 	{
@@ -87,22 +87,40 @@ char *strcpyRecursion(char *dest, const char *src)
 	
 	*dest = *src;
 	
-	return strcpyRecursion((dest+1),(src+1))-1;/* -1 come back to the begining of the return value(dest)   */
+	return StrcpyRecursion((dest+1),(src+1))-1;/* -1 come back to the begining of the return value(dest)   */
 }
 	
-char *strcatRecursion(char *dest, const char *src)
+char *StrcatRecursion(char *dest, const char *src)
 {
 	
 	if ('\0' == *dest)
 	{
-		 return strcpyRecursion(dest,src);
+		 return StrcpyRecursion(dest,src);
 	}
 	
-	return strcatRecursion((dest+1),src)-1;
+	return StrcatRecursion((dest+1),src)-1;
 	
 	
 }
 	
+char *StrstrRecursion(const char *haystack, const char *needle)
+{
+	
+	if ('\0' != *haystack)
+	{
+		if (0 == strncmp(haystack, needle, StrlenRecursion(needle)))
+		{
+			return (char *)needle;
+		}
+		return StrstrRecursion(haystack+1,needle);
+	}
+	else
+	{
+		return NULL;
+	}
+	
+	
+}
 
 
 

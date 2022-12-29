@@ -17,7 +17,8 @@ int main()
 	char destcpy[7] = "daniel";
 	char srccat[7] = "second";
 	char destcat[14] = "first";
-	 
+	char haystack[15] = "heystack";
+	char needle[7] = "ac";
 	
 	printf("tets for fibonacci - iteratively: \n");
 	printf(" fib for 3 is: %d\n", Fibonacci(-1));
@@ -89,11 +90,13 @@ int main()
 	printf(" strcmp for daniel and daliel: %d\n", StrcmpRecursion("daniel","daniel"));
 	
 	printf("tests for strcpy - Recursion: \n");
-	strcpyRecursion(destcpy,srccpy);
+	StrcpyRecursion(destcpy,srccpy);
 	printf(" strcpy for yosef: %s\n",destcpy);
 	
 	
-	printf("test for strcat: %s\n",strcatRecursion(destcat,srccat));
+	printf("test for strcat: %s\n",StrcatRecursion(destcat,srccat));
+	printf("test for strstr: %s\n",StrstrRecursion(haystack,needle));
+	
 	
 	return 0;
 }
