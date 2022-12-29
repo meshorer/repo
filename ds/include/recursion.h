@@ -17,4 +17,5 @@ int StrcmpRecursion(const char *s1, const char *s2);
 char *StrcpyRecursion(char *dest, const char *src);
 char *StrcatRecursion(char *dest, const char *src);
 char *StrstrRecursion(const char *haystack, const char *needle);
+char *StrstrRecursionWIthSize(const char *haystack, const char *needle, size_t size);
 

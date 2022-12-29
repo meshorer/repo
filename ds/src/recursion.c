@@ -103,22 +103,29 @@ char *StrcatRecursion(char *dest, const char *src)
 	
 }
 	
+char *StrstrRecursionWIthSize(const char *haystack, const char *needle, size_t size)
+	{
+	
+		if ('\0' != *haystack)
+		{
+			if (*haystack == *needle && 0 == strncmp(haystack, needle, size))
+			{
+				return (char *)haystack;
+			}
+			return StrstrRecursion(haystack+1,needle);
+		}
+		else
+		{
+			return NULL;
+		}
+	
+	}
 char *StrstrRecursion(const char *haystack, const char *needle)
 {
 	
-	if ('\0' != *haystack)
-	{
-		if (0 == strncmp(haystack, needle, StrlenRecursion(needle)))
-		{
-			return (char *)needle;
-		}
-		return StrstrRecursion(haystack+1,needle);
-	}
-	else
-	{
-		return NULL;
-	}
+	size_t size = StrlenRecursion(needle);
 	
+	return StrstrRecursionWIthSize(haystack,needle,size);
 	
 }
 
