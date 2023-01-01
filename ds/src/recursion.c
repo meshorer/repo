@@ -1,5 +1,6 @@
 #include "recursion.h"
-
+#include "stack.h"
+#include "stack.c"
 /* the function recieves number and create fibonacci sequence untill that index number - iterativelty */
 int Fibonacci(int element_index)
 {
@@ -100,7 +101,7 @@ char *StrcatRecursion(char *dest, const char *src)
 	
 	return StrcatRecursion((dest+1),src)-1;
 	
-	
+	 
 }
 	
 char *StrstrRecursionWIthSize(const char *haystack, const char *needle, size_t size)
@@ -129,5 +130,83 @@ char *StrstrRecursion(const char *haystack, const char *needle)
 	
 }
 
+stack_t *SortRecursive(stack_t *stack)
+{
+	int valueA = 0;
+	int valueB = 0;
+	int max = 0;
+	if (StackSize(stack) > 1)
+	{
+		valueA = *(int*)StackPeek(stack);
+		StackPop(stack);
+		valueB = *(int*)StackPeek(stack);
+		StackPop(stack);
+		if (valueA > valueB)
+		{
+			max = valueA;
+			StackPush(stack, &valueB);
+			
+		}
+		else
+		{
+			max = valueB;
+			StackPush(stack, &valueA);
+		}
+		
+		SortRecursive(stack);
+	}
+	
+	else if (StackSize(stack) == 1)
+	{
+		return stack;
+	}
+	
+	StackPush(stack,&max);
+	return stack;
+}
+
+stack_t *CheckStack(stack_t *stack,size_t size)
+{
+	if (size > 1)
+	{
+		SortRecursive(stack);
+	}
+	else
+	{
+		return stack;
+	}
+	
+	return CheckStack(stack, size-1);
+}
+  
+/*
+void sort_stack(stack_t *stack)
+{
+	if (IsStackEmpty(stack))
+	{
+        	return;
+    	}
+
+    	int value = *(int*)StackPeek(stack);
+    	StackPop(stack);
+    	sort_stack(stack);
+    	insert_sorted(stack, value);
+}
 
 
+
+void insert_sorted(stack_t *stack, int value)
+{
+    	if (IsStackEmpty(stack) || value > *(int*)StackPeek(stack))
+    	{
+      		StackPush(stack, &value);
+        	return;
+    	}
+
+    	int temp = *(int*)StackPeek(stack);
+    	StackPop(stack);
+    	insert_sorted(stack, value);
+    	StackPush(stack, &temp);
+}
+
+*/ 

@@ -1,4 +1,6 @@
 #include "recursion.h"
+#include "utilities.c"
+#include "stack.h"
 
 
 struct node 
@@ -9,7 +11,12 @@ struct node
 
 int main()
 {
+ 
 
+	stack_t *stack = StackCreate(5, sizeof(int));
+	int values[] = {5, 3, 1, 2, 4};
+	int i = 0;
+	
 	Node *n4, *n3, *n2, *n1;
 	Node *list;
 	char string[] = "string";
@@ -20,16 +27,13 @@ int main()
 	char haystack[15] = "heystack";
 	char needle[7] = "ac";
 	
-	printf("tets for fibonacci - iteratively: \n");
-	printf(" fib for 3 is: %d\n", Fibonacci(-1));
-	printf(" fib for 200 is: %d\n", Fibonacci(6));
+	/*tets for fibonacci - iteratively*/
 	
-	printf("\n");
-	printf("tets for fibonacci - Recursion: \n");
-	printf(" fib for 3 is: %d\n", FibonacciRecursion(3));
-	printf(" fib for 200 is: %d\n", FibonacciRecursion(6));
-	printf("\n");
-	
+	if (2 == Fibonacci(3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+
+	/*tets for fibonacci - Recursion*/
+	if (2 == FibonacciRecursion(3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+
 	printf("tets for FLIP SLL: \n");
 	
 	n4 = malloc(sizeof(Node));
@@ -82,21 +86,53 @@ int main()
 	free(n2);
 	free(n1);
 	
-	printf("tets for strlen - Recursion: \n");
-	printf("length of daniel is: %lu\n", StrlenRecursion(string));
+	/*tets for strlen - Recursion */
+	if (6 == StrlenRecursion(string)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
 	
+	/*tests for strcmp - Recursion*/
+	if (0 == StrcmpRecursion("daniel","daniel")){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
 	
-	printf("tests for strcmp - Recursion: \n");
-	printf(" strcmp for daniel and daliel: %d\n", StrcmpRecursion("daniel","daniel"));
-	
-	printf("tests for strcpy - Recursion: \n");
+	/*tests for strcpy - Recursion*/
 	StrcpyRecursion(destcpy,srccpy);
-	printf(" strcpy for yosef: %s\n",destcpy);
+	if (0 == StrcmpRecursion(destcpy,srccpy)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
 	
+	/*tests for strcat - Recursion*/
+	if (0 == StrcmpRecursion("firstsecond",StrcatRecursion(destcat,srccat))){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
 	
-	printf("test for strcat: %s\n",StrcatRecursion(destcat,srccat));
-	printf("test for strstr: %s\n",StrstrRecursion(haystack,needle));
+	/*tests for strstr - Recursion*/
+
+	if (0 == StrcmpRecursion("ack",StrstrRecursion(haystack,needle))){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
 	
+	printf("\n\ntests for stack - Recursive\n");
+	for (i = 0; i < 5; i++)
+    	{
+        	StackPush(stack, &values[i]);
+    	}
+	
+	printf("stack size is: %lu\n", StackSize(stack));    
+	printf("\nstack before sort:\n"); 	
+    	for (i = 0; i < 5; i++)
+	{
+		printf("%d ", *(int*)StackPeek(stack));
+		StackPop(stack);
+	}
+	
+	for (i = 0; i < 5; i++)
+    	{
+        	StackPush(stack, &values[i]);
+    	}
+    	
+    	stack = CheckStack(stack, 5);
+	printf("\nstack after sort:\n"); 
+    	for (i = 0; i < 5; i++)
+	{
+		printf("%d ", *(int*)StackPeek(stack));
+		StackPop(stack);
+	}
+	printf("\n"); 
+	StackDestroy(stack);
+    	
+	CHECK_ERROR(count_error);
 	
 	return 0;
 }

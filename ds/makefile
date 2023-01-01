@@ -1,6 +1,7 @@
 
 cc = gcc
 CFLAGS = -I include/ 
+UTIL =  /home/daniel/git/ds/include/utilities.c
 CPPFLAGS = -ansi -pedantic-errors -Wall -Wextra 
 SRC_STACK = src/stack.c test/stack_test.c
 SRC_VECTOR = src/vector.c test/vector_test.c
