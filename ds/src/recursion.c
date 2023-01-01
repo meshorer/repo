@@ -137,11 +137,11 @@ stack_t *SortRecursive(stack_t *stack)
 	int max = 0;
 	if (StackSize(stack) > 1)
 	{
-		valueA = *(int*)StackPeek(stack);
+		valueA = *(int*)StackPeek(stack); /* save and pop the two-top elements from the stack    */
 		StackPop(stack);
 		valueB = *(int*)StackPeek(stack);
 		StackPop(stack);
-		if (valueA > valueB)
+		if (valueA > valueB) /* push the smaller value back to the stack while the other is saved in the frame     */
 		{
 			max = valueA;
 			StackPush(stack, &valueB);
@@ -153,30 +153,31 @@ stack_t *SortRecursive(stack_t *stack)
 			StackPush(stack, &valueA);
 		}
 		
-		SortRecursive(stack);
+		SortRecursive(stack); /* every call the stack will be small by one */
 	}
 	
-	else if (StackSize(stack) == 1)
+	else if (StackSize(stack) == 1)/* in the last stack frame there is no-comaprison between two values, so we return one frame back  */
 	{
 		return stack;
 	}
 	
-	StackPush(stack,&max);
+	StackPush(stack,&max); /* while returning from recursion: every value that was saved in the frame (max) is being pushed to the stack    */
 	return stack;
 }
 
 stack_t *CheckStack(stack_t *stack,size_t size)
 {
-	if (size > 1)
+	if (size > 0)
 	{
 		SortRecursive(stack);
+		return CheckStack(stack, size-1);   /* number of time the func is called is the number of elements in the stack        */
 	}
 	else
 	{
 		return stack;
 	}
 	
-	return CheckStack(stack, size-1);
+	
 }
   
 /*
