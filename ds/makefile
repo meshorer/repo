@@ -9,6 +9,10 @@ SRC_SINGLY = src/slist.c test/slist_test.c
 SRC_FSA = src/fsa.c test/fsa_test.c
 SRC_COMP_SORTS = src/comparison_sort.c test/comparison_sort_test.c
 SRC_RECURSION = src/recursion.c test/recursion_test.c
+SRC_VSA = src/vsa.c test/vsa_test.c
+
+vsa.out: $(SRC_VSA)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_VSA) -o vsa.out
 
 recursion.out: $(SRC_RECURSION)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_RECURSION) -o recursion.out
