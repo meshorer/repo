@@ -5,6 +5,8 @@
 #include "vsa.h"
 
 #define WORD_SIZE sizeof(void *)
+void Defreg(vsa_t *vsa);
+void PrintBlocks(vsa_t *vsa);
 
 typedef struct header header_t;
 
@@ -42,7 +44,6 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 	/*------------------------------------*/
 	
 
-	printf("address before aligment : %p\n", start);
 	while (0 != (size_t)check_aligned % WORD_SIZE && size > WORD_SIZE)  
 	{
 		check_aligned += sizeof(char); /* use char * pointer to increment one byet at a time instead of 8*/
@@ -50,7 +51,7 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 	} 
 
 	start = (size_t*)check_aligned;
-	printf("address after aligment : %p\n", start);
+
 	/*------------------------------------*/
 	/* assert the fix size after allignment */
 	
@@ -59,25 +60,22 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 	/*------------------------------------*/
 	
 	new_vsa = (vsa_t*)start; /* assign the managing struct to the pool */
-	printf("managing struct is at : %p\n", start);
+
 	new_vsa->count_allocs = 1;
 	new_vsa->first_header = (size_t*)start + sizeof(struct vsa)/WORD_SIZE;
 	
 	/*------------------------------------*/
 	
-	*(size_t*)&start += sizeof(struct vsa); /*jump after struct to first header*/
+	start = new_vsa->first_header; /*jump after struct to first header*/
 	new_header = (header_t*)start; /* assign the next-free to point to the block */
-	printf("header starts at : %p\n", start);
+
 	/*------------------------------------*/
 	/* assigning the header struct */
 	
 	new_header->is_free = 1; /* 1 is free  */
 	new_header->next_block = NULL;
 	new_header->size_block = size - (sizeof(struct vsa)) - (sizeof(struct header));
-	printf("size block is : %lu\n", new_header->size_block );
-	
-	
-	
+
 	return new_vsa;
 	
 }
@@ -96,7 +94,6 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 void *VsaAlloc(vsa_t *vsa,size_t block_size)
 {
 
-	
 	void *block_ptr = NULL;
 	size_t i = 0;
 	header_t *current_header = (header_t*)vsa->first_header;
@@ -108,70 +105,116 @@ void *VsaAlloc(vsa_t *vsa,size_t block_size)
 		block_size += sizeof(char);
 	}   
 	
+	Defreg(vsa);
+	
 	block_size += sizeof(struct header);
 	
-	if (VsaLargestChunk(vsa) >= block_size)   /* check that there is a size that big */
-	{
-		
 		for (i =0; i < vsa->count_allocs; i++) /*loop over the pool to find the block */
 		{
-			if (current_header->is_free== 1 && current_header->size_block >= block_size)
+			if (current_header->is_free == 1 && current_header->size_block >= block_size)
 			{
-				printf("here1\n");
-				block_ptr = current_header->next_block;
-				printf("here2\n");
-				current_header->next_block = current_header + block_size;
-				printf("here3\n");
+				block_ptr = ((char*)current_header + sizeof(struct header));
+				current_header->next_block = (char*)current_header + block_size;
 				current_header->is_free = 0;
-				printf("here4\n");
-				new_header = current_header->next_block;
-				printf("here5\n");
+				current_header->size_block = block_size;
+				
+				new_header = (header_t*)current_header->next_block;
 				new_header->is_free = 1;
-				printf("here6\n");
 				new_header->size_block = previous_size - block_size;
-				printf("here7\n");
-				new_header->next_block = NULL;
-				break;
+				new_header->next_block = (char*)new_header + block_size;
+				
+				vsa->count_allocs++;
+				return block_ptr;
 			}
-				printf("here2\n");
-				new_header = new_header->next_block;
+				
+			current_header = (header_t*)current_header->next_block;
+			previous_size = current_header->size_block;
 		}	
-	}
 	
-	else
-	{
 		return NULL;
-	}
-	
-	
-	vsa->count_allocs++;
-	printf("address of alloc is : %p\n",block_ptr);
-	return block_ptr;
+
 }
 
-
+void VsaFree(void *block)
+{
+	size_t* free_block = (size_t*)block;
+	
+	assert(NULL != block);
+	*(free_block - 3) = 1;
+	
+	
+}
 
 size_t VsaLargestChunk(vsa_t *vsa)
 {
 
-	/*  send to defregmentation function first  */
-	/*
-	size_t max = 0;
-	size_t i = 0;
-	vsa_t *check_next = vsa->next_free;
 	
+	size_t max = 0;
+	size_t i = 0;	
+	header_t *current_header = (header_t*)vsa->first_header;
+
+	Defreg(vsa);
+
 	for (i = 0; i < vsa->count_allocs; i++)
 	{
-		if (*((size_t *)check_next - 1) > max)
+	
+		if (current_header->is_free== 1 && current_header->size_block > max)
 		{
-			max = *((size_t *)check_next - 1);
+			max = current_header->size_block;
 		}
 		
-		check_next = check_next->next_free;
+		current_header = (header_t*)current_header->next_block;
 	}
 	
-	*/
 	
+	return max;
+}
+
+void Defreg(vsa_t *vsa)
+{
+
+	header_t *current_header = (header_t*)vsa->first_header;
+	header_t *next_header = (header_t*)current_header->next_block;
+	size_t i = 0;
+	size_t counter = 0;
+	if (vsa->count_allocs > 1)
+	{
+			for (i = 1; i < vsa->count_allocs && NULL != current_header->next_block; i++)
+			{	
+
+				if (current_header->is_free== 1 && next_header->is_free== 1)
+				{
+					current_header->size_block += next_header->size_block;
+					current_header->next_block = next_header->next_block;
+					counter++;
+					
+				}
+			
+				current_header = (header_t*)current_header->next_block;	
+				next_header = (header_t*)next_header->next_block;
+			}	
+	}
+
+	vsa->count_allocs -= counter;
+}
+
+void PrintBlocks(vsa_t *vsa)
+{
+
+	header_t *current_header = (header_t*)vsa->first_header;
+	size_t i = 0;
+	printf("\n");
+	for (i = 0; i < vsa->count_allocs; i++)
+	{
+		printf("print header number %lu\n",i+1);
+		printf("current header start at: %p\n",current_header);
+		printf("current_header->is_free: %lu\n",current_header->is_free);
+		printf("current_header->size_block: %lu\n",current_header->size_block);
+		printf("current_header->next_block: %p\n",current_header->next_block);
+		printf("actual block starts at: %p\n",((char*)current_header + sizeof(struct header)));
+		printf("|\nV\n");
+		current_header = (header_t*)current_header->next_block;
+	}
 	
-	return 200;
+	printf("-------\n\n");
 }
