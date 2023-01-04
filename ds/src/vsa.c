@@ -108,9 +108,14 @@ void *VsaAlloc(vsa_t *vsa,size_t block_size)
 
 	void *block_ptr = NULL; 										/* a pointer to point to the block we found */
 	size_t i = 0;
-	header_t *current_header = (header_t*)vsa->first_header;
 	header_t *new_header = NULL;
-	size_t previous_size = current_header->size_block; 
+	header_t *current_header = NULL;
+	size_t previous_size = 0;
+	
+	assert(NULL != vsa);
+
+	current_header = (header_t*)vsa->first_header;
+	previous_size = current_header->size_block; 
 	
 	while (0 != block_size % WORD_SIZE)  									/* check word allignment */  
 	{
@@ -165,8 +170,11 @@ size_t VsaLargestChunk(vsa_t *vsa)
 {
 	size_t max = HEADER_SIZE + WORD_SIZE; 						/* keep in mind that after an alloc you should create a header at its end */
 	size_t i = 0;	
-	header_t *current_header = (header_t*)vsa->first_header;
-
+	header_t *current_header = NULL;
+	
+	assert(NULL != vsa);
+	current_header = (header_t*)vsa->first_header;
+	
 	Defreg(vsa);
 
 	for (i = 0; i < vsa->count_allocs; i++) 					/* loop to find the biggest free block */
@@ -185,11 +193,16 @@ size_t VsaLargestChunk(vsa_t *vsa)
 void Defreg(vsa_t *vsa)
 {
 
-	header_t *current_header = (header_t*)vsa->first_header;
-	header_t *next_header = (header_t*)current_header->next_block;
+	header_t *current_header = NULL;
+	header_t *next_header = NULL;
 	size_t i = 0;
-
-	for (i = 1; i < vsa->count_allocs; i++) /* i starts from one because the last header doesn't have a 'next-header' */
+	
+	assert(NULL != vsa);
+	
+	current_header = (header_t*)vsa->first_header;
+	next_header = (header_t*)current_header->next_block;
+	
+	for (i = 1; i < vsa->count_allocs; i++) 					/* i starts from one because the last header doesn't have a 'next-header' */
 	{	
 
 		if (current_header->is_free== 1 && next_header->is_free== 1) 		/* check that both of the adjacent headers are free  */
