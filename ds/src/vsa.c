@@ -38,19 +38,14 @@ struct header
 ------------------------------------*/
 vsa_t *VsaInit(void *alloc_dest,size_t size)
 {
-	/*
-	size_t *start = alloc_dest;
-	char *check_aligned = (char*)start;
-	vsa_t *new_vsa = NULL;
-	header_t *new_header = NULL; */
-	
+
 	size_t *start = NULL;
 	char *check_aligned = NULL;
 	vsa_t *new_vsa = NULL;
 	header_t *new_header = NULL;
 	
 	assert(NULL != alloc_dest);
-	
+
 	start = alloc_dest;
 	check_aligned = (char*)start;
 	
@@ -71,24 +66,24 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 	/*------------------------------------*/
 	/* assert the fix size after allignment */
 	
-	assert(size > sizeof(struct vsa)+ HEADER_SIZE); /* assert to the new size after alignment */
+	assert(size > sizeof(struct vsa)+ HEADER_SIZE + WORD_SIZE); 			/* assert to the new size after alignment and the sizes of the managing struct, header and at least one WORD of block */
 	
 	/*------------------------------------*/
 	
-	new_vsa = (vsa_t*)start; /* assign the managing struct to the pool */
+	new_vsa = (vsa_t*)start; 										/* assign the managing struct to the pool */
 
 	new_vsa->count_allocs = 1;
 	new_vsa->first_header = (size_t*)start + sizeof(struct vsa)/WORD_SIZE;
 	
 	/*------------------------------------*/
 	
-	start = new_vsa->first_header; /*jump after struct to first header*/
-	new_header = (header_t*)start; /* assign the next-free to point to the block */
+	start = new_vsa->first_header; 										/*jump after struct to first header*/
+	new_header = (header_t*)start; 										/* assign the next-free to point to the block */
 
 	/*------------------------------------*/
 	/* assigning the header struct */
 	
-	new_header->is_free = 1; /* 1 is free  */
+	new_header->is_free = 1; 										/* 1 is free  */
 	new_header->next_block = (char*)new_vsa->first_header + HEADER_SIZE;
 	new_header->size_block = size - sizeof(struct vsa) - HEADER_SIZE;
 	new_header->magic_number = DEADBEEF;
@@ -111,7 +106,7 @@ vsa_t *VsaInit(void *alloc_dest,size_t size)
 void *VsaAlloc(vsa_t *vsa,size_t block_size)
 {
 
-	void *block_ptr = NULL; /* a pointer to point to the block we found */
+	void *block_ptr = NULL; 										/* a pointer to point to the block we found */
 	size_t i = 0;
 	header_t *current_header = (header_t*)vsa->first_header;
 	header_t *new_header = NULL;
@@ -126,13 +121,13 @@ void *VsaAlloc(vsa_t *vsa,size_t block_size)
 		
 	for (i =0; i < vsa->count_allocs; i++) 									/*loop over the pool to find a block */
 	{
-		if (current_header->is_free == 1 && current_header->size_block >= (block_size + HEADER_SIZE)) /* you must check that besides the block-size, you have room for (next) header-size */
+		if (current_header->is_free == 1 && current_header->size_block >= (block_size + HEADER_SIZE))   /*you must check that besides the block-size, you have room for (next) header-size */
 		{
-			block_ptr = ((char*)current_header + HEADER_SIZE); /*					assign the block pointer to point to the start of the block */
+			block_ptr = ((char*)current_header + HEADER_SIZE); 					/*assign the block pointer to point to the start of the block */
 			current_header->next_block = (char*)block_ptr + block_size; /*				assign to the header of the next block */
 			current_header->is_free = 0;
-			current_header->size_block = block_size; /*						the actual net size, without the header-size */
-			current_header->magic_number = DEADBEEF; /* 						assign a key place-holder */
+			current_header->size_block = block_size; 						/*the actual net size, without the header-size */
+			current_header->magic_number = DEADBEEF; 						/*assign a key place-holder */
 			
 			new_header = (header_t*)current_header->next_block; 					/* assign a key place-holder */
 			new_header->is_free = 1; 								/* assign the new header to next block as free */
