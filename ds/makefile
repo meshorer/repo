@@ -10,6 +10,12 @@ SRC_FSA = src/fsa.c test/fsa_test.c
 SRC_COMP_SORTS = src/comparison_sort.c test/comparison_sort_test.c
 SRC_RECURSION = src/recursion.c test/recursion_test.c
 SRC_VSA = src/vsa.c test/vsa_test.c
+SRC_MASKIT = src/vsamaskit.c test/vsa_test.c
+
+
+maskitvsa.out: $(SRC_VSA)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_MASKIT) -o maskitvsa.out
+
 
 debug_vsa.out: $(SRC_VSA)
 		@$(CC) $(CPPFLAGS) -g -DDEBUG $(CFLAGS) $(SRC_VSA) -o vsa_debug.out

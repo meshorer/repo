@@ -9,7 +9,7 @@
 #define HEADER_SIZE sizeof(struct header)
 
 void Defreg(vsa_t *vsa);
-
+           
 
 typedef struct header header_t;
 
@@ -176,7 +176,7 @@ size_t VsaLargestChunk(vsa_t *vsa)
 	current_header = (header_t*)vsa->first_header;
 	
 	Defreg(vsa);
-
+ 
 	for (i = 0; i < vsa->count_allocs; i++) 					/* loop to find the biggest free block */
 	{
 		if (current_header->is_free== 1 && current_header->size_block > max)
@@ -233,9 +233,10 @@ void PrintBlocks(vsa_t *vsa)
 		printf("current_header->size_block: %lu\n",current_header->size_block);
 		printf("current_header->next_block: %p\n",current_header->next_block);
 		printf("actual block starts at: %p\n",((char*)current_header + sizeof(struct header)));
+		
 		printf("|\nV\n");
 		current_header = (header_t*)current_header->next_block;
 	}
-	
+	/*printf("\nlargest net block is: %lu\n",VsaLargestChunk(vsa));*/
 	printf("-------\n\n");
 }

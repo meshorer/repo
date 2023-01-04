@@ -1,6 +1,8 @@
 
 void Fix_Bugs();
-void success();
+
+void dragon();
+void bunny();
 
 int count_error = 0;
 
@@ -17,7 +19,7 @@ int count_error = 0;
 #define CHECK_ERROR(count_error) \
 		if (count_error > 0){ \
 		Fix_Bugs();}\
-		else{success();}
+		else{bunny();}
 		
 	
 	
@@ -49,22 +51,68 @@ printf("/ / /     	   / / /     [____>  <____])\n");
 
 }
 
-void success()
+
+
+void dragon()
 {
-	printf("\n\n you made it !\n");	
-	  printf("       \\\\:.             .:/\n");
-	  printf("        \\\\``._________.''/\n");
-	  printf("         \\\\             /\n");
-	  printf(" .--.--, / .':.   .':. \\\n");
-	  printf("/__:  /  | '::' . '::' |\n");
-	  printf("   / /   |`.   ._.   .'|\n");
-	  printf("  / /    |.'         '.|\n");
-	  printf(" /___-_-,|.\\  \\   /  /.|\n");
-	  printf("      // |''\\.;   ;,/ '|\n");
-	  printf("      `==|:=         =:|\n");
-	  printf("         `.          .'\n");
-	  printf("           :-._____.-:\n");
-	  printf("          '''       '''\n");
+    printf("\n\n Shlish Elyon !\n\n\n");
+    printf("                 .\"-,.__\n");
+    printf("                 `.     `.  ,\n");
+    printf("              .--'  .._,'\"-' `.\n");
+    printf("             .    .'         `'\n");
+    printf("             `.   /          ,'\n");
+    printf("               `  '--.   ,-\"'\n");
+    printf("                `\"`   |  \\\n");
+    printf("                   -. \\, |\n");
+    printf("                    `--Y.'      ___.\n");
+    printf("                         \\     L._, \\\n");
+    printf("               _.,        `.   <  <\\                _\n");
+    printf("             ,' '           `, `.   | \\            ( `\n");
+    printf("          ../, `.            `  |    .\\`.           \\ \\_\n");
+    printf("         ,' ,..  .           _.,'    ||\\l            )  '\".\n");
+    printf("        , ,'   \\           ,'.-.`-._,'  |           .  _._`.\n");
+    printf("      ,' /      \\ \\        `' ' `--/   | \\          / /   ..\\\n");
+    printf("    .'  /        \\ .         |\\__ - _ ,'` `        / /     `.`.\n");
+    printf("    |  '          ..         `-...-\"  |  `-'      / /        . `.\n");
+    printf("    | /           |L__           |    |          / /          `. `.\n");
+    printf("   , /            .   .          |    |         / /             ` `\n");
+    printf("  / /          ,. ,`._ `-_       |    |  _   ,-' /               ` \\\n");
+    printf(" / .           \\\"`_/. `-_ \\_,.  ,'    +-' `-'  _,        ..,-.    \\`.\n");
+    printf(".  '         .-f    ,'   `    '.       \\__.---'     _   .'   '     \\ \\\n");
+    printf("' /          `.'    l     .' /          \\..      ,_|/   `.  ,'`     L`\n");
+    printf("|'      _.-\"\"` `.    \\ _,'  `            \\ `.___`.'\"`-.  , |   |    | \\\n");
+    printf("||    ,'      `. `.   '       _,...._        `  |    `/ '  |   '     .|\n");
+    printf("||  ,'          `. ;.,.---' ,'       `.   `.. `-'  .-' /_ .'    ;_   ||\n");
+    printf("|| '              V      / /           `   | `   ,'   ,' '.    !  `. ||\n");
+    printf("||/            _,-------7 '              . |  `-'    l         /    `||\n");
+    printf(". |          ,' .-   ,' ||               | .-.        `.      .'     ||\n");
+    printf(" `'        ,'    `\".'    |               |    `.        '. -.'       `'\n");
+    printf("          /      ,'      |               |,'    \\-.._,.'/'\n");
+    printf("          .     /        .               .       \\    .''\n");
+    printf("        .`.    |         `.             /         :_,'.'\n");
+    printf("          \\ `...\\   _     ,'-.        .'         /_.-'\n");
+    printf("           `-.__ `,  `'   .  _.>----''.  _  __  /\n");
+    printf("                .'        /\"'          |  \"'   '_\n");
+    printf("               /_|.-'\\ ,\".             '.'`__'-( \\\n");
+    printf("                 / ,\"'\"\\,'               `/  `-.|\"  \n");
+
+}
+
+
+
+void bunny()
+{
+
+printf("       (\\__/) \n");
+printf("       (•ㅅ•)      Don’t talk to\n");
+printf("    ＿ノヽ ノ＼＿      me or my son\n");
+printf("`/　`/ ⌒Ｙ⌒ Ｙ  ヽ     ever again.\n");
+printf("( 　(三ヽ人　 /　  |\n");
+printf("|　ﾉ⌒＼ ￣￣ヽ   ノ\n");
+printf("ヽ＿＿＿＞､＿_／\n");
+printf("     ｜( 王 ﾉ〈  (\\__/)\n");
+printf("     /ﾐ`ー― 彡 \\ (•ㅅ•)\n");
+printf("    / ╰   ╯\\/   \\>\n");
 
 
 
