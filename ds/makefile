@@ -11,6 +11,9 @@ SRC_COMP_SORTS = src/comparison_sort.c test/comparison_sort_test.c
 SRC_RECURSION = src/recursion.c test/recursion_test.c
 SRC_VSA = src/vsa.c test/vsa_test.c
 
+debug_vsa.out: $(SRC_VSA)
+		@$(CC) $(CPPFLAGS) -g -DDEBUG $(CFLAGS) $(SRC_VSA) -o vsa_debug.out
+
 vsa.out: $(SRC_VSA)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_VSA) -o vsa.out
 

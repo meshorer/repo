@@ -1,5 +1,7 @@
 
 void Fix_Bugs();
+void success();
+
 int count_error = 0;
 
 
@@ -14,7 +16,8 @@ int count_error = 0;
             
 #define CHECK_ERROR(count_error) \
 		if (count_error > 0){ \
-		Fix_Bugs();}
+		Fix_Bugs();}\
+		else{success();}
 		
 	
 	
@@ -43,5 +46,26 @@ printf("     .    0 .. 0    .         <---> <--->\n");
 printf("  / / /.    .  .    ./ / /     [..]  [..]\n");
 printf(" / / / .../|  |/... / / /    _[__]  [__]_\n");
 printf("/ / /     	   / / /     [____>  <____])\n");
+
+}
+
+void success()
+{
+	printf("\n\n you made it !\n");	
+	  printf("       \\\\:.             .:/\n");
+	  printf("        \\\\``._________.''/\n");
+	  printf("         \\\\             /\n");
+	  printf(" .--.--, / .':.   .':. \\\n");
+	  printf("/__:  /  | '::' . '::' |\n");
+	  printf("   / /   |`.   ._.   .'|\n");
+	  printf("  / /    |.'         '.|\n");
+	  printf(" /___-_-,|.\\  \\   /  /.|\n");
+	  printf("      // |''\\.;   ;,/ '|\n");
+	  printf("      `==|:=         =:|\n");
+	  printf("         `.          .'\n");
+	  printf("           :-._____.-:\n");
+	  printf("          '''       '''\n");
+
+
 
 }
