@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-int circular_array_search(int arr[], int size, int target)
+int circular_array_search(int *arr, int size, int target)
 {
 	int start = 0;
 	int end = size - 1;
