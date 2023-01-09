@@ -117,3 +117,14 @@ printf("    / ╰   ╯\\/   \\>\n");
 
 
 }
+
+
+
+
+/* 
+(gdb) define hook-stop
+Type commands for definition of "hook-stop".
+End with a line saying just "end".
+>info locals
+>end
+*/
