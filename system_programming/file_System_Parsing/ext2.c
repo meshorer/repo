@@ -8,6 +8,7 @@
 #define SUPER_BLOCK_OFFSET 1024
 #define BLOCK_SIZE 4096
 #define ROOT_INODE 2
+#define INODES_PER_GROUP 32000
 
 
 /*  
@@ -168,8 +169,12 @@ int GetFIleContent(char *path, char *device_name)
 {
 	struct ext2_group_desc my_group_descriptor = {0};
 	struct ext2_inode my_inode = {0};
+	struct ext2_dir_entry_2 my_dir_entry = {0};
+	int k = 0;
+	unsigned int block_group = 0;
 	
 	FILE *fp = NULL;
+	char my_buffer[12];
 	
 	assert(NULL != path);
 	assert(NULL != device_name);
@@ -232,22 +237,110 @@ int GetFIleContent(char *path, char *device_name)
 		
 	
 	}*/
+	k = 0;
 	
-	for (i = 0; i <  my_inode.i_blocks; i++)
+	while (0 != strcmp("test.txt", my_dir_entry.name)) /* add stopping condition  */
 	{
-		if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[i]), SEEK_SET) != 0) /* junp to the inode table at inode 2-root dir */
+		if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]+k), SEEK_SET) != 0) /* junp to thedata block  */
 		{
 			perror("GetFIleContent: fseek failed");
 			fclose(fp);
 			return -1;
 		}
 		
-		
-	
+		if (fread(&my_dir_entry, sizeof(struct ext2_dir_entry_2), 1, fp) != 1) /* get the content of the inode table */
+		{
+			perror("GetFIleContent: fread failed");
+			fclose(fp);
+			return -1;
+		}
+		 
+	      k += my_dir_entry.rec_len;
 	}
 	
+  
+	printf("\n\nReading dir entry :\n"
+	       "inode               : %u\n"
+	       "rec_len             : %u\n"
+	       "name_len            : %u\n"
+	       "file_type 	    : %u\n"
+	       "name	 	    : %s\n"
+	       ,
+	       my_dir_entry.inode,
+	       my_dir_entry.rec_len,
+	       my_dir_entry.name_len,
+	       my_dir_entry.file_type,
+	       my_dir_entry.name); 
+	       
+	       
+	/* go back to the inode table to get the data block if the desired inode   */
 	
+	block_group = my_dir_entry.inode / INODES_PER_GROUP;
+	my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) +11;
+	printf("block group number for this inode is: %u\n", block_group);
+	printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
 	
+	if (fseek(fp, (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) *(my_dir_entry.inode)), SEEK_SET) != 0) /* junp to the inode table at inode  */
+	{
+		perror("GetFIleContent: fseek failed");
+		fclose(fp);
+		return -1;
+	}
+	
+   	if (fread(&my_inode, sizeof(struct ext2_inode), 1, fp) != 1) /* get the content of the inode table */
+	{
+		perror("GetFIleContent: fread failed");
+		fclose(fp);
+		return -1;
+	}
+					
+	
+	printf("\n\nReading inode table:\n"
+	       "i_mode            : %u\n"
+	       "i_uid             : %u\n"
+	       "i_size            : %u\n"
+	       "i_atime 	  : %u\n"
+	       "i_ctime           : %u\n"
+	       "i_mtime           : %u\n"
+	       "i_dtime           : %u\n"
+	       "i_gid 	  	  : %u\n"
+	       "i_links_count 	  : %u\n"
+	       "i_blocks 	  : %u\n"
+	       "i_flags 	  : %u\n"
+	       "point to block    : %u\n"
+	       ,
+	       my_inode.i_mode,  
+	       my_inode.i_uid,
+	       my_inode.i_size,     
+	       my_inode.i_atime,
+	       my_inode.i_ctime,
+	       my_inode.i_mtime,
+	       my_inode.i_dtime,
+	       my_inode.i_gid,
+	       my_inode.i_links_count,
+	       my_inode.i_blocks,
+	       my_inode.i_flags,
+	       my_inode.i_block[0]);
+	       
+	       
+	/* jump to the data block to print it   */
+	
+	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) /* junp to the data block  */
+		{
+			perror("GetFIleContent: fseek failed");
+			fclose(fp);
+			return -1;
+		}
+		
+	if (fread(&my_buffer, my_inode.i_size, 1, fp) != 1) /* get the content of the inode table */
+	{
+		perror("GetFIleContent: fread failed");
+		fclose(fp);
+		return -1;
+	}	
+		
+	printf("content of file is: %s\n",my_buffer);
+		
 	return 0;
 }
 

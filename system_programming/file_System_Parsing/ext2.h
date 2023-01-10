@@ -135,3 +135,15 @@ struct ext2_inode {
 		} masix2;
 	} osd2;				/* OS dependent 2 */
 };
+
+
+struct ext2_dir_entry_2 {
+   		__u32	inode;			
+   		__u16	rec_len;		
+   		__u8	name_len;		
+   		__u8	file_type;
+   		char	name[255];	
+   	};
+   
+
+   
