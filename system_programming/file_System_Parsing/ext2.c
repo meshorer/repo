@@ -255,6 +255,8 @@ int GetFIleContent(char *path, char *device_name)
 	
 	FILE *fp = NULL;
 	char *my_buffer = NULL; /* to print the file content */
+	int count_chars = 0;
+	char *dir_name = NULL;
 	
 	assert(NULL != path);
 	assert(NULL != device_name);
@@ -354,6 +356,30 @@ int GetFIleContent(char *path, char *device_name)
 	
 	free(my_buffer);
 	
+		/*printf("0 - path is: %s\n",path);*/
+		path = path+1;
+		/*printf("1 - path is: %s\n",path);*/
+		dir_name = malloc(strlen(path)*sizeof(char));
+		while (NULL != strchr(path,'/'))
+		{
+			count_chars = 0;
+			while (*path != '/')
+			{
+				++count_chars;
+				path+=1;
+			}
+			path-= count_chars;
+			printf("3 - path is: %s\n",path);
+			dir_name = realloc(dir_name,count_chars+1);
+			memcpy(dir_name,path,count_chars);
+			*(dir_name+count_chars) = '\0'; /* make sure the directory name ends properly */
+			printf("dir name is: %s\n",dir_name);
+			path+= count_chars + 1;
+			printf("4 - path after iteration is: %s\n",path);
+			
+		}
+		printf("file name is: %s\n",path);
+	free(dir_name);
 	fclose(fp);
 		
 	return 0;
@@ -373,7 +399,7 @@ int main(int argc, char *argv[])
 	
 	PrintSuperBlock(disk_name);
 	PrintGroupDescriptor(disk_name);
-	GetFIleContent("sdds",disk_name);
+	GetFIleContent("/daniel/meshorer/ido/yael/gefen.c",disk_name);
 
 	return 0;
 }
