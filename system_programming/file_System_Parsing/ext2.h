@@ -5,7 +5,9 @@
 	command to cut and paste without first column:
 cut -f 2- here.c | tee here.c
 */
-int GetSuperBlock(char *device_name);
+void PrintSuperBlock(char *device_name);
+struct ext2_super_block GetSuperBlock(char *device_name);
+
 void PrintGroupDescriptor(char *device_name);
 struct ext2_group_desc GetGroupDescriptor(char *device_name);
 

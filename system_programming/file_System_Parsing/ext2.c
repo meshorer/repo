@@ -3,6 +3,7 @@
 #include <fcntl.h> /* only for using open */
 #include <assert.h> 
 #include <string.h> 
+#include <stdlib.h> /*  for malloc   */
 #include "ext2.h"
 
 #define SUPER_BLOCK_OFFSET 1024
@@ -18,55 +19,14 @@
 	sudo mount /dev/ram0 /mnt/parsing_ext
 */
  
-/*int GetSuperBlock(char *device_name)
+void PrintSuperBlock(char *device_name)
 {
-	int handler = 0;
-	struct ext2_super_block super_struct; 
-	off_t descriptor = -1;
-	int block_size = 0;
+	struct ext2_super_block super_block_struct = {0};
 	
-	handler = open(device_name,O_RDONLY);
-	if (0 > handler)
-	{
-		return -1;
-	}
-	printf("handler is : %d\n",handler);
-	descriptor = lseek(handler, 1024, SEEK_SET);
-	if ( -1 == descriptor)
-	{
-		return -1;
-	}
-	
-	read(handler,&super_struct,sizeof(struct ext2_super_block));
-	
-	return 0;
-	
-}*/
-
-
-int GetSuperBlock(char *device_name)
-{
-	FILE *fp = NULL;
-    	struct ext2_super_block super_block_struct;
-    	
 	assert(NULL != device_name);
 	
-    	fp = fopen(device_name, "r");
-	if (fp == NULL)
-	{
-		return -1;
-   	}
-
-	if (fseek(fp, SUPER_BLOCK_OFFSET, SEEK_SET) != 0) /* superblock appears olways after offset of 1024  */
-	{
-		return -1;
-	}
-
-	if (fread(&super_block_struct, sizeof(struct ext2_super_block), 1, fp) != 1)
-	{
-		return -1;
-	}
-		
+	super_block_struct = GetSuperBlock(device_name);
+			
 	printf("\n\nReading super-block from device\n"
 	       "Inodes count            : %u\n"
 	       "Blocks count            : %u\n"
@@ -94,12 +54,35 @@ int GetSuperBlock(char *device_name)
 	       super_block_struct.s_first_ino,         
 	       super_block_struct.s_inode_size);
 	       
-		fclose(fp);
-		
-		printf("size of the superblock struct is: %lu\n",sizeof(struct ext2_super_block));
+}
 
-		return 0;
+
+struct ext2_super_block GetSuperBlock(char *device_name)
+{
+	FILE *fp = NULL;
+    	struct ext2_super_block super_block_struct = {0};
+    	
+	assert(NULL != device_name);
 	
+    	fp = fopen(device_name, "r");
+	if (fp == NULL)
+	{
+		return super_block_struct;
+   	}
+
+	if (fseek(fp, SUPER_BLOCK_OFFSET, SEEK_SET) != 0) /* superblock appears olways after offset of 1024  */
+	{
+		return super_block_struct;
+	}
+
+	if (fread(&super_block_struct, sizeof(struct ext2_super_block), 1, fp) != 1)
+	{
+		return super_block_struct;
+	}
+		       
+	fclose(fp);
+		
+	return super_block_struct;
 }
 
 
@@ -162,8 +145,10 @@ struct ext2_group_desc GetGroupDescriptor(char *device_name)
 	
 	fclose(fp);
 	return my_group_descriptor;
-
 }
+
+
+
 
 int GetFIleContent(char *path, char *device_name)
 {
@@ -171,15 +156,15 @@ int GetFIleContent(char *path, char *device_name)
 	struct ext2_inode my_inode = {0};
 	struct ext2_dir_entry_2 my_dir_entry = {0};
 	int k = 0;
-	unsigned int block_group = 0;
+	unsigned int block_group = 0; /* to verify the block group for a specific inode */
 	
 	FILE *fp = NULL;
-	char my_buffer[12];
+	char *my_buffer = NULL; /* to print the file content */
 	
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
-	my_group_descriptor = GetGroupDescriptor(device_name); /*  get the    */
+	my_group_descriptor = GetGroupDescriptor(device_name); /*  get the  Group Descriptor to jump to the inode table using bg_inode_table  */
 	
 	fp = fopen(device_name, "r");
 	if (fp == NULL)
@@ -188,16 +173,14 @@ int GetFIleContent(char *path, char *device_name)
 		return -1;
    	}
    	
-   	if (fseek(fp, (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) *ROOT_INODE), SEEK_SET) != 0) /* junp to the inode table at inode 2-root dir */
+   	if (fseek(fp, (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) *ROOT_INODE), SEEK_SET) != 0) /* jump to the inode table at inode 2-root dir */
 	{
 		perror("GetFIleContent: fseek failed");
 		fclose(fp);
 		return -1;
 	}
 	
-	printf("the bg inode table is: %u\n", my_group_descriptor.bg_inode_table);
-   	
-   	if (fread(&my_inode, sizeof(struct ext2_inode), 1, fp) != 1) /* get the content of the inode table */
+   	if (fread(&my_inode, sizeof(struct ext2_inode), 1, fp) != 1) /* get the content of the inode table of root directory */
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
@@ -324,6 +307,7 @@ int GetFIleContent(char *path, char *device_name)
 	       
 	       
 	/* jump to the data block to print it   */
+	my_buffer = malloc(my_inode.i_size+1);
 	
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) /* junp to the data block  */
 		{
@@ -332,7 +316,7 @@ int GetFIleContent(char *path, char *device_name)
 			return -1;
 		}
 		
-	if (fread(&my_buffer, my_inode.i_size, 1, fp) != 1) /* get the content of the inode table */
+	if (fread(my_buffer, my_inode.i_size, 1, fp) != 1) 
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
@@ -340,6 +324,10 @@ int GetFIleContent(char *path, char *device_name)
 	}	
 		
 	printf("content of file is: %s\n",my_buffer);
+	
+	free(my_buffer);
+	
+	fclose(fp);
 		
 	return 0;
 }
@@ -356,7 +344,7 @@ int main(int argc, char *argv[])
 	printf("the disk name is: %s\n", argv[1]);
 	printf("the count argc is: %d\n", argc);
 	
-	GetSuperBlock(disk_name);
+	PrintSuperBlock(disk_name);
 	PrintGroupDescriptor(disk_name);
 	GetFIleContent("sdds",disk_name);
 
