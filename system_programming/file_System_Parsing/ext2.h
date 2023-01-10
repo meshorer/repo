@@ -11,6 +11,11 @@ struct ext2_super_block GetSuperBlock(char *device_name);
 void PrintGroupDescriptor(char *device_name);
 struct ext2_group_desc GetGroupDescriptor(char *device_name);
 
+struct ext2_inode GetInodeTable(FILE *fp, size_t len);
+void PrintInodeTable(struct ext2_inode my_inode);
+
+struct ext2_dir_entry_2 GetDirEntry(FILE *fp, size_t len);
+void PrintDirEntry(struct ext2_dir_entry_2 my_dir_entry);
 
 struct ext2_super_block {
 	__u32	s_inodes_count;		/* Inodes count */
