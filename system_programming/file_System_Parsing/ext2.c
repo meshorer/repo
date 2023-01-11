@@ -376,6 +376,7 @@ int main(int argc, char *argv[])
 	
 	assert(argc>=3);
 	
+	/*  sudo ./a.aut /dev/ram0 file-name.txt       */
 	
 	printf("the disk name is: %s\n", argv[1]);
 	printf("the path is: %s\n", argv[2]);
