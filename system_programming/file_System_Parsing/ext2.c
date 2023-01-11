@@ -10,7 +10,7 @@
 #define BLOCK_SIZE 4096
 #define ROOT_INODE 2
 #define INODES_PER_GROUP 32000
-#define RESERVED_INODES 11
+#define RESERVED_INODES 10
 
 
 /*  
@@ -247,6 +247,7 @@ void PrintDirEntry(struct ext2_dir_entry_2 my_dir_entry)
 
 int GetFIleContent(char *path, char *device_name)
 {
+	struct ext2_super_block super_block_struct = {0};
 	struct ext2_group_desc my_group_descriptor = {0};
 	struct ext2_inode my_inode = {0};
 	struct ext2_dir_entry_2 my_dir_entry = {0};
@@ -261,6 +262,7 @@ int GetFIleContent(char *path, char *device_name)
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
+	super_block_struct = GetSuperBlock(device_name);
 	my_group_descriptor = GetGroupDescriptor(device_name); /*  get the  Group Descriptor to jump to the inode table using bg_inode_table  */
 	
 	fp = fopen(device_name, "r");
@@ -311,28 +313,82 @@ int GetFIleContent(char *path, char *device_name)
 		}
 		
 	*/
-	dir_entry_len = 0;
 	
-	while (0 != strcmp("test.txt", my_dir_entry.name)) /* add stopping condition  */
+		
+	path = path+1;
+	
+	dir_name = malloc(strlen(path)*sizeof(char));
+	
+	if (NULL == strchr(path,'/'))
 	{
-	
-		my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
-
-	      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		printf("file name is: %s\n",path);
+		while (0 != strcmp(path, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
+		{
+		
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
+			
+		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		}
+		
+		PrintDirEntry(my_dir_entry);
+		       
+		/* go back to the inode table to get the data block if the desired inode   */
+		
+		block_group = my_dir_entry.inode / INODES_PER_GROUP;
+		/*my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES-1;*/
+		my_dir_entry.inode -= 1;
+		printf("block group number for this inode is: %u\n", block_group);
+		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
+							
+		my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); /*   inode of the file     */
+		
+		PrintInodeTable(my_inode);
 	}
 	
-	PrintDirEntry(my_dir_entry);
-	       
-	/* go back to the inode table to get the data block if the desired inode   */
+	while (NULL != strchr(path,'/'))
+	{
+		count_chars = 0;
+		while (*path != '/')
+		{
+			++count_chars;
+			path+=1;
+		}
+		path-= count_chars;
+		printf("3 - path is: %s\n",path);
+		dir_name = realloc(dir_name,count_chars+1);
+		memcpy(dir_name,path,count_chars);
+		*(dir_name+count_chars) = '\0'; /* make sure the directory name ends properly */
+		printf("dir name is: %s\n",dir_name);
+		
+		dir_entry_len = 0;
+
+		while (0 != strcmp(dir_name, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
+		{
+		
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
+			
+		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		}
+		PrintDirEntry(my_dir_entry);
+		path+= count_chars + 1;
+		
+		
+		/* go back to the inode table to get the data block if the desired inode   */
 	
-	block_group = my_dir_entry.inode / INODES_PER_GROUP;
-	my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES;
-	printf("block group number for this inode is: %u\n", block_group);
-	printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
-						
-	my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) *(my_dir_entry.inode))); /*        */
+		block_group = my_dir_entry.inode / INODES_PER_GROUP;
+		my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES;
+		printf("block group number for this inode is: %u\n", block_group);
+		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
+							
+		my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); /*        */
+		
+		PrintInodeTable(my_inode);
+		
+		printf("4 - path after iteration is: %s\n",path);
+		
+	}
 	
-	PrintInodeTable(my_inode);
+	printf("size of inode structure check is: %lu\n",sizeof(struct ext2_inode));
 	       
 	/*  enf of iterating for directories */      
 	/* jump to the data block to print it   */
@@ -356,29 +412,8 @@ int GetFIleContent(char *path, char *device_name)
 	
 	free(my_buffer);
 	
-		/*printf("0 - path is: %s\n",path);*/
-		path = path+1;
-		/*printf("1 - path is: %s\n",path);*/
-		dir_name = malloc(strlen(path)*sizeof(char));
-		while (NULL != strchr(path,'/'))
-		{
-			count_chars = 0;
-			while (*path != '/')
-			{
-				++count_chars;
-				path+=1;
-			}
-			path-= count_chars;
-			printf("3 - path is: %s\n",path);
-			dir_name = realloc(dir_name,count_chars+1);
-			memcpy(dir_name,path,count_chars);
-			*(dir_name+count_chars) = '\0'; /* make sure the directory name ends properly */
-			printf("dir name is: %s\n",dir_name);
-			path+= count_chars + 1;
-			printf("4 - path after iteration is: %s\n",path);
-			
-		}
-		printf("file name is: %s\n",path);
+	
+
 	free(dir_name);
 	fclose(fp);
 		
@@ -399,7 +434,7 @@ int main(int argc, char *argv[])
 	
 	PrintSuperBlock(disk_name);
 	PrintGroupDescriptor(disk_name);
-	GetFIleContent("/daniel/meshorer/ido/yael/gefen.c",disk_name);
+	GetFIleContent("/third.txt",disk_name);
 
 	return 0;
 }

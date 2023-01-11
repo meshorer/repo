@@ -111,8 +111,8 @@ struct ext2_inode {
 		struct {
 			__u32  m_i_reserved1;
 		} masix1;
-	} osd1;				/* OS dependent 1 */
-	__u32	i_block[15];/* Pointers to blocks */
+	} osd1;			/* OS dependent 1 */
+	__u32	i_block[15];	/* Pointers to blocks */
 	__u32	i_generation;	/* File version (for NFS) */
 	__u32	i_file_acl;	/* File ACL */
 	__u32	i_dir_acl;	/* Directory ACL */
