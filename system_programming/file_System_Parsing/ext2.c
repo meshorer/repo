@@ -273,11 +273,11 @@ int GetFIleContent(char *path, char *device_name)
    	}
    	
    	
-	
+	printf("\nprinting inode table for root directory:\n");
 	my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) * ROOT_INODE)); /*  get inode table for root directory  */
 	
 	PrintInodeTable(my_inode);				
-
+	printf("\n\n");
 	
 	/*while (NULL != strchr(path,'/'))
 	{
@@ -320,34 +320,11 @@ int GetFIleContent(char *path, char *device_name)
 	
 	dir_name = malloc(strlen(path)*sizeof(char));
 	
-	if (NULL == strchr(path,'/'))
-	{
-		printf("file name is: %s\n",path);
-		while (0 != strcmp(path, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
-		{
-		
-			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
-			
-		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
-		}
-		
-		PrintDirEntry(my_dir_entry);
-		       
-		/* go back to the inode table to get the data block if the desired inode   */
-		
-		block_group = my_dir_entry.inode / INODES_PER_GROUP;
-		/*my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES-1;*/
-		my_dir_entry.inode -= 1;
-		printf("block group number for this inode is: %u\n", block_group);
-		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
-							
-		my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); /*   inode of the file     */
-		
-		PrintInodeTable(my_inode);
-	}
+	
 	
 	while (NULL != strchr(path,'/'))
 	{
+		printf("entrting loop to find the file :\n\n");
 		count_chars = 0;
 		while (*path != '/')
 		{
@@ -372,7 +349,7 @@ int GetFIleContent(char *path, char *device_name)
 		}
 		PrintDirEntry(my_dir_entry);
 		path+= count_chars + 1;
-		
+		printf("check path is: %s\n",path);
 		
 		/* go back to the inode table to get the data block if the desired inode   */
 	
@@ -380,73 +357,52 @@ int GetFIleContent(char *path, char *device_name)
 		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;
 		printf("block group number for this inode is: %u\n", block_group);
 		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
+		
+		printf("print the inode of the directory:\n");					
+		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); /*        */
+		
+		PrintInodeTable(my_inode);
+		
+		/*my_inode = GetInodeTable(fp,(block_group * (32000 * super_block_struct.s_inode_size )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); 
+		
+		PrintInodeTable(my_inode);*/
+		
+	}
+	
+	dir_entry_len = 0;
+	if (NULL == strchr(path,'/'))
+	{
+		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfile name lastly  is: %s\n",path);
+		while (0 != strcmp(path, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
+		{
+		
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
+			
+		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		}
+		
+		PrintDirEntry(my_dir_entry);
+		       
+		/* go back to the inode table to get the data block if the desired inode   */
+		
+		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;
+		/*my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES-1;*/
+		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;
+		printf("block group number for this inode is: %u\n", block_group);
+		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
 							
-		my_inode = GetInodeTable(fp,(1 * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); /*        */
+		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); /*   inode of the file     */
 		
 		PrintInodeTable(my_inode);
-		
-		my_inode = GetInodeTable(fp,(block_group * (32000 * super_block_struct.s_inode_size )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); /*        */
-		
-		PrintInodeTable(my_inode);
-		
-		printf("4 - path after iteration is: %s\n",path);
-		
 	}
 	
-	
-	
-	
-	/*******************************************************************************/
-	printf("\n\ntest starts:\n\n\n");
-	
-	for (i = 0; i < 4; i++){
-	printf("group descriptor number %u\n",i+1);
-	
-	if (fseek(fp, (i* (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) +BLOCK_SIZE, SEEK_SET) != 0) 
-	{
-		perror("GetGroupDescriptor: fseek failed");
-		fclose(fp);
-		
-	}
-	
-	if (fread(&my_group_descriptor, sizeof(struct ext2_group_desc), 1, fp) != 1)
-	{
-		perror("GetGroupDescriptor: fread failed");
-		fclose(fp);
-		
-	}
-	
-	printf("Reading Group descriptor from device\n"
-	       "block_bitmap            : %u\n"
-	       "inode_bitmap            : %u\n"
-	       "inode_table		: %u\n"
-	       "Free blocks count       : %u\n"
-	       "Free inodes count       : %u\n"
-	       "used_dirs_count         : %u\n"
-	       "pad	                : %u\n\n\n"
-	       ,
-	       my_group_descriptor.bg_block_bitmap,  
-	       my_group_descriptor.bg_inode_bitmap,
-	       my_group_descriptor.bg_inode_table,     
-	       my_group_descriptor.bg_free_blocks_count,
-	       my_group_descriptor.bg_free_inodes_count,
-	       my_group_descriptor.bg_used_dirs_count,
-	       my_group_descriptor.bg_pad);}
-	       
-	
-	       
-	printf("test ends:\n");
-	/******************************************************************************/
-	
-	
-	
-	
-	
-	       
+		       
 	/*  enf of iterating for directories */      
 	/* jump to the data block to print it   */
 	my_buffer = malloc(my_inode.i_size+1);
-	
+	printf("i_size is: %u\n",my_inode.i_size);
+	printf("block pointer is: %u\n",my_inode.i_block[0]);
+	printf("size of buffer is: %lu\n",strlen(my_buffer));
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) /* junp to the data block of the file */
 		{
 			perror("GetFIleContent: fseek failed");
@@ -462,7 +418,7 @@ int GetFIleContent(char *path, char *device_name)
 	}	
 		
 	printf("content of file is: %s\n",my_buffer);
-	
+	puts(my_buffer);
 	
 
 	
@@ -489,8 +445,8 @@ int main(int argc, char *argv[])
 	printf("the count argc is: %d\n", argc);
 	
 	PrintSuperBlock(disk_name);
-	PrintGroupDescriptor(disk_name);
-	GetFIleContent("/daniel/inside.txt",disk_name);
+	/*PrintGroupDescriptor(disk_name);*/
+	GetFIleContent("/yosef/inner/innerfile.txt",disk_name);
 
 	return 0;
 }
@@ -518,4 +474,45 @@ int main(int argc, char *argv[])
 	*/
 	
 	
+	/*******************************************************************************
+	printf("\n\ntest starts:\n\n\n");
+	
+	for (i = 3; i < 4; i++){
+	printf("group descriptor number %u\n",i+1);
+	
+	if (fseek(fp, (2* (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) +BLOCK_SIZE, SEEK_SET) != 0) 
+	{
+		perror("GetGroupDescriptor: fseek failed");
+		fclose(fp);
+		
+	}
+	
+	if (fread(&my_group_descriptor, sizeof(struct ext2_group_desc), 1, fp) != 1)
+	{
+		perror("GetGroupDescriptor: fread failed");
+		fclose(fp);
+		
+	}
+	
+	printf("Reading Group descriptor\n"
+	       "block_bitmap            : %u\n"
+	       "inode_bitmap            : %u\n"
+	       "inode_table		: %u\n"
+	       "Free blocks count       : %u\n"
+	       "Free inodes count       : %u\n"
+	       "used_dirs_count         : %u\n"
+	       "pad	                : %u\n\n\n"
+	       ,
+	       my_group_descriptor.bg_block_bitmap,  
+	       my_group_descriptor.bg_inode_bitmap,
+	       my_group_descriptor.bg_inode_table,     
+	       my_group_descriptor.bg_free_blocks_count,
+	       my_group_descriptor.bg_free_inodes_count,
+	       my_group_descriptor.bg_used_dirs_count,
+	       my_group_descriptor.bg_pad);}
+	       
+	
+	       
+	printf("test ends:\n");
+	******************************************************************************/
 	
