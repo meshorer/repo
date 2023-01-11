@@ -258,7 +258,6 @@ int GetFIleContent(char *path, char *device_name)
 	char *my_buffer = NULL; /* to print the file content */
 	int count_chars = 0;
 	char *dir_name = NULL;
-	int fd = 0;
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
@@ -325,6 +324,8 @@ int GetFIleContent(char *path, char *device_name)
 		
 	}
 	
+	
+	/*  enf of iterating for directories */      
 	dir_entry_len = 0;
 	if (NULL == strchr(path,'/'))
 	{
@@ -351,21 +352,22 @@ int GetFIleContent(char *path, char *device_name)
 		PrintInodeTable(my_inode);
 	}
 	
-		       
-	/*  enf of iterating for directories */      
-	/* jump to the data block to print it   */
+	
+	
+	
 	my_buffer = malloc(my_inode.i_size+1);
+
 	printf("i_size is: %u\n",my_inode.i_size);
 	printf("block pointer is: %u\n",my_inode.i_block[0]);
 	printf("size of buffer is: %lu\n",strlen(my_buffer));
-	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) /* junp to the data block of the file */
+	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 
 		{
 			perror("GetFIleContent: fseek failed");
 			fclose(fp);
 			return -1;
 		}
 		
-	if (fread(my_buffer, my_inode.i_size, 1, fp) != 1) /* read the file contetnt to our allocated buffer */
+	if (fread(my_buffer, my_inode.i_size, 1, fp) != 1) 						/* jump to the data block to print it   */
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
@@ -469,5 +471,30 @@ int main(int argc, char *argv[])
 	
 	       
 	printf("test ends:\n");
+	
+	
+		fd = open(device_name, O_RDONLY);
+	if (fd < 0) {
+	    perror("open");
+	    exit(1);
+	}
+	
+	if (lseek(fd, BLOCK_SIZE * my_inode.i_block[0], SEEK_SET) < 0) {
+	    perror("lseek");
+	    exit(1);
+	}
+
+	
+	if (read(fd, my_buffer, 1) < 1) {
+	    perror("read");
+	    exit(1);
+	}
+
+	printf("content of file is: %s\n", my_buffer);
+
+	if (close(fd) < 0) {
+	    perror("close");
+	    exit(1);
+	}
 	******************************************************************************/
 	
