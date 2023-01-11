@@ -258,7 +258,7 @@ int GetFIleContent(char *path, char *device_name)
 	char *my_buffer = NULL; /* to print the file content */
 	int count_chars = 0;
 	char *dir_name = NULL;
-	unsigned int i = 0;
+	int fd = 0;
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
@@ -278,115 +278,70 @@ int GetFIleContent(char *path, char *device_name)
 	
 	PrintInodeTable(my_inode);				
 	printf("\n\n");
-	
-	/*while (NULL != strchr(path,'/'))
-	{
-		
-	
-	}*/
-	
-	/*	
-		1. first - find the size until the next '/'
-		2. memcpy(dir_name,path,count_chars);
-		3. strcmp to find the entry
-		4. go to the inode table of the directory inode  
-		5. get tha data of next entry 
-		5. repeat steps
-		
-		path = path+1;
-		while (NULL != strchr(path,'/'))
-		{
-			while (*path != '/')
-			{
-				++count_chars;
-				path+=1;
-			}
-			path-= count_chars;
-			memcpy(dir_name,path,count_chars);
-			path+= count_chars + 1;
-			while (0 != strcmp(dir_name, my_dir_entry.name))
-			{
-				GetDirEntry of current directory
-				dir_entry_len += my_dir_entry.rec_len;
-			}
-			GetInodeTable of next sub directory (like we did with root)
-			GetDirEntry  
-		}
-		
-	*/
-	
 		
 	path = path+1;
 	
 	dir_name = malloc(strlen(path)*sizeof(char));
 	
-	
-	
 	while (NULL != strchr(path,'/'))
 	{
-		printf("entrting loop to find the file :\n\n");
+		printf("entrting loop to enter the last subdir in the path! :\n\n");
+		
 		count_chars = 0;
-		while (*path != '/')
+		while ('/' != *path)									/* get the numer of characters until the next '/' */
 		{
 			++count_chars;
 			path+=1;
 		}
 		path-= count_chars;
-		printf("3 - path is: %s\n",path);
-		dir_name = realloc(dir_name,count_chars+1);
-		memcpy(dir_name,path,count_chars);
-		*(dir_name+count_chars) = '\0'; /* make sure the directory name ends properly */
-		printf("dir name is: %s\n",dir_name);
+		dir_name = realloc(dir_name,count_chars+1);						/* change the size of dir_name according to the name od the directory */
+		memcpy(dir_name,path,count_chars);							/* memcpy to the dir_name according to the counter we did */
+		*(dir_name+count_chars) = '\0'; 							/* make sure the directory name ends properly with null-byte */
+		
 		
 		dir_entry_len = 0;
-
-		while (0 != strcmp(dir_name, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
+		while (0 != strcmp(dir_name, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE)  	/*  iterate on the dir entries untill you find the desired directory-name */
 		{
 		
-			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));  	/*  iterate on the dir entries untill you find the desired directory-name */
 			
-		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		      	dir_entry_len += my_dir_entry.rec_len; 						/*  sum the records entry to start every itarate from the next record */
 		}
 		PrintDirEntry(my_dir_entry);
-		path+= count_chars + 1;
+		path+= count_chars + 1;									/*  advance path to get the next directory name (+1 for '/') */
 		printf("check path is: %s\n",path);
 		
-		/* go back to the inode table to get the data block if the desired inode   */
+		
 	
-		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;
-		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;
+		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;		/* check the relevant block-group for this specific inode   */
+		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;  /* update the inode number to be relative to the block group  */
 		printf("block group number for this inode is: %u\n", block_group);
 		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
 		
 		printf("print the inode of the directory:\n");					
-		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); /*        */
+		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/* go back to the inode table to get the data block of the desired inode   */
 		
 		PrintInodeTable(my_inode);
-		
-		/*my_inode = GetInodeTable(fp,(block_group * (32000 * super_block_struct.s_inode_size )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size) *(my_dir_entry.inode)); 
-		
-		PrintInodeTable(my_inode);*/
 		
 	}
 	
 	dir_entry_len = 0;
 	if (NULL == strchr(path,'/'))
 	{
-		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfile name lastly  is: %s\n",path);
-		while (0 != strcmp(path, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE) /* add stopping condition  */
+		printf("\nfile name lastly  is: %s\n",path);
+		while (0 != strcmp(path, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE)
 		{
 		
 			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
 			
-		      	dir_entry_len += my_dir_entry.rec_len; /*  iterate on the dir entries untill you find the target       */
+		      	dir_entry_len += my_dir_entry.rec_len; 						/*  iterate on the dir entries untill you find the target       */
 		}
 		
 		PrintDirEntry(my_dir_entry);
 		       
-		/* go back to the inode table to get the data block if the desired inode   */
+		
 		
 		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;
-		/*my_dir_entry.inode = ((my_dir_entry.inode) % INODES_PER_GROUP) + RESERVED_INODES-1;*/
 		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;
 		printf("block group number for this inode is: %u\n", block_group);
 		printf("local inode is number for this group is: %u\n", my_dir_entry.inode);
@@ -421,7 +376,6 @@ int GetFIleContent(char *path, char *device_name)
 	puts(my_buffer);
 	
 
-	
 	free(my_buffer);
 	
 	
@@ -437,16 +391,17 @@ int main(int argc, char *argv[])
 {
 	char *disk_name =NULL;
 	
-	assert(argc>=2); /* after adding path to file is should be 3   */
+	/*assert(argc>=2);*/ /* after adding path to file is should be 3   */
 	
-	disk_name =argv[1];
+	/*disk_name =argv[1];*/
+	disk_name = "/dev/ram0";
 	
 	printf("the disk name is: %s\n", argv[1]);
 	printf("the count argc is: %d\n", argc);
 	
 	PrintSuperBlock(disk_name);
 	/*PrintGroupDescriptor(disk_name);*/
-	GetFIleContent("/yosef/inner/innerfile.txt",disk_name);
+	GetFIleContent("/yosef/maybe.txt",disk_name);
 
 	return 0;
 }
