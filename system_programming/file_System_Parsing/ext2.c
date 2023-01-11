@@ -1,16 +1,13 @@
 #include <stdio.h>
-#include <unistd.h> /* only for using close, lseek */
-#include <fcntl.h> /* only for using open */
 #include <assert.h> 
-#include <string.h> 
+#include <string.h> /*  for strcmp, strchr   */
 #include <stdlib.h> /*  for malloc   */
 #include "ext2.h"
 
 #define SUPER_BLOCK_OFFSET 1024
 #define BLOCK_SIZE 4096
 #define ROOT_INODE 2
-#define INODES_PER_GROUP 32000
-#define RESERVED_INODES 10
+
 
 
 /*  
@@ -53,8 +50,7 @@ void PrintSuperBlock(char *device_name)
 	       super_block_struct.s_inodes_per_group,
 	       super_block_struct.s_creator_os,
 	       super_block_struct.s_first_ino,         
-	       super_block_struct.s_inode_size);
-	       
+	       super_block_struct.s_inode_size);       
 }
 
 
@@ -245,6 +241,26 @@ void PrintDirEntry(struct ext2_dir_entry_2 my_dir_entry)
 }
 
 
+struct ext2_dir_entry_2 FindDirEntry(char *dir_name,FILE * fp, struct ext2_inode my_inode, int file_type)
+{
+	int dir_entry_len = 0;
+	struct ext2_dir_entry_2 my_dir_entry = {0};
+	
+	while (dir_entry_len < BLOCK_SIZE)  									/*  iterate on the dir entries untill you find the desired directory-name */
+		{
+			
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));  	/*  iterate on the dir entries untill you find the desired directory-name */
+			if (0 == strcmp(dir_name, my_dir_entry.name) && my_dir_entry.file_type == file_type)
+			{
+				return my_dir_entry;
+			}
+		      	dir_entry_len += my_dir_entry.rec_len; 							/*  sum the records entry to start every itarate from the next record */
+		}
+		
+			perror("path doesn't exist");
+			exit(0);	
+}
+
 
 int GetFIleContent(char *path, char *device_name)
 {
@@ -252,19 +268,18 @@ int GetFIleContent(char *path, char *device_name)
 	struct ext2_group_desc my_group_descriptor = {0};
 	struct ext2_inode my_inode = {0};
 	struct ext2_dir_entry_2 my_dir_entry = {0};
-	int dir_entry_len = 0;
-	unsigned int block_group = 0; /* to verify the block group for a specific inode */
+	unsigned int block_group = 0; 									/* to verify the block group for a specific inode */
 	
 	FILE *fp = NULL;
-	char *my_buffer = NULL; /* to print the file content */
-	int count_chars = 0;
+	char *my_buffer = NULL; 									/* to print the file content */
+	int count_chars = 0;										/* to find the next directory name */
 	char *dir_name = NULL;
-	int is_found = 0;
+
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
 	super_block_struct = GetSuperBlock(device_name);
-	my_group_descriptor = GetGroupDescriptor(device_name); /*  get the  Group Descriptor to jump to the inode table using bg_inode_table  */
+	my_group_descriptor = GetGroupDescriptor(device_name); 						/*  get the  Group Descriptor to jump to the inode table using bg_inode_table  */
 	
 	fp = fopen(device_name, "r");
 	if (fp == NULL)
@@ -298,26 +313,9 @@ int GetFIleContent(char *path, char *device_name)
 		memcpy(dir_name,path,count_chars);							/* memcpy to the dir_name according to the counter we did */
 		*(dir_name+count_chars) = '\0'; 							/* make sure the directory name ends properly with null-byte */
 		
+		my_dir_entry = FindDirEntry(dir_name,fp, my_inode,2);
 		
-		dir_entry_len = 0;
-		while ( dir_entry_len < BLOCK_SIZE)  							/*  iterate on the dir entries untill you find the desired directory-name */
-		{
-			
-			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));  	/*  iterate on the dir entries untill you find the desired directory-name */
-			if (0 == strcmp(dir_name, my_dir_entry.name) && my_dir_entry.file_type == 2)
-			{
-				is_found = 1;
-				break;
-			}
-		      	dir_entry_len += my_dir_entry.rec_len; 						/*  sum the records entry to start every itarate from the next record */
-		}
 		
-		if (0 == is_found)
-		{
-			perror("no such directory");
-			exit(0);
-		}
-		is_found = 0;
 		PrintDirEntry(my_dir_entry);
 		path+= count_chars + 1;									/*  advance path to get the next directory name (+1 for '/') */
 		printf("check path is: %s\n",path);
@@ -335,54 +333,29 @@ int GetFIleContent(char *path, char *device_name)
 	}												/*  enf of iterating for directories */ 
 	
 	     
-	dir_entry_len = 0;
-	if (NULL == strchr(path,'/'))
-	{
-		
-		while ( dir_entry_len < BLOCK_SIZE)							/*  iterate on the dir entries untill you find the file  */
-		{
-		
-			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));
-			
-		      	if (0 == strcmp(path, my_dir_entry.name) && my_dir_entry.file_type == 1)
-			{
-				is_found = 1;
-				break;
-			}
-		      	dir_entry_len += my_dir_entry.rec_len; 							
-		}
-		
-		if (0 == is_found)
-		{
-			perror("path doesn't exist");
-			exit(0);
-		}
+		my_dir_entry = FindDirEntry(path,fp, my_inode,1);					/*  find the dir entry for the target - file */ 
 		
 		PrintDirEntry(my_dir_entry);
 		       	
-		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;
-		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;
+		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;		/* check the relevant block-group for this specific inode   */	
+		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;	/* update the inode number to be relative to the block group  */
 
 							
-		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/*   inode of the file     */
+		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/*  get the inode table of the file to find it's data blocks  */
 		
 		PrintInodeTable(my_inode);
-	}
 	
-	
-	my_buffer = malloc(my_inode.i_size+1);
 
-	printf("i_size is: %u\n",my_inode.i_size);
-	printf("block pointer is: %u\n",my_inode.i_block[0]);
+	my_buffer = malloc(my_inode.i_size+1);								/*  set the buffer to the size of the desired file-content  */
 
-	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 
+	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 				/* jump to the data block to get it   */
 		{
 			perror("GetFIleContent: fseek failed");
 			fclose(fp);
 			return -1;
 		}
 		
-	if (fread(my_buffer, my_inode.i_size, 1, fp) != 1) 						/* jump to the data block to print it   */
+	if (fread(my_buffer, my_inode.i_size, 1, fp) != 1) 						/* get the data blocks  */				
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
@@ -390,14 +363,10 @@ int GetFIleContent(char *path, char *device_name)
 	}	
 		
 	printf("content of file is: %s\n",my_buffer);
-	puts(my_buffer);
-	
 
 	free(my_buffer);
-	
-	
-
 	free(dir_name);
+	
 	fclose(fp);
 		
 	return 0;
@@ -418,7 +387,7 @@ int main(int argc, char *argv[])
 	
 	PrintSuperBlock(disk_name);
 	/*PrintGroupDescriptor(disk_name);*/
-	GetFIleContent("/subdir/another/third.txt",disk_name);
+	GetFIleContent("/first.txt",disk_name);
 
 	return 0;
 }

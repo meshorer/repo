@@ -16,6 +16,7 @@ void PrintInodeTable(struct ext2_inode my_inode);
 
 struct ext2_dir_entry_2 GetDirEntry(FILE *fp, size_t len);
 void PrintDirEntry(struct ext2_dir_entry_2 my_dir_entry);
+struct ext2_dir_entry_2 FindDirEntry(char *dir_name,FILE * fp, struct ext2_inode my_inode, int file_type);
 
 struct ext2_super_block {
 	__u32	s_inodes_count;		/* Inodes count */
