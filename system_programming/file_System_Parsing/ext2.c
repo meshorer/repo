@@ -353,13 +353,11 @@ int GetFIleContent(char *path, char *device_name)
 	}
 	
 	
-	
-	
 	my_buffer = malloc(my_inode.i_size+1);
 
 	printf("i_size is: %u\n",my_inode.i_size);
 	printf("block pointer is: %u\n",my_inode.i_block[0]);
-	printf("size of buffer is: %lu\n",strlen(my_buffer));
+
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 
 		{
 			perror("GetFIleContent: fseek failed");
@@ -403,13 +401,13 @@ int main(int argc, char *argv[])
 	
 	PrintSuperBlock(disk_name);
 	/*PrintGroupDescriptor(disk_name);*/
-	GetFIleContent("/yosef/maybe.txt",disk_name);
+	GetFIleContent("/subdir/another/third.txt",disk_name);
 
 	return 0;
 }
 
 
-/* if (S_ISDIR(inode.i_mode))  check that the path is a directory. */
+
 	
 	/*  The root directory is always located at inode 2. */
 	
@@ -470,31 +468,13 @@ int main(int argc, char *argv[])
 	       
 	
 	       
-	printf("test ends:\n");
-	
-	
-		fd = open(device_name, O_RDONLY);
-	if (fd < 0) {
-	    perror("open");
-	    exit(1);
-	}
-	
-	if (lseek(fd, BLOCK_SIZE * my_inode.i_block[0], SEEK_SET) < 0) {
-	    perror("lseek");
-	    exit(1);
-	}
-
-	
-	if (read(fd, my_buffer, 1) < 1) {
-	    perror("read");
-	    exit(1);
-	}
-
-	printf("content of file is: %s\n", my_buffer);
-
-	if (close(fd) < 0) {
-	    perror("close");
-	    exit(1);
-	}
+	while (0 != strcmp(dir_name, my_dir_entry.name) && dir_entry_len < BLOCK_SIZE)  	
+		{
+		
+			my_dir_entry = GetDirEntry(fp, (BLOCK_SIZE * my_inode.i_block[0]+dir_entry_len));  	
+			
+		      	dir_entry_len += my_dir_entry.rec_len; 						
+		}
+		
 	******************************************************************************/
 	
