@@ -289,12 +289,9 @@ int GetFIleContent(char *path, char *device_name)
    	}
    	
    	
-	printf("\nprinting inode table for root directory:\n");
+
 	my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) * ROOT_INODE)); /*  get inode table for root directory  */
-	
-	PrintInodeTable(my_inode);				
-	printf("\n\n");
-		
+			
 	path = path+1;
 	
 	dir_name = malloc(strlen(path)*sizeof(char));
@@ -375,19 +372,18 @@ int GetFIleContent(char *path, char *device_name)
 
 int main(int argc, char *argv[])
 {
-	char *disk_name =NULL;
+
 	
-	/*assert(argc>=2);*/ /* after adding path to file is should be 3   */
+	assert(argc>=3);
 	
-	/*disk_name =argv[1];*/
-	disk_name = "/dev/ram0";
 	
 	printf("the disk name is: %s\n", argv[1]);
+	printf("the path is: %s\n", argv[2]);
 	printf("the count argc is: %d\n", argc);
 	
-	PrintSuperBlock(disk_name);
-	/*PrintGroupDescriptor(disk_name);*/
-	GetFIleContent("/first.txt",disk_name);
+	PrintSuperBlock(argv[1]);
+	PrintGroupDescriptor(argv[1]);
+	GetFIleContent(argv[2],argv[1]);
 
 	return 0;
 }
@@ -395,28 +391,9 @@ int main(int argc, char *argv[])
 
 
 	
-	/*  The root directory is always located at inode 2. */
-	
-	/* bg_inode_table contains the block number where the inode table begins for the group */
-	
-	/* 
-	1. check the number of '/' and assign it to a variable. *(maybe -  while (NULL != strchr('/',path)) 
-	2. get the bg_inode_table from the first group descriptor, and go there
-	3. find inode number 2 (root directory) and check jump to it's data block (i_block) to find the dir-entries
-	4. use a function to get the next dir-name (until the next /) and look for it in the dir-entry to find it's inode number
-	5. use the inode number to understand on which block group it is (inode number / blocks-per-group), then jump to its block group
-	6. repeat steps (from step 2) until you find the file name 	 
-	
-	Creating filesystem with 128000 4k blocks and 128000 inodes
-	Filesystem UUID: fea03f6a-33f6-4de2-a522-e88d5b28e9de
-	Superblock backups stored on blocks: 
-	32768, 98304
 
-	*/
-	
-	
 	/*******************************************************************************
-	printf("\n\ntest starts:\n\n\n");
+	printf("print group descriptors:\n\n\n");
 	
 	for (i = 3; i < 4; i++){
 	printf("group descriptor number %u\n",i+1);
