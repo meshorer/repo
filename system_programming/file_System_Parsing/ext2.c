@@ -269,7 +269,7 @@ int GetFIleContent(char *path, char *device_name)
 	struct ext2_inode my_inode = {0};
 	struct ext2_dir_entry_2 my_dir_entry = {0};
 	unsigned int block_group = 0; 									/* to verify the block group for a specific inode */
-	
+	int i = 0;
 	FILE *fp = NULL;
 	char *my_buffer = NULL; 									/* to print the file content */
 	int count_chars = 0;										/* to find the next directory name */
@@ -321,10 +321,17 @@ int GetFIleContent(char *path, char *device_name)
 	
 		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;		/* check the relevant block-group for this specific inode   */
 		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;  /* update the inode number to be relative to the block group  */
-
+	
+		if(block_group % 3  == 0 || block_group % 5 == 0|| block_group % 7 == 0 || block_group < 2)
+		{
+			my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 	
 					
-		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/* go back to the inode table to get the data block of the desired inode   */
+		}					/* go back to the inode table to get the data block of the desired inode   */
 		
+		else
+		{
+			my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * 2) + (super_block_struct.s_inode_size*(my_dir_entry.inode)));
+		}
 		PrintInodeTable(my_inode);
 		
 	}												/*  enf of iterating for directories */ 
@@ -337,9 +344,15 @@ int GetFIleContent(char *path, char *device_name)
 		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;		/* check the relevant block-group for this specific inode   */	
 		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;	/* update the inode number to be relative to the block group  */
 
-							
+		if(block_group % 3  == 0 || block_group % 5 == 0|| block_group % 7 == 0 || block_group < 2)
+		{
 		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/*  get the inode table of the file to find it's data blocks  */
+		}					
+		else
+		{
+			my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * 2) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 
 		
+		}
 		PrintInodeTable(my_inode);
 	
 
@@ -360,7 +373,10 @@ int GetFIleContent(char *path, char *device_name)
 	}	
 		
 	printf("content of file is: %s\n",my_buffer);
-
+	
+	
+	
+	
 	free(my_buffer);
 	free(dir_name);
 	
@@ -391,12 +407,10 @@ int main(int argc, char *argv[])
 
 
 
-	
+/*********************************************************************
 
-	/*******************************************************************************
-	printf("print group descriptors:\n\n\n");
-	
-	for (i = 3; i < 4; i++){
+printf("print group descriptors:\n\n\n");
+for (i = 0; i < 4; i++){
 	printf("group descriptor number %u\n",i+1);
 	
 	if (fseek(fp, (2* (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) +BLOCK_SIZE, SEEK_SET) != 0) 
@@ -429,8 +443,14 @@ int main(int argc, char *argv[])
 	       my_group_descriptor.bg_free_inodes_count,
 	       my_group_descriptor.bg_used_dirs_count,
 	       my_group_descriptor.bg_pad);}
+
+
+
+***************************************************************************/
+	
+
+	
 	       
 	
 	
-	******************************************************************************/
 	
