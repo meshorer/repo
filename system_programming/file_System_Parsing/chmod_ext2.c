@@ -8,7 +8,8 @@
 #define SUPER_BLOCK_OFFSET 1024
 #define BLOCK_SIZE 4096
 #define ROOT_INODE 2
-
+#define SIZE_REGULAR_FILE 32768
+#define SIZE_DIRECTORY_FILE 16384
 
 
 /*  
@@ -270,7 +271,7 @@ int PrintFIleContent(char *path, char *device_name)
 	char *my_buffer = NULL; 
 	
 	
-	my_inode = GetInode(path,device_name);
+	size_t offset = GetInode(path,device_name);
 		
 	my_buffer = malloc(my_inode.i_size+1);	
 	
@@ -279,7 +280,12 @@ int PrintFIleContent(char *path, char *device_name)
 	{
 		perror("GetFIleContent: fopen failed");
 		return -1;
-   	}							/*  set the buffer to the size of the desired file-content  */
+   	}
+   	
+	
+	my_inode = GetInodeTable(fp,offset);
+		
+   								/*  set the buffer to the size of the desired file-content  */
 
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 				/* jump to the data block to get it   */
 		{
@@ -309,7 +315,7 @@ int PrintFIleContent(char *path, char *device_name)
 }
 
 
-struct ext2_inode GetInode(char *path, char *device_name)
+size_t GetInode(char *path, char *device_name)
 {
 
 	struct ext2_super_block super_block_struct = {0};
@@ -333,7 +339,7 @@ struct ext2_inode GetInode(char *path, char *device_name)
 	if (fp == NULL)
 	{
 		perror("GetInode: fopen failed");
-		return my_inode;
+		return -1;
    	}
    	
 
@@ -396,61 +402,77 @@ struct ext2_inode GetInode(char *path, char *device_name)
 
 		if(block_group % 3  == 0 || block_group % 5 == 0|| block_group % 7 == 0 || block_group < 2)
 		{
-		my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 						/*  get the inode table of the file to find it's data blocks  */
+			my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 
+			fclose(fp);				
+			free(dir_name);	
+			return (block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode));
 		}					
 		else
 		{
 			my_inode = GetInodeTable(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * 2) + (super_block_struct.s_inode_size*(my_dir_entry.inode))); 
+			fclose(fp);
+			free(dir_name);
+			return (block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * 2) + (super_block_struct.s_inode_size*(my_dir_entry.inode));
 		
 		}
-		PrintInodeTable(my_inode);
-		
-	
-		
-		free(dir_name);
-		fclose(fp);
-		
-		return my_inode;
 
 }  
                    
-
+int octal_to_decimal(int octal) 
+{
+	int decimal = 0;
+    	int base = 1;
+    	while (octal != 0)
+    	{
+        	decimal += (octal % 10) * base;
+        	octal /= 10;
+        	base *= 8;
+    	}
+    	return decimal;
+}
 
 int Chmod(char *path, char *device_name, char *permission)
 {
 	struct ext2_inode my_inode = {0};
-	FILE *fp = NULL
-	__u16 mode = 33279;
+	FILE *fp = NULL;
+	__u16 mode = 0;
 	__u16 *src = NULL;
+	size_t offset = 0;
 	
 	
-	my_inode = GetInode(path,device_name);
+	
+	printf("persmission is : %s\n",permission);
+	mode = strtol((char *)permission, NULL, 10);
+	printf("mode in octal: %u\n",mode);
+	mode = octal_to_decimal(mode);
+	printf("mode in decimal: %u\n",mode);
+	
+	
+	offset = GetInode(path,device_name);
+	
 	
 	fp = fopen(device_name, "r+");
 	if (fp == NULL)
 	{
-		perror("GetInode: fopen failed");
+		perror("chmod: fopen failed");
 		return -1;
    	}
 	
-	printf("\n\n\n\n\n\n\n\n\n\n i mode is:%u\n\n\n\n",my_inode.i_mode);
-	mode = 33070;
+	
+	my_inode = GetInodeTable(fp,offset);  /*  get the current(before) imode  */
+	PrintInodeTable(my_inode);
+	
+	mode+= SIZE_REGULAR_FILE;
 	src = &mode;
+
 	
-	
-	if(fseek(fp, -sizeof(struct ext2_inode), SEEK_CUR) != 0)
+	if(fseek(fp, offset, SEEK_SET) != 0)
 	{
 		perror("chmod: fseek failed");
 		fclose(fp);
 		return -1;
 	}
-		
-	/*if (fseek(fp,(block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (super_block_struct.s_inode_size*(my_dir_entry.inode)),SEEK_SET) != 0)
-	{
-		perror("chmod: fseek failed");
-		fclose(fp);
-		return my_inode;
-	}*/
+	
 	
 	if (fwrite(src, sizeof(my_inode.i_mode),1,fp) != 1)     
 	{	
@@ -459,11 +481,10 @@ int Chmod(char *path, char *device_name, char *permission)
 		return -1;       	
 	            
 	} 
-
-
-		printf("\n\n\n\n\n\n\n\n\n\n i mode is:%u\n\n\n\n",my_inode.i_mode);
 	
-
+	
+	my_inode = GetInodeTable(fp,offset);  /*  get the current(after) imode  */
+	PrintInodeTable(my_inode);	
 
 	return 0;
 }
@@ -479,11 +500,13 @@ int main(int argc, char *argv[])
 	printf("the disk name is: %s\n", argv[1]);
 	printf("the path is: %s\n", argv[2]);
 	printf("the count argc is: %d\n", argc);
+	printf("the command is : %s\n",argv[3]);
+	printf("the permission mode is : %s\n",argv[4]);
 	
 	PrintSuperBlock(argv[1]);
 	PrintGroupDescriptor(argv[1]);
 	PrintFIleContent(argv[2],argv[1]);
-	Chmod(argv[2],argv[1],argv[3]);
+	Chmod(argv[2],argv[1],argv[4]);
 	
 
 	return 0;
