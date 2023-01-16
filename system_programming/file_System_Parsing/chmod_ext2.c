@@ -208,14 +208,14 @@ struct ext2_dir_entry_2 GetDirEntry(FILE *fp, size_t len)
 	
 	assert(NULL != fp);
 	
-	if (fseek(fp,len,SEEK_SET) != 0) /* jump to the inode table at inode 2-root dir */
+	if (fseek(fp,len,SEEK_SET) != 0) 						/* jump to the inode table at inode 2-root dir */
 	{
 		perror("GetFIleContent: fseek failed");
 		fclose(fp);
 		return my_dir_entry;
 	}
 	
-	if (fread(&my_dir_entry, sizeof(struct ext2_dir_entry_2), 1, fp) != 1) /* get the content of the dir entries */
+	if (fread(&my_dir_entry, sizeof(struct ext2_dir_entry_2), 1, fp) != 1) 		/* get the content of the dir entries */
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
@@ -439,13 +439,21 @@ int Chmod(char *path, char *device_name, char *permission)
 	__u16 *src = NULL;
 	size_t offset = 0;
 	
-	
-	
 	printf("persmission is : %s\n",permission);
 	mode = strtol((char *)permission, NULL, 10);
 	printf("mode in octal: %u\n",mode);
+	
+	if (mode > 7777)
+	{
+		perror("chmod: mode not valid");
+		return -1;
+	
+	}
+	
 	mode = octal_to_decimal(mode);
 	printf("mode in decimal: %u\n",mode);
+	
+	
 	
 	
 	offset = GetInode(path,device_name);
@@ -506,7 +514,11 @@ int main(int argc, char *argv[])
 	PrintSuperBlock(argv[1]);
 	PrintGroupDescriptor(argv[1]);
 	PrintFIleContent(argv[2],argv[1]);
-	Chmod(argv[2],argv[1],argv[4]);
+	
+	if (0 == strcmp("chmod",argv[3]))
+	{
+		Chmod(argv[2],argv[1],argv[4]);
+	}
 	
 
 	return 0;
