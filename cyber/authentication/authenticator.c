@@ -1,9 +1,13 @@
  #include <crypt.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "authenticator.h"
 
 int CheckConditions(const char *username, const char *password);
 int CheckIfUsernameExists(const char *username);
+int AppendUserToFile(const char *username,const char *hashed_password);
+int CountUsers();
 
 
 #define MAX_LENGTH 32
@@ -31,10 +35,6 @@ int CheckIfUsernameExists(const char *username);
 */
 int AuthAddUser(const char *username, const char *password)
 {
-
-	FILE *fp = NULL;
-	char *user_name = NULL;
-	char *next_character = NULL;
 	
 	char *hashed_password = NULL;
 	int result = 0;
@@ -93,6 +93,13 @@ int AuthAuthenticator(const char *username, const char *password)
 
 int CheckConditions(const char *username, const char *password)
 {
+	char *begin_username = (char *)username;
+	char *begin_password = (char *)password;
+	
+	if (31 < strlen(username) || 31 < strlen(password))				/* strlen doesn't include the null-terminator  */
+	{
+		return 4;
+	}
 	
 	while (*username)
 	{
@@ -113,7 +120,10 @@ int CheckConditions(const char *username, const char *password)
 		
 		++password;
 	}
-
+	
+	username = begin_username;
+	password = begin_password;
+	
 	return 0;
 }
 
@@ -121,9 +131,67 @@ int CheckConditions(const char *username, const char *password)
 
 int CheckIfUsernameExists(const char *username)
 {
+	
+	char *check_user_name = NULL;
+	char current_character = '0';
+	int count_username = 0;
+	FILE *fp = NULL;
+	int num_users = 0;
+	check_user_name = malloc(32);
+	
 
+	fp = fopen(USERS_DB, "r");  
+	if (NULL == fp)
+	{
+		return -1;
+	}
+	
+	current_character = getc(fp);
+	
+	while (current_character != EOF)
+	{
+		num_users = CountUsers();
+		count_username = 0;
+		while (':' != current_character || EOF != current_character || '\n' != current_character)
+		{
+			
+			if (':' == current_character)
+			{
+				break;
+			}
+			++count_username;
+			current_character = getc(fp);
+		}
 
-
+		if (0 == count_username &&  0 == num_users)
+		{
+			free(check_user_name);
+			return 0;
+		}
+		
+		check_user_name = realloc(check_user_name,count_username+1);
+		
+		fseek(fp,-(count_username+1),SEEK_CUR);    			/* return to the begining  */
+		
+		fgets(check_user_name,count_username+1,fp);
+	
+		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
+		{
+			free(check_user_name);
+			return 1;
+		}
+		
+		while(current_character != '\n')
+		{
+			current_character = getc(fp);
+		}
+		
+		current_character = getc(fp);
+	
+	}
+		
+	free(check_user_name);
+	fclose(fp);
 
 	return 0;
 }
@@ -147,4 +215,29 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 	fclose(fp);
 	
 return 0;
+}
+
+
+int CountUsers()
+{
+	FILE *fp = NULL;
+	char chr;
+	int count_lines = 0;
+	fp = fopen(USERS_DB,"r");
+	if (fp == NULL)
+    	{
+        	return 2;
+    	}
+    	chr = getc(fp);
+    	while (chr != EOF)
+    	{
+    		if (chr == '\n')
+    		{
+    			count_lines+=1;
+    		}
+    		chr = getc(fp);
+    	}
+    	
+    	return count_lines;
+	fclose(fp);	
 }
