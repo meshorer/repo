@@ -55,7 +55,6 @@ void PrintSuperBlock(char *device_name)
 	       super_block_struct.s_inode_size);       
 }
 
-
 struct ext2_super_block GetSuperBlock(char *device_name)
 {
 	FILE *fp = NULL;
@@ -84,7 +83,6 @@ struct ext2_super_block GetSuperBlock(char *device_name)
 	return super_block_struct;
 }
 
-
 void PrintGroupDescriptor(char *device_name)
 {
 	struct ext2_group_desc my_group_descriptor;
@@ -111,8 +109,6 @@ void PrintGroupDescriptor(char *device_name)
 	       my_group_descriptor.bg_pad);
 }
 
-
-
 struct ext2_group_desc GetGroupDescriptor(char *device_name)
 {
 	FILE *fp = NULL;
@@ -126,7 +122,6 @@ struct ext2_group_desc GetGroupDescriptor(char *device_name)
 		perror("GetGroupDescriptor: fopen failed");
 		return my_group_descriptor;
    	}
-
 		
 	if (fseek(fp, BLOCK_SIZE, SEEK_SET) != 0) /* Group Descriptor appears after at the begining of the second block  */
 	{
@@ -153,21 +148,20 @@ struct ext2_inode GetInodeTable(FILE *fp, size_t len)
 	
 	assert(NULL != fp);
 	
-	if (fseek(fp,len, SEEK_SET) != 0) /* jump to the inode table at inode 2-root dir */
+	if (fseek(fp,len, SEEK_SET) != 0) 				/* jump to the inode table at inode 2-root dir */
 	{
 		perror("GetFIleContent: fseek failed");
 		fclose(fp);
 		return my_inode;
 	}
 	
-   	if (fread(&my_inode, sizeof(struct ext2_inode), 1, fp) != 1) /* get the content of the inode table of root directory */
+   	if (fread(&my_inode, sizeof(struct ext2_inode), 1, fp) != 1) 	/* get the content of the inode table of root directory */
 	{
 		perror("GetFIleContent: fread failed");
 		fclose(fp);
 		return my_inode;
 	}
 
-	
 	return my_inode;
 }
 
@@ -199,7 +193,6 @@ void PrintInodeTable(struct ext2_inode my_inode)
 	       my_inode.i_blocks,
 	       my_inode.i_flags,
 	       my_inode.i_block[0]);
-
 }
 
 struct ext2_dir_entry_2 GetDirEntry(FILE *fp, size_t len)
@@ -242,7 +235,6 @@ void PrintDirEntry(struct ext2_dir_entry_2 my_dir_entry)
 	       my_dir_entry.name); 
 }
 
-
 struct ext2_dir_entry_2 FindDirEntry(char *dir_name,FILE * fp, struct ext2_inode my_inode, int file_type)
 {
 	int dir_entry_len = 0;
@@ -263,7 +255,6 @@ struct ext2_dir_entry_2 FindDirEntry(char *dir_name,FILE * fp, struct ext2_inode
 			exit(0);	
 }
 
-
 int PrintFIleContent(char *path, char *device_name)
 {
 	struct ext2_inode my_inode = {0};
@@ -281,11 +272,9 @@ int PrintFIleContent(char *path, char *device_name)
 		perror("GetFIleContent: fopen failed");
 		return -1;
    	}
-   	
-	
-	my_inode = GetInodeTable(fp,offset);
-		
-   								/*  set the buffer to the size of the desired file-content  */
+   		
+	my_inode = GetInodeTable(fp,offset);	
+   													/*  set the buffer to the size of the desired file-content  */
 
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 				/* jump to the data block to get it   */
 		{
@@ -302,10 +291,7 @@ int PrintFIleContent(char *path, char *device_name)
 	}	
 		
 	printf("content of file is: %s\n",my_buffer);
-	
-	
-	
-	
+		
 	free(my_buffer);
 	
 	
@@ -313,7 +299,6 @@ int PrintFIleContent(char *path, char *device_name)
 		
 	return 0;
 }
-
 
 size_t GetInode(char *path, char *device_name)
 {
@@ -327,8 +312,7 @@ size_t GetInode(char *path, char *device_name)
 	FILE *fp = NULL;
 	int count_chars = 0;										/* to find the next directory name */
 	char *dir_name = NULL;
-	
-	
+		
 	assert(NULL != path);
 	assert(NULL != device_name);
 	
@@ -342,8 +326,6 @@ size_t GetInode(char *path, char *device_name)
 		return -1;
    	}
    	
-
-
 	my_inode = GetInodeTable(fp,(BLOCK_SIZE * my_group_descriptor.bg_inode_table) + (sizeof(struct ext2_inode) * ROOT_INODE)); /*  get inode table for root directory  */
 			
 	path = path+1;
@@ -371,8 +353,6 @@ size_t GetInode(char *path, char *device_name)
 		path+= count_chars + 1;									/*  advance path to get the next directory name (+1 for '/') */
 		printf("check path is: %s\n",path);
 		
-		
-	
 		block_group = (my_dir_entry.inode -1) / super_block_struct.s_inodes_per_group;		/* check the relevant block-group for this specific inode   */
 		my_dir_entry.inode = (my_dir_entry.inode - 1) % super_block_struct.s_inodes_per_group;  /* update the inode number to be relative to the block group  */
 	
@@ -389,9 +369,6 @@ size_t GetInode(char *path, char *device_name)
 		PrintInodeTable(my_inode);
 		
 	}												/*  enf of iterating for directories */ 
-	
-				
-	
 		  
 		my_dir_entry = FindDirEntry(path,fp, my_inode,1);					/*  find the dir entry for the target - file */ 
 		
@@ -413,7 +390,6 @@ size_t GetInode(char *path, char *device_name)
 			fclose(fp);
 			free(dir_name);
 			return (block_group * (super_block_struct.s_blocks_per_group * BLOCK_SIZE )) + (BLOCK_SIZE * 2) + (super_block_struct.s_inode_size*(my_dir_entry.inode));
-		
 		}
 
 }  
@@ -447,17 +423,12 @@ int Chmod(char *path, char *device_name, char *permission)
 	{
 		perror("chmod: mode not valid");
 		return -1;
-	
 	}
 	
 	mode = octal_to_decimal(mode);
 	printf("mode in decimal: %u\n",mode);
 	
-	
-	
-	
 	offset = GetInode(path,device_name);
-	
 	
 	fp = fopen(device_name, "r+");
 	if (fp == NULL)
@@ -499,7 +470,6 @@ int Chmod(char *path, char *device_name, char *permission)
 
 int main(int argc, char *argv[])
 {
-
 	
 	assert(argc>=3);
 	
