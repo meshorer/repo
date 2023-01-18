@@ -24,6 +24,8 @@ int main(void)
 	AuthAddUser("daniel","123345erg4");
 	AuthAddUser("daniela","123345erg4");
 	
+	
+	printf("result is : %d\n",AuthAuthenticator("", "1234"));
 
 	    return 0;
 }

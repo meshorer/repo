@@ -10,7 +10,7 @@ int CheckIfUsernameExists(const char *username);
 int AppendUserToFile(const char *username,const char *hashed_password);
 int ExtractUsernameFromFile(FILE *fp,char current_character);
 int CountUsers();
-
+int ComparePasswords(FILE *fp,char *password);
 
 #define MAX_LENGTH 32
 #define USERS_DB "/home/daniel/git/cyber/authentication/db_file.txt"
@@ -90,6 +90,14 @@ int AuthAuthenticator(const char *username, const char *password)
 {
 	char *hashed_password = NULL;
 	int result = 0;
+	int num_users = 0;
+	int i = 0;
+	int is_found = 0;
+	
+	char *check_user_name = NULL;
+	char current_character = '0';
+	int count_username = 0;
+	FILE *fp = NULL;
 	
 	assert(NULL != username);
 	assert(NULL != password);
@@ -98,9 +106,67 @@ int AuthAuthenticator(const char *username, const char *password)
 	if (0 != result)      							/* check for invalid chars, too long */	
 	{
 		return result;
+	}
+	
+	check_user_name = malloc(MAX_LENGTH);
+	
+	fp = fopen(USERS_DB, "r");  
+	if (NULL == fp)
+	{
+		return -1;
+	}
+	
+	current_character = getc(fp);
+	
+	num_users = CountUsers();
+	for (i = 0; i < num_users; ++i)
+	{
+		num_users = CountUsers();
+		count_username = ExtractUsernameFromFile(fp,current_character);
+		
+		if (0 == count_username &&  0 == num_users)
+		{
+			free(check_user_name);
+			return 1;
+		}
+		
+		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
+		{
+			free(check_user_name);
+			return 2;
+		}
+		
+		check_user_name = realloc(check_user_name,count_username+1);    			
+		
+		if(NULL == fgets(check_user_name,count_username+1,fp))
+		{
+			free(check_user_name);
+			return 2;
+		}
+	
+		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
+		{
+			is_found = 1;
+			break;
+		}
+		
+		while(current_character != '\n')
+		{
+			current_character = getc(fp);
+		}
+		
+		current_character = getc(fp);
 	}		
-
-	return 0;
+	if (0 == is_found)
+	{
+		return 1;
+	}
+	
+	current_character = getc(fp);
+	result = ComparePasswords(fp,(char *)password);
+	free(check_user_name);
+	fclose(fp);
+	return result;
 }
 
 
@@ -249,7 +315,42 @@ int ExtractUsernameFromFile(FILE *fp,char current_character)
 }
 
 
+int ComparePasswords(FILE *fp,char *password)
+{
+	
+	char *file_hash = NULL;
+	char *check_password_hash = NULL;
+	
+	int counter_salt = 0;
+	char *salt = NULL;
+	size_t len = 0;
+	file_hash = malloc(MAX_LENGTH);
+	if(NULL == fgets(file_hash,MAX_LENGTH,fp))
+	{
+			free(file_hash);
+			return 2;
+	}
+	len = strlen(file_hash);
+	check_password_hash = malloc(len+1);
+	salt = malloc(MAX_LENGTH);
+	while (NULL != strchr(file_hash,'$'))
+	{
+		*salt = *file_hash;
+		++salt;
+		++file_hash;
+		++counter_salt;
+	}
+	salt-=counter_salt;
+	
+	check_password_hash = crypt(password, salt);
+	check_password_hash+=counter_salt;
+	if (0 != strncmp(check_password_hash,file_hash,len - counter_salt-1))
+	{
+		return 3;
+	}
 
+	return 0;
+}
 
 
 
