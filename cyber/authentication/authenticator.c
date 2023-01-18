@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "authenticator.h"
 
 int CheckConditions(const char *username, const char *password);
@@ -38,6 +39,9 @@ int AuthAddUser(const char *username, const char *password)
 	
 	char *hashed_password = NULL;
 	int result = 0;
+	
+	assert(NULL != username);
+	assert(NULL != password);
 	
 	
 	result = CheckConditions(username,password);
@@ -152,13 +156,8 @@ int CheckIfUsernameExists(const char *username)
 	{
 		num_users = CountUsers();
 		count_username = 0;
-		while (':' != current_character || EOF != current_character || '\n' != current_character)
+		while (':' != current_character)
 		{
-			
-			if (':' == current_character)
-			{
-				break;
-			}
 			++count_username;
 			current_character = getc(fp);
 		}
@@ -171,9 +170,17 @@ int CheckIfUsernameExists(const char *username)
 		
 		check_user_name = realloc(check_user_name,count_username+1);
 		
-		fseek(fp,-(count_username+1),SEEK_CUR);    			/* return to the begining  */
+		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
+		{
+			free(check_user_name);
+			return 2;
+		}    			
 		
-		fgets(check_user_name,count_username+1,fp);
+		if(NULL == fgets(check_user_name,count_username+1,fp))
+		{
+			free(check_user_name);
+			return 2;
+		}
 	
 		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
 		{
@@ -205,7 +212,7 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 	fp = fopen(USERS_DB, "a");  
 	if (NULL == fp)
 	{
-		return -1;
+		return 2;
 	}
 	
 	fprintf(fp, "%s", username);
@@ -214,7 +221,7 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 	
 	fclose(fp);
 	
-return 0;
+	return 0;
 }
 
 

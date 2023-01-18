@@ -21,6 +21,8 @@ int main(void)
 	AuthAddUser("user4","123345erg4");
 	AuthAddUser("user5","123345erg4");
 	AuthAddUser("user43","123345erg4");
+	AuthAddUser("daniel","123345erg4");
+	AuthAddUser("daniela","123345erg4");
 	
 
 	    return 0;
