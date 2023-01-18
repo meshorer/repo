@@ -8,6 +8,7 @@
 int CheckConditions(const char *username, const char *password);
 int CheckIfUsernameExists(const char *username);
 int AppendUserToFile(const char *username,const char *hashed_password);
+int ExtractUsernameFromFile(FILE *fp,char current_character);
 int CountUsers();
 
 
@@ -87,7 +88,17 @@ int AuthDeleteUser(const char *username)
 
 int AuthAuthenticator(const char *username, const char *password)
 {
-
+	char *hashed_password = NULL;
+	int result = 0;
+	
+	assert(NULL != username);
+	assert(NULL != password);
+	
+	result = CheckConditions(username,password);
+	if (0 != result)      							/* check for invalid chars, too long */	
+	{
+		return result;
+	}		
 
 	return 0;
 }
@@ -132,7 +143,7 @@ int CheckConditions(const char *username, const char *password)
 }
 
 
-
+/*     */
 int CheckIfUsernameExists(const char *username)
 {
 	
@@ -141,7 +152,7 @@ int CheckIfUsernameExists(const char *username)
 	int count_username = 0;
 	FILE *fp = NULL;
 	int num_users = 0;
-	check_user_name = malloc(32);
+	check_user_name = malloc(MAX_LENGTH);
 	
 
 	fp = fopen(USERS_DB, "r");  
@@ -154,27 +165,23 @@ int CheckIfUsernameExists(const char *username)
 	
 	while (current_character != EOF)
 	{
+	
 		num_users = CountUsers();
-		count_username = 0;
-		while (':' != current_character)
-		{
-			++count_username;
-			current_character = getc(fp);
-		}
-
+		count_username = ExtractUsernameFromFile(fp,current_character);
+		
 		if (0 == count_username &&  0 == num_users)
 		{
 			free(check_user_name);
 			return 0;
 		}
 		
-		check_user_name = realloc(check_user_name,count_username+1);
-		
 		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
 		{
 			free(check_user_name);
 			return 2;
-		}    			
+		}
+		
+		check_user_name = realloc(check_user_name,count_username+1);    			
 		
 		if(NULL == fgets(check_user_name,count_username+1,fp))
 		{
@@ -225,7 +232,28 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 }
 
 
-int CountUsers()
+
+int ExtractUsernameFromFile(FILE *fp,char current_character)
+{
+	
+	int count_username = 0;
+	
+	while (':' != current_character)
+	{
+		++count_username;
+		current_character = getc(fp);
+	}
+	
+	return count_username;
+
+}
+
+
+
+
+
+
+int CountUsers()      				/*  Basically count lines.. */
 {
 	FILE *fp = NULL;
 	char chr;
