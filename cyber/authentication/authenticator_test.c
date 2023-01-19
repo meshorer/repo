@@ -19,14 +19,17 @@ int main(void)
 	AuthAddUser("user2","123345erg4");
 	AuthAddUser("user3","123345erg4");
 	AuthAddUser("user4","123345erg4");
+	AuthAddUser("user0","1233dfgdfgrg4");
 	AuthAddUser("user5","123345erg4");
+	AuthAddUser("","1234");
 	AuthAddUser("user43","123345erg4");
 	AuthAddUser("daniel","123345erg4");
 	AuthAddUser("daniela","123345erg4");
+	AuthAddUser("","1234");
 	
 	
+	printf("result is : %d\n",CopyAuthDeleteUser("daniel"));
 	printf("result is : %d\n",AuthAuthenticator("", "1234"));
-
 	    return 0;
 }
 
