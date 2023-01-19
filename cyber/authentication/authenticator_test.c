@@ -28,8 +28,8 @@ int main(void)
 	AuthAddUser("","1234");
 	
 	
-	printf("result is : %d\n",CopyAuthDeleteUser("daniel"));
-	printf("result is : %d\n",AuthAuthenticator("", "1234"));
+	printf("result is : %d\n",AuthDeleteUser("daniel"));
+	printf("result is : %d\n",AuthAuthenticator("user43", "123345erg4"));
 	    return 0;
 }
 
