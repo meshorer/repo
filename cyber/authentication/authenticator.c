@@ -20,6 +20,7 @@ int CheckUser(FILE *fp,const char *username);
 #define USERS_TMP "/home/daniel/git/cyber/authentication/tmp.txt"
 #define INDEX_CHECK 10
 #define USER_NOT_EXIST 1
+#define MAX_SIZE 100
 
 int AuthAddUser(const char *username, const char *password)
 {
@@ -198,8 +199,6 @@ int CheckIfUsernameExists(const char *username)
 	int num_users = 0;
 	int i = 0;
 	
-	check_user_name = malloc(MAX_LENGTH);
-	
 	fp = fopen(USERS_DB, "r");  
 	if (NULL == fp)
 	{
@@ -208,26 +207,25 @@ int CheckIfUsernameExists(const char *username)
 	
 	current_character = getc(fp);
 	
-	num_users = CountUsers();
+	num_users = CountUsers();							/* get the number of users in the file */
 	if( 0 == num_users)
 	{
-		free(check_user_name);
 		return 0;
 	}
-	
-	for (i = 0; i < num_users; ++i)
+	check_user_name = malloc(MAX_LENGTH);
+	for (i = 0; i < num_users; ++i)							/* iterate for each line */
 	{
 	
 		num_users = CountUsers();
-		count_username = ExtractUsernameFromFile(fp,current_character);
+		count_username = ExtractUsernameFromFile(fp,current_character); 
 		
-		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
+		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)				/* rewind to the begining of line | +1 because of the ':' */
 		{
 			free(check_user_name);
 			return 2;
 		}
 		
-		check_user_name = realloc(check_user_name,count_username+1);    			
+		check_user_name = realloc(check_user_name,count_username+1);    	/* +1 for null-terminator */		
 		
 		if(NULL == fgets(check_user_name,count_username+1,fp))
 		{
@@ -235,19 +233,19 @@ int CheckIfUsernameExists(const char *username)
 			return 2;
 		}
 	
-		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
+		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))   /* compare usernames */
 		{
 			printf("found match for user %s\n",username);
 			free(check_user_name);
-			return i + INDEX_CHECK;
+			return i + INDEX_CHECK;						/* INDEX_CHECK will be discriminated in the caller function */
 		}
 		
-		while(current_character != '\n')
+		while(current_character != '\n')					/*  get to the end of the line */
 		{
 			current_character = getc(fp);
 		}
 		
-		current_character = getc(fp);
+		current_character = getc(fp);						/*  one more getc to go to next line */
 	
 	}
 		
@@ -281,15 +279,17 @@ int DeleteUser(int i,int num_users)
 	char *line = NULL;
 	tmp_fp = fopen(USERS_TMP, "a+");
 	fp = fopen(USERS_DB,"a+");
-	line = malloc(100);
+	
+	line = malloc(MAX_SIZE);
 		
 	for (j = 0; j < num_users; ++j)
 	{
-		if(NULL == fgets(line,100,fp))
+		if(NULL == fgets(line,MAX_SIZE,fp))					/* fgets will stop at end of line, because MAX_SIZE is bigger */
 		{
+			free(line);
 			return 2;
 		}
-		if(j != i)
+		if(j != i)								/*  print all the lines to the tmp file, except the recieved index line */	
 		{
 			fprintf(tmp_fp, "%s", line);
 		}
@@ -324,13 +324,10 @@ int ComparePasswords(char *password, int i,int num_users)
 	
 	int counter_salt = 0;
 	char *salt = NULL;
-	size_t len = 0;
+	
 	fp = fopen(USERS_DB,"r");
-	
-	printf("in compare function, i is : %d and num_users is %d\n",i,num_users);
-	
-	file_hash = malloc(100);
-	begin_line = file_hash;
+	file_hash = malloc(MAX_SIZE);
+	begin_line = file_hash;								/*  because we advance the file_hash, to later on free it we need to save its starting point */
 	for (j = 0; j < num_users; ++j)
 	{
 		if(j == i)
@@ -338,8 +335,9 @@ int ComparePasswords(char *password, int i,int num_users)
 			break;
 		}
 		
-		if(NULL == fgets(file_hash,100,fp))
+		if(NULL == fgets(file_hash,MAX_SIZE,fp))
 		{
+			free(file_hash);
 			return 2;
 		}	
 	}
@@ -350,25 +348,24 @@ int ComparePasswords(char *password, int i,int num_users)
 		return 2;
 	}
 	
-	file_hash = strchr(file_hash, ':') + 1;			/*  skip the username */
-	while (NULL != strchr(file_hash,'$'))         		/*  extract number of letters of the salt */
+	file_hash = strchr(file_hash, ':') + 1;						/*  skip the username */
+	while (NULL != strchr(file_hash,'$'))         					/*  extract number of letters of the salt */
 	{
 		++file_hash;
 		++counter_salt;
 	}
-	salt = malloc(counter_salt+1);
-	file_hash-=counter_salt;
+	salt = malloc(counter_salt+1);							/*  allocate for sait it's exact size + null terminator */
+	file_hash-=counter_salt;							/*  rewind the pinter to include the salt */
 	memcpy(salt,file_hash,counter_salt);
 	salt+=counter_salt;
-	*salt = '\0';						/* make sure salt will end with null-terminator */
+	*salt = '\0';									/* make sure salt will end with null-terminator ( Johnny - it didnt work without it) */
 	salt-=counter_salt;
 
-	check_password_hash = crypt(password, salt);		/* crypt the password recieved to function with the extracted salt */
-	len = strlen(file_hash);
+	check_password_hash = crypt(password, salt);					/* crypt the password recieved to function with the extracted salt */
 	
-	if (0 != strncmp(check_password_hash,file_hash,len -1)) /* -1 because of the '/n' at the end of the line */
+	if (0 != strncmp(check_password_hash,file_hash,strlen(file_hash) -1)) 		/* -1 because of the '/n' at the end of the line */
 	{
-		file_hash = begin_line;
+		file_hash = begin_line;							/*  get file_hash to it's starting point in order to free it */
 		free(file_hash);
 		free(salt);
 		return 3;

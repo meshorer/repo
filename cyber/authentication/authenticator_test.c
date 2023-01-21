@@ -11,7 +11,7 @@
 int main(void) 
 {
 	
-	/*AuthAddUser("","1234");
+	AuthAddUser("","1234");
 	AuthAddUser("","1234");
 	AuthAddUser("","1234");
 	AuthAddUser("sdfds","123345erg4");
@@ -26,7 +26,7 @@ int main(void)
 	AuthAddUser("user43","123345erg4");
 	AuthAddUser("daniel","123345erg4");
 	AuthAddUser("daniela","123345erg4");
-	AuthAddUser("","1234");*/
+	AuthAddUser("","1234");
 	
 	
 	printf("result is : %d\n",AuthDeleteUser(""));
