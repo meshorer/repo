@@ -6,7 +6,6 @@
 #include "authenticator.h"
 
 int CheckConditions(const char *username, const char *password);
-int CheckIfUsernameExists(const char *username);
 int AppendUserToFile(const char *username,const char *hashed_password);
 int ExtractUsernameFromFile(FILE *fp,char current_character);
 int CountUsers();
@@ -108,77 +107,6 @@ int CheckConditions(const char *username, const char *password)
 	return 0;
 }
 
-
-/*     */
-int CheckIfUsernameExists(const char *username)
-{
-	
-	char *check_user_name = NULL;
-	char current_character = '0';
-	int count_username = 0;
-	FILE *fp = NULL;
-	int num_users = 0;
-	int i = 0;
-	
-	check_user_name = malloc(MAX_LENGTH);
-	
-	fp = fopen(USERS_DB, "r");  
-	if (NULL == fp)
-	{
-		return -1;
-	}
-	
-	current_character = getc(fp);
-	
-	num_users = CountUsers();
-	if( 0 == num_users)
-	{
-		free(check_user_name);
-		return 0;
-	}
-	
-	for (i = 0; i < num_users; ++i)
-	{
-	
-		num_users = CountUsers();
-		count_username = ExtractUsernameFromFile(fp,current_character);
-		
-		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
-		{
-			free(check_user_name);
-			return 2;
-		}
-		
-		check_user_name = realloc(check_user_name,count_username+1);    			
-		
-		if(NULL == fgets(check_user_name,count_username+1,fp))
-		{
-			free(check_user_name);
-			return 2;
-		}
-	
-		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
-		{
-			free(check_user_name);
-			return 1;
-		}
-		
-		while(current_character != '\n')
-		{
-			current_character = getc(fp);
-		}
-		
-		current_character = getc(fp);
-	
-	}
-		
-	free(check_user_name);
-	fclose(fp);
-
-	return 0;
-}
-
-
 int AppendUserToFile(const char *username,const char *hashed_password)
 {
 
@@ -198,7 +126,6 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 	
 	return 0;
 }
-
 
 
 int ExtractUsernameFromFile(FILE *fp,char current_character)
@@ -501,6 +428,7 @@ int AuthAuthenticator(const char *username, const char *password)
 	
 	if ( 1 == found_match)
 	{
+		
 		result = ComparePasswords((char *)password,i,num_users);
 		if (0 == result)
 		{

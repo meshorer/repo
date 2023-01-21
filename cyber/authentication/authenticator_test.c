@@ -21,6 +21,7 @@ int main(void)
 	AuthAddUser("user4","123345erg4");
 	AuthAddUser("user0","1233dfgdfgrg4");
 	AuthAddUser("user5","123345erg4");
+	AuthAddUser("YaeL","dadadadida");
 	AuthAddUser("","1234");
 	AuthAddUser("user43","123345erg4");
 	AuthAddUser("daniel","123345erg4");
@@ -28,7 +29,13 @@ int main(void)
 	AuthAddUser("","1234");
 	
 	
-	printf("result is : %d\n",AuthDeleteUser("daniel"));
+	printf("result is : %d\n",AuthDeleteUser(""));
+	printf("result is : %d\n",AuthDeleteUser(""));
+	printf("result is : %d\n",AuthDeleteUser(""));
+	printf("result is : %d\n",AuthDeleteUser(""));
+	printf("result is : %d\n",AuthDeleteUser("sdfds"));
+	printf("result is : %d\n",AuthDeleteUser("daniela"));
+	printf("result is : %d\n",AuthDeleteUser("sdfds"));
 	printf("result is : %d\n",AuthAuthenticator("user43", "123345erg4"));
 	    return 0;
 }
