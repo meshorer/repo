@@ -1,4 +1,4 @@
- #include <crypt.h>
+#include <crypt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,31 +13,14 @@ int CountUsers();
 int ComparePasswords(char *password,int i,int num_users);
 int IterateUsers(FILE *fp,char current_character,char *username);
 int DeleteUser(int i,int num_users);
+int CheckUser(FILE *fp,const char *username);
 
 #define MAX_LENGTH 32
 #define USERS_DB "/home/daniel/git/cyber/authentication/db_file.txt"
 #define USERS_TMP "/home/daniel/git/cyber/authentication/tmp.txt"
+#define INDEX_CHECK 10
+#define USER_NOT_EXIST 1
 
-
-/*
-	function AuthAddUser:
-	1. check for invalid chars, too long
-	2. open the file for reading and appending ("a+")
-	3. check if the username does not already exist. - username max size is MAX_LENGTH, 
-	
-	a while not at the EOF
-	b use fgets for 32 to get the user name
-	c check lentgh of the user-name until ':'
-	d memcpy the user-name to a different buffer
-	e now compare the user-name recieved and the user-name from the file
-	f if thereis a match - break and send error that username exists.
-	g else - go to next line (with getc until '\' - next line)
-	h repeat from b
-	
-	
-	4. append the username and password in a new line at the end of the file (seperated with ':')
-	5. close the file and returns success
-*/
 int AuthAddUser(const char *username, const char *password)
 {
 	
@@ -47,7 +30,6 @@ int AuthAddUser(const char *username, const char *password)
 	assert(NULL != username);
 	assert(NULL != password);
 	
-	
 	result = CheckConditions(username,password);
 	if (0 != result)      							
 	{
@@ -55,7 +37,7 @@ int AuthAddUser(const char *username, const char *password)
 	}		
 	
 	result = CheckIfUsernameExists(username);
-	if (0 != result)     							
+	if ( 0 != result)     							
 	{
 		return result;
 	}	
@@ -72,10 +54,65 @@ int AuthAddUser(const char *username, const char *password)
 	return 0;
 }
 
+int AuthDeleteUser(const char *username)
+{
+
+	int index_user = 0;
+	int result = 0;
+	int num_users = 0;
+
+	assert(NULL != username);
+	
+	num_users = CountUsers();
+
+	index_user = CheckIfUsernameExists(username);			/* if user exists, get it's line number in the file */	
+	
+	if(0 == index_user)
+	{
+		return USER_NOT_EXIST;
+	}
+	if (index_user < INDEX_CHECK)					/* INDEX_CHECK is to check whether the result is a line number or an error value */	
+	{
+		return index_user;
+	}
+	index_user-=INDEX_CHECK;
+	result = DeleteUser(index_user,num_users);
+	
+	return result;
+}
+
+
+int AuthAuthenticator(const char *username, const char *password)
+{
+
+	int index_user = 0;
+	int result = 0;
+	int num_users = 0;
+
+	assert(NULL != username);
+	
+	num_users = CountUsers();
+
+	index_user = CheckIfUsernameExists(username);
+	
+	if(0 == index_user)
+	{
+		return USER_NOT_EXIST;
+	}
+	
+	if (index_user < INDEX_CHECK)					/* INDEX_CHECK is to check whether the result is a line number or an error value */	
+	{
+		return index_user;
+	}
+	index_user-=INDEX_CHECK;
+	result = ComparePasswords((char *)password,index_user,num_users);
+	
+	return result;
+	
+}
+
 int CheckConditions(const char *username, const char *password)
 {
-	char *begin_username = (char *)username;
-	char *begin_password = (char *)password;
 	
 	if (31 < strlen(username) || 31 < strlen(password))				/* strlen doesn't include the null-terminator  */
 	{
@@ -102,79 +139,6 @@ int CheckConditions(const char *username, const char *password)
 		++password;
 	}
 	
-	username = begin_username;
-	password = begin_password;
-	
-	return 0;
-}
-
-
-/*     */
-int CheckIfUsernameExists(const char *username)
-{
-	
-	char *check_user_name = NULL;
-	char current_character = '0';
-	int count_username = 0;
-	FILE *fp = NULL;
-	int num_users = 0;
-	int i = 0;
-	
-	check_user_name = malloc(MAX_LENGTH);
-	
-	fp = fopen(USERS_DB, "r");  
-	if (NULL == fp)
-	{
-		return -1;
-	}
-	
-	current_character = getc(fp);
-	
-	num_users = CountUsers();
-	if( 0 == num_users)
-	{
-		free(check_user_name);
-		return 0;
-	}
-	
-	for (i = 0; i < num_users; ++i)
-	{
-	
-		num_users = CountUsers();
-		count_username = ExtractUsernameFromFile(fp,current_character);
-		
-		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
-		{
-			free(check_user_name);
-			return 2;
-		}
-		
-		check_user_name = realloc(check_user_name,count_username+1);    			
-		
-		if(NULL == fgets(check_user_name,count_username+1,fp))
-		{
-			free(check_user_name);
-			return 2;
-		}
-	
-		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
-		{
-			free(check_user_name);
-			return 1;
-		}
-		
-		while(current_character != '\n')
-		{
-			current_character = getc(fp);
-		}
-		
-		current_character = getc(fp);
-	
-	}
-		
-	free(check_user_name);
-	fclose(fp);
-
 	return 0;
 }
 
@@ -200,24 +164,7 @@ int AppendUserToFile(const char *username,const char *hashed_password)
 }
 
 
-
-int ExtractUsernameFromFile(FILE *fp,char current_character)
-{
-	
-	int count_username = 0;
-	
-	while (':' != current_character)
-	{
-		++count_username;
-		current_character = getc(fp);
-	}
-	
-	return count_username;
-
-}
-
-
-int CountUsers()      				/*  Basically count lines.. */
+int CountUsers()      									/*  function to count lines in the file */
 {
 	FILE *fp = NULL;
 	char chr;
@@ -241,77 +188,93 @@ int CountUsers()      				/*  Basically count lines.. */
 	fclose(fp);	
 }
 
-
-int IterateUsers(FILE *fp,char current_character,char *username)
+int CheckIfUsernameExists(const char *username)
 {
-	int count_username = 0;
+	
 	char *check_user_name = NULL;
-	int offset_fd = 0;
-	int k = 0;
+	char current_character = '0';
+	int count_username = 0;
+	FILE *fp = NULL;
+	int num_users = 0;
+	int i = 0;
 	
 	check_user_name = malloc(MAX_LENGTH);
 	
-	count_username = ExtractUsernameFromFile(fp,current_character);
-	
-	if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
+	fp = fopen(USERS_DB, "r");  
+	if (NULL == fp)
 	{
-		printf("balagan1\n");
-		free(check_user_name);
 		return 2;
-	}
-	
-	check_user_name = realloc(check_user_name,count_username+1);    			
-	
-	if(NULL == fgets(check_user_name,count_username+1,fp))
-	{
-		printf("balagan2\n");
-		free(check_user_name);
-		return 2;
-	}
-	printf("check_user_name is %s\n",check_user_name);
-	printf("username is %s\n",username);
-	if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
-	{
-		printf("found match for :%s\n",check_user_name);
-		free(check_user_name);
-		return 0;
-	}
-	printf("balagan3\n");
-	while(current_character != '\n')
-	{
-		current_character = getc(fp);
-		offset_fd++;
 	}
 	
 	current_character = getc(fp);
-	free(check_user_name);
-	offset_fd+=count_username;
-	printf("offset_fd is: %d",offset_fd);
-	for (k = 0; k < offset_fd; ++k)
+	
+	num_users = CountUsers();
+	if( 0 == num_users)
 	{
-		if(fseek(fp,1,SEEK_CUR) != 0)			
+		free(check_user_name);
+		return 0;
+	}
+	
+	for (i = 0; i < num_users; ++i)
+	{
+	
+		num_users = CountUsers();
+		count_username = ExtractUsernameFromFile(fp,current_character);
+		
+		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
 		{
-			printf("balagan1\n");
 			free(check_user_name);
 			return 2;
 		}
+		
+		check_user_name = realloc(check_user_name,count_username+1);    			
+		
+		if(NULL == fgets(check_user_name,count_username+1,fp))
+		{
+			free(check_user_name);
+			return 2;
+		}
+	
+		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
+		{
+			printf("found match for user %s\n",username);
+			free(check_user_name);
+			return i + INDEX_CHECK;
+		}
+		
+		while(current_character != '\n')
+		{
+			current_character = getc(fp);
+		}
+		
+		current_character = getc(fp);
+	
 	}
-	printf("done iterating\n");
-	
-	
-	return 10;
+		
+	free(check_user_name);
+	fclose(fp);
+
+	return 0;
 }
 
+int ExtractUsernameFromFile(FILE *fp,char current_character) 				/*  function to count the numer of lettes in username */
+{
+	
+	int count_username = 0;
+	
+	while (':' != current_character)
+	{
+		++count_username;
+		current_character = getc(fp);
+	}
+	
+	return count_username;
 
+}
 
 int DeleteUser(int i,int num_users)
 {
-/*
-	a. create tmp file and append the lines from 1 to i(exclude),and from i+1 to num
-	b. now rewrite yout original file with the content of tmp
-	c. remove the tmp
-*/
-	
+
 	int j = 0;
 	FILE * tmp_fp = NULL;
 	FILE *fp = NULL;
@@ -319,10 +282,7 @@ int DeleteUser(int i,int num_users)
 	tmp_fp = fopen(USERS_TMP, "a+");
 	fp = fopen(USERS_DB,"a+");
 	line = malloc(100);
-	
-	printf("in delete function, i is : %d and num_users is %d\n",i,num_users);
-	
-	
+		
 	for (j = 0; j < num_users; ++j)
 	{
 		if(NULL == fgets(line,100,fp))
@@ -337,7 +297,6 @@ int DeleteUser(int i,int num_users)
 	free(line);
 	
 	fclose(fp);
-	printf("check or\n");
 	if (0 != remove(USERS_DB))
 	{
 		fclose(tmp_fp);
@@ -350,171 +309,7 @@ int DeleteUser(int i,int num_users)
 		return 2;
 	}
 	
-	printf("check free\n");
-	
 	return 0;
-}
-
-
-int AuthDeleteUser(const char *username)
-{
-
-	char *check_user_name = NULL;
-	char current_character = '0';
-	int count_username = 0;
-	FILE *fp = NULL;
-	int num_users = 0;
-	int i = 0;
-	int found_match = 0;
-	int result = 0;
-	check_user_name = malloc(MAX_LENGTH);
-	
-	fp = fopen(USERS_DB, "r");  
-	if (NULL == fp)
-	{
-		return -1;
-	}
-	
-	current_character = getc(fp);
-	
-	num_users = CountUsers();
-	if( 0 == num_users)
-	{
-		/*free(check_user_name);*/
-		return 0;
-	}
-	
-	for (i = 0; i < num_users; ++i)
-	{
-	
-		num_users = CountUsers();
-		count_username = ExtractUsernameFromFile(fp,current_character);
-		
-		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
-		{
-			free(check_user_name);
-			return 2;
-		}
-		
-		check_user_name = realloc(check_user_name,count_username+1);    			
-		
-		if(NULL == fgets(check_user_name,count_username+1,fp))
-		{
-			/*free(check_user_name);*/
-			return 2;
-		}
-	
-		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
-		{
-			found_match = 1;
-			/*free(check_user_name);*/
-			break;
-		}
-		
-		while(current_character != '\n')
-		{
-			current_character = getc(fp);
-		}
-		
-		current_character = getc(fp);
-	}
-	
-	if ( 1 == found_match)
-	{
-		
-		result = DeleteUser(i,num_users);
-		printf("the result for delete is: %d\n",result);
-	}		
-		
-	fclose(fp);
-		
-	free(check_user_name);
-	
-
-	return 3;
-
-}
-
-
-int AuthAuthenticator(const char *username, const char *password)
-{
-
-	char *check_user_name = NULL;
-	char current_character = '0';
-	int count_username = 0;
-	FILE *fp = NULL;
-	int num_users = 0;
-	int i = 0;
-	int found_match = 0;
-	int result = 0;
-	check_user_name = malloc(MAX_LENGTH);
-	
-	fp = fopen(USERS_DB, "r");  
-	if (NULL == fp)
-	{
-		return -1;
-	}
-	
-	current_character = getc(fp);
-	
-	num_users = CountUsers();
-	if( 0 == num_users)
-	{
-		/*free(check_user_name);*/
-		return 0;
-	}
-	
-	for (i = 0; i < num_users; ++i)
-	{
-	
-		num_users = CountUsers();
-		count_username = ExtractUsernameFromFile(fp,current_character);
-		
-		if(fseek(fp,-(count_username+1),SEEK_CUR) != 0)			/* return to the begining | +1 because of the ':' */
-		{
-			free(check_user_name);
-			return 2;
-		}
-		
-		check_user_name = realloc(check_user_name,count_username+1);    			
-		
-		if(NULL == fgets(check_user_name,count_username+1,fp))
-		{
-			/*free(check_user_name);*/
-			return 2;
-		}
-	
-		if (0 == strncmp(check_user_name,username,count_username) && count_username == (int)strlen(username))
-		{
-			found_match = 1;
-			/*free(check_user_name);*/
-			break;
-		}
-		
-		while(current_character != '\n')
-		{
-			current_character = getc(fp);
-		}
-		
-		current_character = getc(fp);
-	}
-	
-	if ( 1 == found_match)
-	{
-		result = ComparePasswords((char *)password,i,num_users);
-		if (0 == result)
-		{
-			return 0;
-		}
-	}		
-		
-	fclose(fp);
-		
-	free(check_user_name);
-	
-
-	return 3;
-
 }
 
 int ComparePasswords(char *password, int i,int num_users)
@@ -524,6 +319,7 @@ int ComparePasswords(char *password, int i,int num_users)
 	FILE *fp = NULL;
 	
 	char *file_hash = NULL;
+	char *begin_line = NULL;
 	char *check_password_hash = NULL;
 	
 	int counter_salt = 0;
@@ -534,6 +330,7 @@ int ComparePasswords(char *password, int i,int num_users)
 	printf("in compare function, i is : %d and num_users is %d\n",i,num_users);
 	
 	file_hash = malloc(100);
+	begin_line = file_hash;
 	for (j = 0; j < num_users; ++j)
 	{
 		if(j == i)
@@ -544,55 +341,43 @@ int ComparePasswords(char *password, int i,int num_users)
 		if(NULL == fgets(file_hash,100,fp))
 		{
 			return 2;
-		}
-		
+		}	
 	}
 	
 	if(NULL == fgets(file_hash,100,fp))
 	{
 		free(file_hash);
-		free(check_password_hash);
 		return 2;
 	}
-	printf("file hash is: %s\n",file_hash);
 	
-	
-	while (NULL != strchr(file_hash,':'))
-	{
-		++file_hash;
-	}
-	printf("file after while hash is: %s\n",file_hash);
-	while (NULL != strchr(file_hash,'$'))
+	file_hash = strchr(file_hash, ':') + 1;			/*  skip the username */
+	while (NULL != strchr(file_hash,'$'))         		/*  extract number of letters of the salt */
 	{
 		++file_hash;
 		++counter_salt;
 	}
-	
-	salt = malloc(counter_salt +1);
+	salt = malloc(counter_salt+1);
 	file_hash-=counter_salt;
-	printf("file with salt is: %s\n",file_hash);
 	memcpy(salt,file_hash,counter_salt);
-	
-	printf("salt is : %s\n",salt);	
-	check_password_hash = crypt(password, salt);
+	salt+=counter_salt;
+	*salt = '\0';						/* make sure salt will end with null-terminator */
+	salt-=counter_salt;
+
+	check_password_hash = crypt(password, salt);		/* crypt the password recieved to function with the extracted salt */
 	len = strlen(file_hash);
 	
-	printf("check_password_hash is: %s\n",check_password_hash);
-	if (0 != strncmp(check_password_hash,file_hash,len -1))
+	if (0 != strncmp(check_password_hash,file_hash,len -1)) /* -1 because of the '/n' at the end of the line */
 	{
-		/*free(file_hash);*/
-		printf("enter?\n");
+		file_hash = begin_line;
+		free(file_hash);
 		free(salt);
 		return 3;
 	}
-	/*free(file_hash);*/
-	printf("checking: check_password_hash is:%s\n",check_password_hash);
+	file_hash = begin_line;
+	free(file_hash);
+
 	free(salt);
 	return 0;
-	
-
-
-
 }
 
 
