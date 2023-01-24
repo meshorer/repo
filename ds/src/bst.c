@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "bst.h"
 
 
@@ -18,7 +19,10 @@ struct bst
     int (*compare_func_t)(const void *data1, const void *data2);
 };
 
-int WrapperInsert(struct bst_node *node,compare_func_t compare,void *data);
+struct bst_node *WrapperInsert(struct bst_node *node,compare_func_t compare,void *data);
+void PrintTree(bst_t *my_tree);
+void WrapperPrintTree(struct bst_node *node);
+
 
 
 /* Create binary search tree, receives a compare function to compare between elements */
@@ -47,39 +51,59 @@ int BstInsert(bst_t *bst, const void *data)
         2. else - send the functiom the right/left 
     */
    
-   int result = 0;
-   result = WrapperInsert(bst->root,bst->compare_func_t,(void *)data);
+   bst->root = WrapperInsert(bst->root,bst->compare_func_t,(void *)data);
 
-   return result;
+   return 0;
 }
 
-int WrapperInsert(struct bst_node *node,compare_func_t compare,void *data)
+struct bst_node *WrapperInsert(struct bst_node *node,compare_func_t compare,void *data)
 {
     int direction = 0;
-    struct bst_node *new_node = NULL;
-    
-    
-    if (NULL == node)
+    struct bst_node *saver = node;
+    if (NULL == saver)
     {
-        new_node = malloc(sizeof(struct bst_node));
-        if (NULL == new_node)
+        saver = malloc(sizeof(struct bst_node));
+        if (NULL == saver)
         {
-            return 1;
+            return NULL;
         }
-        new_node->right = NULL;
-        new_node->left = NULL;
-        new_node->data = data;
-        return 0;
+        saver->right = NULL;
+        saver->left = NULL;
+        saver->data = data;
+        return saver;
     }
-    direction = compare(data,node->data);
+    direction = compare(data,saver->data);
     if (0 == direction)
     {
-        WrapperInsert(node->right,compare,data);
+        saver = WrapperInsert(saver->right,compare,data);
+        node->right = saver;
     }
     else
     {
-        WrapperInsert(node->left,compare,data);
+        saver = WrapperInsert(saver->left,compare,data);
+        node->left = saver;
     }
+    return node;
 
-    return 0;
+}
+
+void WrapperPrintTree(struct bst_node *node)
+{
+
+   printf("data: %d\n",*(int *)node->data);
+
+   if (NULL != node->left)
+   {
+        WrapperPrintTree(node->left);
+   }
+   
+    if (NULL != node->right)
+   {
+        WrapperPrintTree(node->right);
+   }
+}
+
+void PrintTree(bst_t *my_tree)
+{
+    WrapperPrintTree(my_tree->root);
 }
