@@ -32,14 +32,20 @@ int main()
     if (0 ==  BstInsert(my_tree,&arba)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 ==  BstInsert(my_tree,&hamesh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 ==  BstInsert(my_tree,&shtaim)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
-
-
-    PrintTree(my_tree);
-    printf("size is: %lu\n",BstSize(my_tree));
-   
+    if (4 ==  BstSize(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if ((void *)(&shalosh) == BstFind(my_tree,&shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    if (3 ==  BstHeight(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    /*PrintTree(my_tree);*/
+    /*printf("size is: %lu\n",BstSize(my_tree));*/
+   
+    
 
     printf("hight is :%lu\n",BstHeight(my_tree));
+
+    PrintPostOrder(my_tree);
+    printf("\n");
+    BstDestroy(my_tree);
+
     CHECK_ERROR(count_error);
     return 0;
 }

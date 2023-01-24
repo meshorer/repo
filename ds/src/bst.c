@@ -25,7 +25,9 @@ void WrapperPrintTree(struct bst_node *node);
 size_t WrapperBstSize(struct bst_node *node);
 void *WrapperBstFind(struct bst_node *node,compare_func_t compare,const void *data);
 size_t WrapperBstHeight(struct bst_node *node);
-
+void WrapperBstDestroy(struct bst_node *node);
+void PostOrder(struct bst_node *node); 
+void PrintPostOrder(const bst_t *bst);
 
 /* Create binary search tree, receives a compare function to compare between elements */
 bst_t *BstCreate(compare_func_t cmp_func)
@@ -161,6 +163,7 @@ size_t BstHeight(const bst_t *bst)
 }
 
 size_t WrapperBstHeight(struct bst_node *node)
+
 {
     size_t res1 = 0;
     size_t res2 = 0;
@@ -173,6 +176,48 @@ size_t WrapperBstHeight(struct bst_node *node)
     res1 = WrapperBstHeight(node->left);
     res2 = WrapperBstHeight(node->right);
     return 1+ MAX(res1,res2);
+}
+
+void BstDestroy(bst_t *bst)
+{
+    WrapperBstDestroy(bst->root);
+    free(bst);
+}
+
+void WrapperBstDestroy(struct bst_node *node)
+{
+    if (NULL != node)
+    {
+        WrapperBstDestroy(node->left);
+        WrapperBstDestroy(node->right);
+
+        free(node);
+    }
+}
+
+void PostOrder(struct bst_node *node)
+{
+    
+    if (NULL != node)
+    {
+        PostOrder (node->left);
+        PostOrder (node->right);
+        printf("%d ",*(int*)node->data);
+    }    
+    
+}
+
+void PrintPostOrder(const bst_t *bst)
+{
+    PostOrder(bst->root);
+    printf("\n");
+   
+}
+
+
+void PrintTree(bst_t *my_tree)
+{
+    WrapperPrintTree(my_tree->root);
 }
 
 void WrapperPrintTree(struct bst_node *node)
@@ -189,9 +234,4 @@ void WrapperPrintTree(struct bst_node *node)
    {
         WrapperPrintTree(node->right);
    }
-}
-
-void PrintTree(bst_t *my_tree)
-{
-    WrapperPrintTree(my_tree->root);
 }
