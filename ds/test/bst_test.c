@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <assert.h>
 #include "bst.h"
 #include "utilities.c"   
 
+
+void PrintPreOrder(const bst_t *bst);
+void PrintInOrder(const bst_t *bst);
 
 
 int compare(const void *data1, const void *data2)
@@ -16,6 +20,15 @@ int compare(const void *data1, const void *data2)
     }
 }
 
+
+int PrintAction(void *data, void *parameter)
+{
+    assert(parameter);
+   
+    printf(" %d ",(*(int*)data));
+
+    return 0;
+}
 
 int main()
 {
@@ -36,14 +49,10 @@ int main()
     if ((void *)(&shalosh) == BstFind(my_tree,&shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (3 ==  BstHeight(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     /*PrintTree(my_tree);*/
-    /*printf("size is: %lu\n",BstSize(my_tree));*/
-   
     
-
-    printf("hight is :%lu\n",BstHeight(my_tree));
-
-    PrintPostOrder(my_tree);
-    printf("\n");
+    if (0 ==  BstForEach(my_tree, IN_ORDER, PrintAction, &shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    
+    
     BstDestroy(my_tree);
 
     CHECK_ERROR(count_error);

@@ -6,6 +6,8 @@
 #define RIGHT 0
 #define LEFT 1
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
+
 struct bst_node
 {
     void *data;
@@ -26,9 +28,9 @@ size_t WrapperBstSize(struct bst_node *node);
 void *WrapperBstFind(struct bst_node *node,compare_func_t compare,const void *data);
 size_t WrapperBstHeight(struct bst_node *node);
 void WrapperBstDestroy(struct bst_node *node);
-void PostOrder(struct bst_node *node); 
-void PrintPostOrder(const bst_t *bst);
-
+int PostOrder(struct bst_node *node,action_function_t action_func, void *param); 
+int InOrder(struct bst_node *node,action_function_t action_func, void *param);
+int PreOrder(struct bst_node *node,action_function_t action_func, void *param);
 /* Create binary search tree, receives a compare function to compare between elements */
 bst_t *BstCreate(compare_func_t cmp_func)
 {
@@ -195,29 +197,74 @@ void WrapperBstDestroy(struct bst_node *node)
     }
 }
 
-void PostOrder(struct bst_node *node)
+int PostOrder(struct bst_node *node,action_function_t action_func, void *param)
 {
-    
-    if (NULL != node)
-    {
-        PostOrder (node->left);
-        PostOrder (node->right);
-        printf("%d ",*(int*)node->data);
-    }    
-    
-}
-
-void PrintPostOrder(const bst_t *bst)
-{
-    PostOrder(bst->root);
-    printf("\n");
    
+    if (NULL == node)
+    {
+        return 0;
+    }
+    
+    if (PostOrder (node->left,action_func,param)|| PostOrder (node->right,action_func,param) || PostOrder (node->left,action_func,param))
+    {
+        return 1;
+    }
+         
+    return 0;
+} 
+
+
+int PreOrder(struct bst_node *node,action_function_t action_func, void *param)
+{
+    
+    if (NULL == node)
+    {
+        return 0;
+    }
+    
+    if (action_func(node->data,param) || PreOrder (node->left,action_func,param) || PreOrder (node->right,action_func,param))
+    {
+        return 1;
+    }
+         
+    return 0;
 }
 
-
-void PrintTree(bst_t *my_tree)
+int InOrder(struct bst_node *node,action_function_t action_func, void *param)
 {
-    WrapperPrintTree(my_tree->root);
+    
+    if (NULL == node)
+    {
+        return 0;
+    }
+    
+    if (InOrder (node->left,action_func,param)|| action_func(node->data,param)|| InOrder (node->right,action_func,param))
+    {
+        return 1;
+    }
+         
+    return 0;
+}
+
+int BstForEach(bst_t *bst, traversal_t mode, action_function_t action_func, void *param)
+{
+    int result = 1;
+    switch (mode)
+    {
+    case IN_ORDER:
+        result = InOrder(bst->root,action_func,param);
+        break;
+    
+    case PRE_ORDER:
+        result = PreOrder(bst->root,action_func,param);
+        break;
+    
+    case POST_ORDER:
+        result = PostOrder(bst->root,action_func,param);
+        break;
+    }
+
+    return result;
 }
 
 void WrapperPrintTree(struct bst_node *node)
@@ -234,4 +281,8 @@ void WrapperPrintTree(struct bst_node *node)
    {
         WrapperPrintTree(node->right);
    }
+}
+void PrintTree(bst_t *my_tree)
+{
+    WrapperPrintTree(my_tree->root);
 }

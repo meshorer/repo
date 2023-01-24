@@ -102,7 +102,7 @@ void dragon()
 
 void bunny()
 {
-
+printf("\n\n\n");
 printf("       (\\__/) \n");
 printf("       (•ㅅ•)      Don’t talk to\n");
 printf("    ＿ノヽ ノ＼＿      me or my son\n");
