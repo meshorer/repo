@@ -6,7 +6,6 @@
 typedef enum {IN_ORDER, PRE_ORDER, POST_ORDER} traversal_t;
 
 typedef struct bst bst_t;
-typedef struct bst_iter bst_iter_t;
 
 /* returns an integer indicating the result of the action
 return value:
@@ -31,7 +30,7 @@ bst_t *BstCreate(compare_func_t cmp_func);
 void BstDestroy(bst_t *bst);
 
 /* remove node in the binary search tree */
-void BstRemove(bst_iter_t iter);
+void BstRemove(bst_t *bst,void *data);
 
 
 /* insert node in the binary search tree, 
@@ -54,8 +53,8 @@ return value:
 */
 int BstIsEmpty(const bst_t *bst);
 
-/* runs through the binary search tree to find the node that contain the received data and return an iterator to it, NULL if does not exist */
-bst_iter_t BstFind(bst_t *bst, const void *data);
+/* runs through the binary search tree to find the node that contain the received data and return a void *, NULL if does not exist */
+void *BstFind(bst_t *bst, const void *data);
 
 /* runs through the binary search tree using the given mode (pre / in / post order) and using action_func on each node, keeping certain data in parameter if needed, return :
 0 - if action_func succeeded,

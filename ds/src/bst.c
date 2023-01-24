@@ -5,7 +5,7 @@
 
 #define RIGHT 0
 #define LEFT 1
-
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
 struct bst_node
 {
     void *data;
@@ -22,7 +22,9 @@ struct bst
 struct bst_node *WrapperInsert(struct bst_node *node,compare_func_t compare,void *data);
 void PrintTree(bst_t *my_tree);
 void WrapperPrintTree(struct bst_node *node);
-
+size_t WrapperBstSize(struct bst_node *node);
+void *WrapperBstFind(struct bst_node *node,compare_func_t compare,const void *data);
+size_t WrapperBstHeight(struct bst_node *node);
 
 
 /* Create binary search tree, receives a compare function to compare between elements */
@@ -53,6 +55,11 @@ int BstInsert(bst_t *bst, const void *data)
    
    bst->root = WrapperInsert(bst->root,bst->compare_func_t,(void *)data);
 
+   if(NULL == bst->root)
+   {
+        return 1;
+   }
+
    return 0;
 }
 
@@ -73,7 +80,7 @@ struct bst_node *WrapperInsert(struct bst_node *node,compare_func_t compare,void
         return saver;
     }
     direction = compare(data,saver->data);
-    if (0 == direction)
+    if (0 < direction)
     {
         saver = WrapperInsert(saver->right,compare,data);
         node->right = saver;
@@ -85,6 +92,87 @@ struct bst_node *WrapperInsert(struct bst_node *node,compare_func_t compare,void
     }
     return node;
 
+}
+
+
+size_t BstSize(const bst_t *bst)
+{
+    size_t result = 0;
+    result = WrapperBstSize(bst->root);
+    return result;
+}
+
+size_t WrapperBstSize(struct bst_node *node)
+{
+    if (NULL == node)
+   {
+        return 0;
+   }
+
+    return 1+ WrapperBstSize(node->left) + WrapperBstSize(node->right);
+}
+
+int BstIsEmpty(const bst_t *bst)
+{
+    if (NULL == bst->root)
+    {
+        return 0;
+    }
+    return 1;
+}
+
+
+void *BstFind(bst_t *bst, const void *data)
+{
+    return WrapperBstFind(bst->root,bst->compare_func_t,(void *)data);
+}
+
+void *WrapperBstFind(struct bst_node *node,compare_func_t compare,const void *data)
+{
+    int direction = 0;
+    struct bst_node *saver = node;
+    if (NULL == saver)
+    {
+        return NULL;
+    }
+    if (data == node->data)
+    {
+        return node->data; 
+    }
+    direction = compare(data,saver->data);
+    if (0 < direction)
+    {
+        saver = WrapperBstFind(saver->right,compare,data);
+        node->right = saver;
+    }
+    else
+    { 
+        saver = WrapperBstFind(saver->left,compare,data);
+        node->left = saver;
+    }
+    return saver;
+}
+
+size_t BstHeight(const bst_t *bst)
+{
+    size_t result = 0;
+    result = WrapperBstHeight(bst->root);
+    return result;
+}
+
+size_t WrapperBstHeight(struct bst_node *node)
+{
+    size_t res1 = 0;
+    size_t res2 = 0;
+
+    if (NULL == node)
+   {
+        return 0;
+   }
+
+    res1 = WrapperBstHeight(node->left);
+    res2 = WrapperBstHeight(node->right);
+    return 1+ MAX(res1,res2);
 }
 
 void WrapperPrintTree(struct bst_node *node)
