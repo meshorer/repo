@@ -14,10 +14,12 @@ int compare(const void *data1, const void *data2)
     {
         return 1;
     }
-    else
+    if (*(int *)data1 < *(int *)data2)
     {
         return -1;
-    }
+    } 
+
+    return 0;
 }
 
 
@@ -40,7 +42,7 @@ int main()
 
     my_tree = BstCreate(compare);
     if (NULL != my_tree){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
-    
+    printf("%d \n",BstIsEmpty(my_tree));
     if (0 ==  BstInsert(my_tree,&shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 ==  BstInsert(my_tree,&arba)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 ==  BstInsert(my_tree,&hamesh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
@@ -51,10 +53,11 @@ int main()
     /*PrintTree(my_tree);*/
     
     if (0 ==  BstForEach(my_tree, IN_ORDER, PrintAction, &shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
-    
-    
+    BstRemove(my_tree,&arba);
+    if (3 ==  BstSize(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    printf("\n");
+    printf("%d \n",BstIsEmpty(my_tree));
     BstDestroy(my_tree);
-
     CHECK_ERROR(count_error);
     return 0;
 }
