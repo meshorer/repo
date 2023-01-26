@@ -6,6 +6,8 @@
 
 void PrintPreOrder(const bst_t *bst);
 void PrintInOrder(const bst_t *bst);
+void MirorBSTree(bst_t *bst);
+
 
 
 int compare(const void *data1, const void *data2)
@@ -50,8 +52,10 @@ int main()
     if (4 ==  BstSize(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if ((void *)(&shalosh) == BstFind(my_tree,&shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (3 ==  BstHeight(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
-    /*PrintTree(my_tree);*/
-    
+    PrintTree(my_tree);
+    MirorBSTree(my_tree);
+    printf("\n");
+    PrintTree(my_tree);
     if (0 ==  BstForEach(my_tree, IN_ORDER, PrintAction, &shalosh)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     BstRemove(my_tree,&arba);
     if (3 ==  BstSize(my_tree)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}

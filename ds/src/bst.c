@@ -33,6 +33,9 @@ int InOrder(struct bst_node *node,action_function_t action_func, void *param);
 int PreOrder(struct bst_node *node,action_function_t action_func, void *param);
 struct bst_node *WrapperBstRemove(struct bst_node *node, compare_func_t cmp_func, void *data);
 struct bst_node *BstFindRightmost(struct bst_node *node);
+void SwapNode(struct bst_node **node1,struct bst_node **node2);
+void WrapperMirorBSTree(struct bst_node *node);
+
 
 /* Create binary search tree, receives a compare function to compare between elements */
 bst_t *BstCreate(compare_func_t cmp_func)
@@ -358,4 +361,31 @@ void WrapperPrintTree(struct bst_node *node)
 void PrintTree(bst_t *my_tree)
 {
     WrapperPrintTree(my_tree->root);
+}
+
+
+void MirorBSTree(bst_t *bst)
+{
+    WrapperMirorBSTree(bst->root);
+}
+
+
+void WrapperMirorBSTree(struct bst_node *node)
+{
+    if (NULL == node)
+    {
+        return;
+    }
+    
+    SwapNode(&node->left,&node->right);
+    
+    WrapperMirorBSTree(node->right);
+    WrapperMirorBSTree(node->left);
+}
+
+void SwapNode(struct bst_node **node1,struct bst_node **node2)
+{
+    void *tmp = *node1;
+    *node1 = *node2;
+    *node2 = tmp;
 }

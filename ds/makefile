@@ -13,12 +13,15 @@ SRC_VSA = src/vsa.c test/vsa_test.c
 SRC_MASKIT = src/vsamaskit.c test/vsa_test.c
 SRC_BST = src/bst.c test/bst_test.c
 SRC_BINARY_SEARCH = src/binary_search.c test/binary_search_test.c
+SRC_HASH_TABLE = src/hash_table.c test/hash_table_test.c
 
+
+hash_table.out: $(SRC_HASH_TABLE)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_HASH_TABLE) src/slist.c -o hash_table.out
 
 
 binary_search.out: $(SRC_BINARY_SEARCH)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_BINARY_SEARCH) -o binary_search.out
-
 
 bst.out: $(SRC_BST)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_BST) -o bst.out
