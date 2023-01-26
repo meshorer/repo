@@ -65,3 +65,28 @@ void HashDestroy(hash_table_t *hash_table)
    free (hash_table);
    
 }
+
+int HashIsEmpty(const hash_table_t *hash_table)
+{
+    int i = 0;
+    for (i = 0; i < hash_table->table_size; i++)
+    {
+        if (0 < SListSize(hash_table->table[i]))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+size_t HashSize(const hash_table_t *hash_table)
+{
+    size_t i = 0;
+    size_t sum = 0;
+
+    for (i = 0; i < hash_table->table_size; i++)
+    {
+        sum+= SListSize(hash_table->table[i]);
+    }
+    return sum;
+}
