@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "hash_table.h"
 #include "slist.h"
 
@@ -17,6 +18,7 @@ struct hash_node
     void *value;
     void *key;
 };
+
 
 hash_table_t *HashCreate(hash_func_t hash_func,size_t table_size,compare_func_t compare_func)
 {
@@ -64,6 +66,7 @@ void HashDestroy(hash_table_t *hash_table)
 
    for (i = 0; i < hash_table->table_size; i++)
    {
+        /*FreeHashNode(hash_table->table[i]);*/
         SListDestroy(hash_table->table[i]);
    }
 
@@ -74,7 +77,7 @@ void HashDestroy(hash_table_t *hash_table)
 
 int HashIsEmpty(const hash_table_t *hash_table)
 {
-    int i = 0;
+    size_t i = 0;
     for (i = 0; i < hash_table->table_size; i++)
     {
         if (0 < SListSize(hash_table->table[i]))
@@ -105,7 +108,56 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
         3. hash the key - get the number of index
         4. go to that index and add a new list-node, that it's data point to the hash-node struct pointer we created
         5. return success.
+        return value:
+    0 - success
+    1 - failure
     */
+    struct hash_node* hash_node = NULL;
+    size_t i = 0;
+    struct s_list* list = NULL;
+    struct s_list_node *first_node = NULL;
+    struct hash_node* my_data;
+    
+    hash_node = malloc(sizeof(struct hash_node));
+    if (NULL == hash_node)
+    {
+        return 1;
+    }
+    printf("here, key is: %d\n",*(int*)key);
+    hash_node->key = (void *)key;
+    hash_node->value = (void *)value;
+    i = hash_table->hash_func_t(key);
+    printf("index hash is: %lu\n",i);
+    if (i > hash_table->table_size)
+    {
+        return 1;
+    }
+    list = hash_table->table[i];
+    if (NULL == list)
+    {
+        return 1;
+    }
 
+    first_node = SListBegin(list);
+    if (NULL == first_node)
+    {
+        return 1;
+    }
+    
+    first_node = SListAdd(list,first_node,hash_node);
+    if (NULL == first_node)
+    {
+        return 1;
+    }
+    my_data = (struct hash_node*)SListGet(list,first_node);
+    printf("the key inserted is: %d\n", *(int*)my_data->key);
+    printf("the value inserted is: %lu\n", *(int*)my_data->value);
     return 0;
 }
+/*void FreeHashNode(struct s_list* list)
+{
+   struct s_list_node *first_node = SListBegin(list);
+   
+
+}*/
+    
