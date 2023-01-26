@@ -12,6 +12,12 @@ struct hash_table
     size_t table_size;
 }; 
 
+struct hash_node
+{
+    void *value;
+    void *key;
+};
+
 hash_table_t *HashCreate(hash_func_t hash_func,size_t table_size,compare_func_t compare_func)
 {
     /*  
@@ -89,4 +95,17 @@ size_t HashSize(const hash_table_t *hash_table)
         sum+= SListSize(hash_table->table[i]);
     }
     return sum;
+}
+
+int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
+{
+    /*
+        1. check with Find Function that it is not exist.
+        2. create a hash-node struct pointer and assign the value and key to it    
+        3. hash the key - get the number of index
+        4. go to that index and add a new list-node, that it's data point to the hash-node struct pointer we created
+        5. return success.
+    */
+
+    return 0;
 }
