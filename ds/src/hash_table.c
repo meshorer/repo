@@ -226,7 +226,7 @@ int HashRemove(hash_table_t *hash_table, const void *key)
     struct s_list* list = NULL;
     s_list_iterator_t iter = NULL;
     struct hash_node* my_data = NULL;
-    int is_found = 0;
+    
 
     assert(hash_table);
     assert(key);
@@ -248,18 +248,39 @@ int HashRemove(hash_table_t *hash_table, const void *key)
         
         if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
         {
-            is_found = 1;
-            break;
+            free(my_data);
+            SListRemove(list,iter);
+            return 0;
         }
         iter = SListNext(iter);	
     }
-    if (0 == is_found)
-    {
+    
         return 1;
-    }
-    free(my_data);
-    SListRemove(list,iter);
-    return 0;
+    
+   
 }
 
+/* traverse through the hash table and using action_func on each node, keeping certain data in parameter if needed, return :
+0 - if action_func succeeded,
+not 0 - if failed */
+int HashForEach(hash_table_t *hash_table, action_func_t action_func, void *param)
+{
+    size_t i = 0;
+    struct s_list* list = NULL;
+    
+
+    assert(hash_table);
+    assert(action_func);
+    assert(param);
+
+    for (i = 0; i < hash_table->table_size; i++)
+    {
+        list = hash_table->table[i];
+        if (0 != SListForEach(list,SListBegin(list),SListEnd(list),action_func,param))
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
 

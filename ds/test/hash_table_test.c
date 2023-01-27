@@ -14,6 +14,12 @@ int Comparing_func(const void *data1, const void *data2)
     return (int*)data1 - (int*)data2;
 }
 
+int action_function(void *data, void *parameter)
+{
+    printf("node\n");
+    return 0;
+}
+
 int main()
 {
 
@@ -39,10 +45,14 @@ int main()
     if (value3 ==  *(int *)HashFind(my_hash_table, &key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     
     if (4 ==  HashSize(my_hash_table)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    if (0 ==  HashForEach(my_hash_table,action_function,&key1)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 ==  HashRemove(my_hash_table,&key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (1 ==  HashRemove(my_hash_table,&key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (3 ==  HashSize(my_hash_table)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (NULL == HashFind(my_hash_table, &key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
+    
+
+
     HashDestroy(my_hash_table);
     return 0;
 }
