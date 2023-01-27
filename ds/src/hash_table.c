@@ -183,7 +183,10 @@ void *HashFind(const hash_table_t *hash_table, const void *key)
     while (NULL != iter)
     {
         my_data = (struct hash_node*)SListGet(list,iter);
-        
+        if (NULL == my_data)
+        {
+            return NULL;
+        }
         if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
         {
             return my_data->value;
@@ -206,4 +209,57 @@ void FreeHashNode(s_list_t *s_list)
 	}
 	
 }
+
+/* remove node in the hash table, 
+return value:
+    0 - success
+    1 - failure
+*/
+int HashRemove(hash_table_t *hash_table, const void *key)
+{
+    /*  1. hash the key with hash function. 
+        2.  go to the relevant index and extract the list from there
+        3. iterate each node in the list until the relevant node is found
+        4. use SlistREmove
+    */
+    size_t index = 0;
+    struct s_list* list = NULL;
+    s_list_iterator_t iter = NULL;
+    struct hash_node* my_data = NULL;
+    int is_found = 0;
+
+    assert(hash_table);
+    assert(key);
+    index = hash_table->hash_func_t(key);
+
+    if (index > hash_table->table_size)
+    {
+        return 1;
+    }
+    list = hash_table->table[index];
+    iter = SListBegin(list);
+    while (NULL != iter)
+    {
+        my_data = (struct hash_node*)SListGet(list,iter);
+        if (NULL == my_data)
+        {
+            return 1;
+        }
+        
+        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
+        {
+            is_found = 1;
+            break;
+        }
+        iter = SListNext(iter);	
+    }
+    if (0 == is_found)
+    {
+        return 1;
+    }
+    free(my_data);
+    SListRemove(list,iter);
+    return 0;
+}
+
 
