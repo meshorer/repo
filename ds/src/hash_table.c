@@ -4,7 +4,7 @@
 #include "hash_table.h"
 #include "slist.h"
 
-
+void FreeHashNode(s_list_t *s_list);
 struct hash_table
 {
     size_t (*hash_func_t)(const void *key);
@@ -63,11 +63,14 @@ void HashDestroy(hash_table_t *hash_table)
         4. free the array of structs 
     */
    size_t i = 0;
+   struct s_list* list = NULL;
 
    for (i = 0; i < hash_table->table_size; i++)
    {
         /*FreeHashNode(hash_table->table[i]);*/
-        SListDestroy(hash_table->table[i]);
+        list = hash_table->table[i];
+        FreeHashNode(list);
+        SListDestroy(list);
    }
 
    free(hash_table->table);
@@ -116,18 +119,18 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     size_t i = 0;
     struct s_list* list = NULL;
     struct s_list_node *first_node = NULL;
-    struct hash_node* my_data;
+    /*struct hash_node* my_data;*/
     
     hash_node = malloc(sizeof(struct hash_node));
     if (NULL == hash_node)
     {
         return 1;
     }
-    printf("here, key is: %d\n",*(int*)key);
+    
     hash_node->key = (void *)key;
     hash_node->value = (void *)value;
     i = hash_table->hash_func_t(key);
-    printf("index hash is: %lu\n",i);
+   
     if (i > hash_table->table_size)
     {
         return 1;
@@ -149,15 +152,58 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     {
         return 1;
     }
+    /*
     my_data = (struct hash_node*)SListGet(list,first_node);
     printf("the key inserted is: %d\n", *(int*)my_data->key);
-    printf("the value inserted is: %lu\n", *(int*)my_data->value);
+    printf("the value inserted is: %lu\n", *(int*)my_data->value);*/
     return 0;
 }
-/*void FreeHashNode(struct s_list* list)
-{
-   struct s_list_node *first_node = SListBegin(list);
-   
 
-}*/
-    
+void *HashFind(const hash_table_t *hash_table, const void *key)
+{
+    /*  1. hash the key with hash function. 
+        2.  go to the relevant index and extract the list from there
+        3. iterate each node in the list and send the data to the compare function
+    */
+    size_t index = 0;
+    struct s_list* list = NULL;
+    s_list_iterator_t iter = NULL;
+    struct hash_node* my_data = NULL;
+
+    assert(hash_table);
+    assert(key);
+    index = hash_table->hash_func_t(key);
+
+    if (index > hash_table->table_size)
+    {
+        return NULL;
+    }
+    list = hash_table->table[index];
+    iter = SListBegin(list);
+    while (NULL != iter)
+    {
+        my_data = (struct hash_node*)SListGet(list,iter);
+        
+        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
+        {
+            return my_data->value;
+        }
+        iter = SListNext(iter);	
+    }
+    return NULL;
+}
+
+
+void FreeHashNode(s_list_t *s_list)
+{
+
+	s_list_iterator_t iter = SListBegin(s_list);
+	
+	while (NULL != iter)
+	{
+        free(SListGet(s_list,iter));
+		iter = SListNext(iter);	
+	}
+	
+}
+
