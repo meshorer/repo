@@ -121,6 +121,14 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     struct s_list_node *first_node = NULL;
     /*struct hash_node* my_data;*/
     
+    assert(hash_table);
+    assert(key);
+    assert(value);
+    if (NULL != HashFind(hash_table,key))
+    {
+        return 1;
+    }
+
     hash_node = malloc(sizeof(struct hash_node));
     if (NULL == hash_node)
     {
@@ -268,7 +276,6 @@ int HashForEach(hash_table_t *hash_table, action_func_t action_func, void *param
     size_t i = 0;
     struct s_list* list = NULL;
     
-
     assert(hash_table);
     assert(action_func);
     assert(param);
