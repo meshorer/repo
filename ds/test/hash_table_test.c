@@ -1,10 +1,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "hash_table.h"
 #include "slist.h"
 #include "utilities.c"
-#include <stdint.h>
 
 int Comparing_func(const void *data1, const void *data2)
 {
@@ -29,24 +29,14 @@ int main()
 {
 
     hash_table_t *my_hash_table = NULL;
-    char key1[] = "daniel";
-    int value1 = 29;
-    char key2[] = "yael";
-    int value2 = 29;
-    char key3[] = "geffen";
-    int value3 = 3;
-    char key4[] = "idod";
-    int value4 = 1;
+    
     int i = 0;
     FILE *fp = NULL;
     char *line[104334];
-	char key10[] = "zwieback";
-    char key11[] = "AAA";
-    char key12[] = "AA's";
-    char key13[] = "zygotes";
-    char *word = NULL;
-    word = malloc(100);
-    my_hash_table = HashCreate(Hashing_function,104334,Comparing_func);
+	
+    char word[20] = {0};
+   
+    my_hash_table = HashCreate(Hashing_function,1000,Comparing_func);
  
     fp = fopen("/etc/dictionaries-common/words","r");
 	if (fp == NULL)
@@ -55,7 +45,7 @@ int main()
    	}
     for (i = 0; i < 104334; ++i)
     {
-        line[i] = malloc(100);
+        line[i] = malloc(46);
     }
     i = 0;
     while(NULL != fgets(line[i],100,fp))
@@ -78,7 +68,23 @@ int main()
    
     if(NULL != HashFind(my_hash_table, "zoos")){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (0 == strcmp("zoos",HashFind(my_hash_table, "zoos"))){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
-   
+    printf("enter word\n");
+    while(1)
+    {
+        scanf("%s",&word);
+        if (0 == strcmp("exit",word))
+        {
+            break;
+        }
+        if(NULL != HashFind(my_hash_table, &word))
+        {
+            printf("in dictionary\n");
+        }
+        else
+        {
+            printf("not in dictionary!\n");
+        }
+    }
 	fclose(fp);
 		
     for (i = 0; i < 104334; ++i)
@@ -108,7 +114,7 @@ int main()
 
 
     HashDestroy(my_hash_table);
-    free(word);
+   
     return 0;
 }
 
