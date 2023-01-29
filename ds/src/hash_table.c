@@ -62,25 +62,25 @@ void HashDestroy(hash_table_t *hash_table)
         3. free the managing struct
         4. free the array of structs 
     */
-   size_t i = 0;
-   struct s_list* list = NULL;
-
-   for (i = 0; i < hash_table->table_size; i++)
-   {
-        /*FreeHashNode(hash_table->table[i]);*/
+    size_t i = 0;
+    struct s_list* list = NULL;
+    assert(hash_table);
+    for (i = 0; i < hash_table->table_size; i++)
+    {
         list = hash_table->table[i];
         FreeHashNode(list);
         SListDestroy(list);
-   }
+    }
 
-   free(hash_table->table);
-   free (hash_table);
+    free(hash_table->table);
+    free (hash_table);
    
 }
 
 int HashIsEmpty(const hash_table_t *hash_table)
 {
     size_t i = 0;
+    assert(hash_table);
     for (i = 0; i < hash_table->table_size; i++)
     {
         if (0 < SListSize(hash_table->table[i]))
@@ -95,7 +95,7 @@ size_t HashSize(const hash_table_t *hash_table)
 {
     size_t i = 0;
     size_t sum = 0;
-
+    assert(hash_table);
     for (i = 0; i < hash_table->table_size; i++)
     {
         sum+= SListSize(hash_table->table[i]);
@@ -138,10 +138,7 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     hash_node->key = (void *)key;
     hash_node->value = (void *)value;
     i = hash_table->hash_func_t(key);
-    if (i > hash_table->table_size)
-    {
-        return 1;
-    }
+    
     list = hash_table->table[i];
     if (NULL == list)
     {
@@ -159,10 +156,7 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     {
         return 1;
     }
-    /*
-    my_data = (struct hash_node*)SListGet(list,first_node);
-    printf("the key inserted is: %d\n", *(int*)my_data->key);
-    printf("the value inserted is: %lu\n", *(int*)my_data->value);*/
+    
     return 0;
 }
 
@@ -181,10 +175,6 @@ void *HashFind(const hash_table_t *hash_table, const void *key)
     assert(key);
     index = hash_table->hash_func_t(key);
 
-    if (index > hash_table->table_size)
-    {
-        return NULL;
-    }
     list = hash_table->table[index];
     iter = SListBegin(list);
     while (NULL != iter)
@@ -239,10 +229,6 @@ int HashRemove(hash_table_t *hash_table, const void *key)
     assert(key);
     index = hash_table->hash_func_t(key);
 
-    if (index > hash_table->table_size)
-    {
-        return 1;
-    }
     list = hash_table->table[index];
     iter = SListBegin(list);
     while (NULL != iter)
@@ -263,8 +249,6 @@ int HashRemove(hash_table_t *hash_table, const void *key)
     }
     
         return 1;
-    
-   
 }
 
 /* traverse through the hash table and using action_func on each node, keeping certain data in parameter if needed, return :
