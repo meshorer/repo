@@ -128,7 +128,7 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     {
         return 1;
     }
-
+ 
     hash_node = malloc(sizeof(struct hash_node));
     if (NULL == hash_node)
     {
@@ -138,7 +138,6 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     hash_node->key = (void *)key;
     hash_node->value = (void *)value;
     i = hash_table->hash_func_t(key);
-   
     if (i > hash_table->table_size)
     {
         return 1;
