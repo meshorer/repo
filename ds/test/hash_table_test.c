@@ -71,7 +71,7 @@ int main()
     printf("enter word\n");
     while(1)
     {
-        scanf("%s",&word);
+        scanf("%s",(char*)&word);
         if (0 == strcmp("exit",word))
         {
             break;

@@ -37,9 +37,9 @@ hash_table_t *HashCreate(hash_func_t hash_func,size_t table_size,compare_func_t 
     assert(table_size > 0);
     assert(compare_func);
  
-    index_table = malloc(sizeof(s_list_t*) * table_size);
+    index_table = malloc(sizeof(s_list_t*) * table_size);   /* allocate memory for the table: each element should contain a list managing struct  */
 
-    my_hash_table = malloc(sizeof(struct hash_table));
+    my_hash_table = malloc(sizeof(struct hash_table));      /* managing struct for the hash table */
 
     my_hash_table->compare_func_t = compare_func;
     my_hash_table->hash_func_t = hash_func;
@@ -48,7 +48,7 @@ hash_table_t *HashCreate(hash_func_t hash_func,size_t table_size,compare_func_t 
 
     for ( i = 0; i < table_size; i++)
     {
-        index_table[i] = SListCreate();
+        index_table[i] = SListCreate();                     /* assign each element a pointer to list (seperate chaining) */
     }
     
     return my_hash_table ;
@@ -65,14 +65,14 @@ void HashDestroy(hash_table_t *hash_table)
     size_t i = 0;
     struct s_list* list = NULL;
     assert(hash_table);
-    for (i = 0; i < hash_table->table_size; i++)
+    for (i = 0; i < hash_table->table_size; i++)            /* run thruogh the indices  */
     {
         list = hash_table->table[i];
-        FreeHashNode(list);
-        SListDestroy(list);
+        FreeHashNode(list);                                 /* in each list, free the hash-node(key-value)  */
+        SListDestroy(list);                                 /* destroy each list  */
     }
 
-    free(hash_table->table);
+    free(hash_table->table);                                
     free (hash_table);
    
 }
@@ -81,9 +81,9 @@ int HashIsEmpty(const hash_table_t *hash_table)
 {
     size_t i = 0;
     assert(hash_table);
-    for (i = 0; i < hash_table->table_size; i++)
+    for (i = 0; i < hash_table->table_size; i++)            
     {
-        if (0 < SListSize(hash_table->table[i]))
+        if (0 < SListSize(hash_table->table[i]))            /* stop if you find at least non-empty list  */
         {
             return 0;
         }
@@ -98,7 +98,7 @@ size_t HashSize(const hash_table_t *hash_table)
     assert(hash_table);
     for (i = 0; i < hash_table->table_size; i++)
     {
-        sum+= SListSize(hash_table->table[i]);
+        sum+= SListSize(hash_table->table[i]);              /*sum all the nodes in each list  */
     }
     return sum;
 }
@@ -124,34 +124,34 @@ int HashInsert(hash_table_t *hash_table, const void *key,const void *value)
     assert(hash_table);
     assert(key);
     assert(value);
-    if (NULL != HashFind(hash_table,key))
+    if (NULL != HashFind(hash_table,key))                   /* check that the key is not already exist  */
     {
         return 1;
     }
  
-    hash_node = malloc(sizeof(struct hash_node));
+    hash_node = malloc(sizeof(struct hash_node));           /* allocate space for the hash-node(key-value) */
     if (NULL == hash_node)
     {
         return 1;
     }
     
-    hash_node->key = (void *)key;
+    hash_node->key = (void *)key;                           /* assign the key-value in the hash-node  */
     hash_node->value = (void *)value;
-    i = hash_table->hash_func_t(key);
+    i = hash_table->hash_func_t(key);                       /* get the index number according to the hash-function  */
     
-    list = hash_table->table[i];
+    list = hash_table->table[i];                            /* get the list from the specific index  */
     if (NULL == list)
     {
         return 1;
     }
 
-    first_node = SListBegin(list);
+    first_node = SListBegin(list);                          /* get the first node in the list  */
     if (NULL == first_node)
     {
         return 1;
     }
     
-    first_node = SListAdd(list,first_node,hash_node);
+    first_node = SListAdd(list,first_node,hash_node);       /* add a new node and assign to it's data the pointer to the key-value hash node  */
     if (NULL == first_node)
     {
         return 1;
@@ -173,18 +173,18 @@ void *HashFind(const hash_table_t *hash_table, const void *key)
 
     assert(hash_table);
     assert(key);
-    index = hash_table->hash_func_t(key);
+    index = hash_table->hash_func_t(key);                   /* get the index number according to the hash-function  */
 
     list = hash_table->table[index];
-    iter = SListBegin(list);
+    iter = SListBegin(list);                                /*get the first node in the list*/    
     while (NULL != iter)
     {
-        my_data = (struct hash_node*)SListGet(list,iter);
+        my_data = (struct hash_node*)SListGet(list,iter);    /*get the data of the list (which is the pointer to the hash-node)*/   
         if (NULL == my_data)
         {
             return NULL;
         }
-        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
+        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))  /*check if the key recieved matches the data from the user*/ 
         {
             return my_data->value;
         }
@@ -229,8 +229,8 @@ int HashRemove(hash_table_t *hash_table, const void *key)
     assert(key);
     index = hash_table->hash_func_t(key);
 
-    list = hash_table->table[index];
-    iter = SListBegin(list);
+    list = hash_table->table[index];                                    
+    iter = SListBegin(list);                                            /*get the first node in the list*/ 
     while (NULL != iter)
     {
         my_data = (struct hash_node*)SListGet(list,iter);
@@ -239,9 +239,9 @@ int HashRemove(hash_table_t *hash_table, const void *key)
             return 1;
         }
         
-        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))
+        if (0 == hash_table->compare_func_t(my_data->key,(void *)key))  
         {
-            free(my_data);
+            free(my_data);                                              /*free the data (was allocated in the insert function)*/ 
             SListRemove(list,iter);
             return 0;
         }
@@ -266,7 +266,7 @@ int HashForEach(hash_table_t *hash_table, action_func_t action_func, void *param
     for (i = 0; i < hash_table->table_size; i++)
     {
         list = hash_table->table[i];
-        if (0 != SListForEach(list,SListBegin(list),SListEnd(list),action_func,param))
+        if (0 != SListForEach(list,SListBegin(list),SListEnd(list),action_func,param))          /*use slistforeach  for every list in the hash-table*/ 
         {
             return 1;
         }
