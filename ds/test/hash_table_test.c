@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <stdlib.h>
+
 #include "hash_table.h"
 #include "slist.h"
 #include "utilities.c"
@@ -33,11 +33,12 @@ int main()
     int i = 0;
     FILE *fp = NULL;
     char *line[104334];
-	
     char word[20] = {0};
+    pid_t child_id = 0; 
    
     my_hash_table = HashCreate(Hashing_function,1000,Comparing_func);
- 
+    printf("my pid is: %d\n",getpid());
+    sleep(1);
     fp = fopen("/etc/dictionaries-common/words","r");
 	if (fp == NULL)
 	{
@@ -110,8 +111,13 @@ int main()
     if (1 ==  HashRemove(my_hash_table,&key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (3 ==  HashSize(my_hash_table)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}
     if (NULL == HashFind(my_hash_table, &key3)){PRINT_TESTS(0);}else{PRINT_TESTS(1);}*/
+     
     
-
+    
+    /*system ("pwd" );*/
+    child_id = fork();
+    execl("/usr/bin/ls","l");
+    printf("or\n");
 
     HashDestroy(my_hash_table);
    

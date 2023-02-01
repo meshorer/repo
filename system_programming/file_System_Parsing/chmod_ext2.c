@@ -264,7 +264,7 @@ int PrintFIleContent(char *path, char *device_name)
 	
 	size_t offset = GetInode(path,device_name);
 		
-	my_buffer = malloc(my_inode.i_size+1);	
+	
 	
 	fp = fopen(device_name, "r");
 	if (fp == NULL)
@@ -274,6 +274,13 @@ int PrintFIleContent(char *path, char *device_name)
    	}
    		
 	my_inode = GetInodeTable(fp,offset);	
+
+	my_buffer = malloc(my_inode.i_size);	
+	if (NULL == my_buffer)
+	{
+		fclose(fp);
+		return -1;
+	}
    													/*  set the buffer to the size of the desired file-content  */
 
 	if (fseek(fp, (BLOCK_SIZE * my_inode.i_block[0]), SEEK_SET) != 0) 				/* jump to the data block to get it   */
