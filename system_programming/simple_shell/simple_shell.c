@@ -11,10 +11,12 @@
 void ExtractCommand(char *command, char **argv_ptr)
 {
     int i = 0;
-    argv_ptr[0] = strtok(command, " "); /*extract the command from the string*/
-    for (i = 1; i < NUM_ARGS; ++i)
+    argv_ptr[0] = strtok(command, " ");     /*extract the command from the string*/
+
+    while (NULL != argv_ptr[i])             /* stop when reaching a null terminator*/
     {
-        argv_ptr[i] = strtok(NULL, " "); /* rest of args should be null*/
+        ++i;  
+        argv_ptr[i] = strtok(NULL, " ");  
     }
 }
 
@@ -73,7 +75,7 @@ int GoFork()
             perror("wait");
             return errno;
         }
-        
+
         CheckChildStatus(child_status);
 
     }
@@ -84,7 +86,7 @@ int GoFork()
 int GoSystem()
 {
 
-    char word[20] = {0};
+    char word[command_LEN] = {0};
 
     int result = 0;
 
