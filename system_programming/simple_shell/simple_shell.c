@@ -1,55 +1,81 @@
-#include <sys/types.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#include <sys/types.h> /* pid_t */
+#include <stdlib.h>    /* system */
+#include <unistd.h>    /* fork , execvp */
+#include <string.h>    /* strcmp */
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
+#include <sys/wait.h> /* waitpid */
+#include <errno.h>    /* errno */
 #define NUM_ARGS 20
-#define PATH_LEN 30
+#define command_LEN 30
 
+void ExtractCommand(char *command, char **argv_ptr)
+{
+    int i = 0;
+    argv_ptr[0] = strtok(command, " "); /*extract the command from the string*/
+    for (i = 1; i < NUM_ARGS; ++i)
+    {
+        argv_ptr[i] = strtok(NULL, " "); /* rest of args should be null*/
+    }
+}
+
+void CheckChildStatus(int child_status)
+{
+
+    if (!WIFEXITED(child_status))         /* WIFEXITED to check if the child process exited normally  */
+    {
+        printf("WIFEXITED - exit abnormally\n");
+    }
+    else if (WIFSIGNALED(child_status))
+    {
+        printf("child was terminated with signal: %d\n", WTERMSIG(child_status));
+    }
+    else if (WIFSTOPPED(child_status))
+    {
+        printf("child was stopped with signal: %d\n", WSTOPSIG(child_status));
+    }
+}
 
 int GoFork()
 {
-    char path[PATH_LEN] = {0};
-    int i = 0;
-    char *argv_ptr[NUM_ARGS] = {NULL};
+    char command[command_LEN] = {0};
+    char *argv_ptr[NUM_ARGS] = {0};
     pid_t pid = 0;
-    int status = 0;
+    int child_status = 0;
     int result = 0;
     getc(stdin);
     while (1)
     {
         printf("SHELL: ");
-        fgets(path, sizeof(path), stdin);
-        path[strlen(path) - 1] = '\0';
-        if (0 == strncmp("exit", path, 4))
+        fgets(command, sizeof(command), stdin);
+        command[strlen(command) - 1] = '\0'; /*to avoid the \n in the end*/
+        if (0 == strncmp("exit", command, 4))
         {
             break;
         }
-        
-        argv_ptr[0] = strtok(path, " ");
-        for (i = 1; i <NUM_ARGS; ++i)
-        {
-            argv_ptr[i] = strtok(NULL, " ");
-        }
-        
+
+        ExtractCommand(command, argv_ptr);
+
         pid = fork();
         if (-1 == pid)
         {
-            return pid;
+            perror("fork");
+            return errno;
         }
-        if ( 0 == pid)
+        if (0 == pid) /* 0 means I am the child now */
         {
             result = execvp(argv_ptr[0], argv_ptr);
-            printf("error: %d\n", result);
+            printf("%s: command not found\n", argv_ptr[0]);
             return result;
         }
-        else
+
+        if (-1 == wait(&child_status)) /* Wait for the child process to complete. */
         {
-            waitpid(pid,&status,0);
+            perror("wait");
+            return errno;
         }
+        
+        CheckChildStatus(child_status);
+
     }
 
     return 0;
