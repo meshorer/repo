@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <sys/wait.h> /* waitpid */
 #include <errno.h>    /* errno */
+#include <signal.h>
+
 #define NUM_ARGS 20
 #define command_LEN 30
 
