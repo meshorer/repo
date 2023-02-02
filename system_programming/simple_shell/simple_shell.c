@@ -11,19 +11,19 @@
 void ExtractCommand(char *command, char **argv_ptr)
 {
     int i = 0;
-    argv_ptr[0] = strtok(command, " ");     /*extract the command from the string*/
+    argv_ptr[0] = strtok(command, " "); /*extract the command from the string*/
 
-    while (NULL != argv_ptr[i])             /* stop when reaching a null terminator*/
+    while (NULL != argv_ptr[i]) /* stop when reaching a null terminator*/
     {
-        ++i;  
-        argv_ptr[i] = strtok(NULL, " ");  
+        ++i;
+        argv_ptr[i] = strtok(NULL, " ");
     }
 }
 
 void CheckChildStatus(int child_status)
 {
 
-    if (!WIFEXITED(child_status))         /* WIFEXITED to check if the child process exited normally  */
+    if (!WIFEXITED(child_status)) /* WIFEXITED to check if the child process exited normally  */
     {
         printf("WIFEXITED - exit abnormally\n");
     }
@@ -69,17 +69,17 @@ int GoFork()
             printf("%s: command not found\n", argv_ptr[0]);
             return result;
         }
-
-        if (-1 == wait(&child_status)) /* Wait for the child process to complete. */
-        {
-            perror("wait");
-            return errno;
-        }
-
-        CheckChildStatus(child_status);
-
+        else if (0 < pid)
+            {
+                if (-1 == wait(&child_status)) /* Wait for the child process to complete. */
+                {
+                    perror("wait");
+                    return errno;
+                }
+                CheckChildStatus(child_status);
+            }
     }
-
+    
     return 0;
 }
 
