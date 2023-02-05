@@ -1,7 +1,9 @@
-#include <unistd.h> /* fork , execvp */
+#define _POSIX_SOURCE           /* resolve inplicit dec of kill */
+#define _XOPEN_SOURCE   600     /* esolve inplicit dec of usleep*/
+#include <unistd.h>             /* fork , execvp */
 #include <stdio.h>
 #include <signal.h>
-#include <sys/types.h> /* pid_t */
+#include <sys/types.h>          /* pid_t */
 
 /*
     using fork:
@@ -9,15 +11,15 @@
     When the child receives SIGUSR1 it should return signal SIGUSR2 to its parent, and vice versa.
 */
 
-int childglobal = 0;
-int parentglobal = 0;
+volatile sig_atomic_t childglobal = 1;
+volatile sig_atomic_t parentglobal = 1;
 
 void handle_child(int sig)
 {
     if (sig == SIGUSR1)
     {
-        childglobal++;
-        printf("Caught signal in child:  %d\n", sig);
+        parentglobal--;
+        write(STDOUT_FILENO,"ping\n",5);
     }
 }
 
@@ -25,8 +27,8 @@ void handle_parent(int sig)
 {
     if (sig == SIGUSR2)
     {
-        parentglobal++;
-        printf("Caught signal in parent: %d\n", sig);
+        childglobal--;
+        write(STDOUT_FILENO,"pong\n",5);
     }
 }
 
@@ -34,13 +36,12 @@ int main()
 {
 
     pid_t pid_child = 0;
-    int child_status;
-
+   
     signal(SIGUSR1, handle_child);
     signal(SIGUSR2, handle_parent);
 
     pid_child = fork();
-
+   
     if (pid_child < 0)
     {
         perror("fork error");
@@ -48,13 +49,22 @@ int main()
     }
     if (0 == pid_child)    
     {
-        raise(SIGUSR2);
-        raise(SIGUSR2);
+        while (childglobal)
+        {
+             raise(SIGUSR2);
+             pause();
+              
+        }
+       
     }
     else                   
     {
-        kill(pid_child, SIGUSR1);
-        kill(pid_child, SIGUSR1);       
+        while (parentglobal)
+        {   
+            kill(pid_child, SIGUSR1);
+            pause();     
+        }
+        
     }
 
     return 0;
