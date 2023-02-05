@@ -36,7 +36,6 @@ int child_process()
 int main()
 {
 	
-	pid_t child_pid = 0;
     struct sigaction sa_child;
     
 	sa_child.sa_handler = sig_hand_child;                   /* set up signal handler function for child */

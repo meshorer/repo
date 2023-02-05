@@ -1,3 +1,11 @@
+
+
+/*  to follow the child process instead of parent  - use set follow-fork-mode child in gdb */
+/*  to follow already running child process instead of parent 
+ 1. - find the process of the child
+ 2. - while in gdb use attch <pid> command to attach it 
+ */
+
 #define _POSIX_SOURCE           /* resolve implicit declaration of kill */
 #define _XOPEN_SOURCE   600     /* resolve implicit declaration of usleep */
 #include <unistd.h>             /* fork, execvp */
@@ -7,7 +15,7 @@
 #include <errno.h>				
 
 #define WORD_LENGTH 5
-#define CHILD_PROCESS "./pong.out"
+#define CHILD_PROCESS "./ponga.out"
 
 void sig_hand_parent(int sig)                               /* signal handle function for parent */
 {
@@ -57,7 +65,11 @@ int main()
 
 	if (0 == child_pid)
 	{
-        execvp(argv_ptr[0],argv_ptr);
+        if (-1 == execvp(argv_ptr[0],argv_ptr))
+        {
+            printf("%s: command not found\n", argv_ptr[0]);
+            kill(getppid(),SIGTERM);                           /* if execvp fails - kill the parent   */
+        }
 	}
 	else
 	{

@@ -63,7 +63,6 @@ int BstInsert(bst_t *bst, const void *data)
         2. else - send the functiom the right/left 
     */
    assert(bst);
-   assert(data);
    bst->root = WrapperInsert(bst->root,bst->compare_func_t,(void *)data);
 
    if(NULL == bst->root)
