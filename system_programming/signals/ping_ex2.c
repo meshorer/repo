@@ -7,14 +7,7 @@
 #include <errno.h>				
 
 #define WORD_LENGTH 5
-
-void sig_hand_child(int sig)                                /* signal handle function for child */
-{
-    if (sig == SIGUSR1)
-    {
-        write(STDOUT_FILENO, "ping\n", WORD_LENGTH);        /* write is an async-signal-safe function */
-    }
-}
+#define CHILD_PROCESS "./pong.out"
 
 void sig_hand_parent(int sig)                               /* signal handle function for parent */
 {
@@ -22,23 +15,6 @@ void sig_hand_parent(int sig)                               /* signal handle fun
     {
         write(STDOUT_FILENO, "pong\n", WORD_LENGTH);
     }
-}
-
-
-int child_process()
-{
-	while(1)
-	{
-        pause();                                            /* wait for signal */
-		
-		usleep(1000000);                                    /* sleep for 1 second */
-
-		if (-1 == kill(getppid(), SIGUSR2))                 /* send SIGUSR2 signal to parent procesig_handparentss */
-        {
-            return errno;
-        }                         
-	}
-	return 0;
 }
 
 int parent_process(pid_t pid)
@@ -58,19 +34,14 @@ int parent_process(pid_t pid)
 
 int main()
 {
-	
-	pid_t child_pid = 0;
+    
+    pid_t child_pid = 0;
 	struct sigaction sa_parent;
-    struct sigaction sa_child;
-    
-    
-	sa_child.sa_handler = sig_hand_child;                   /* set up signal handler function for child */
+    char *argv_ptr[2] = {0};
+    argv_ptr[0] = CHILD_PROCESS;
+    argv_ptr[1] = NULL;
+        
     sa_parent.sa_handler = sig_hand_parent;                 /* set up signal handler function for parent */
-
-	if (sigaction(SIGUSR1, &sa_child, NULL) == -1)
-	{
-		perror("sigaction");
-	}
 
     if (sigaction(SIGUSR2, &sa_parent, NULL) == -1)
 	{
@@ -86,7 +57,7 @@ int main()
 
 	if (0 == child_pid)
 	{
-		return child_process();                                    /* run child_process()  */
+        execvp(argv_ptr[0],argv_ptr);
 	}
 	else
 	{
