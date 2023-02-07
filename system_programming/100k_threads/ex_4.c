@@ -5,10 +5,10 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#define NUM 32753
-#define ARG  1000000076
+#define NUM_OF_THREADS 32753
+#define ARG  2222222224
 
-size_t range_size =  ARG / NUM;
+size_t range_size =  ARG / NUM_OF_THREADS;
 
 void *routine(void *arg)
 {
@@ -34,7 +34,7 @@ void *routine(void *arg)
 
 int main()
 {
-    pthread_t id[NUM];
+    pthread_t id[NUM_OF_THREADS];
     size_t i = 0;
     time_t start, end;
     size_t arg = 1;
@@ -42,11 +42,12 @@ int main()
     size_t sum = 0;
    
     start = time(NULL);
-    if (ARG %NUM != 0)
+    
+    if (ARG %NUM_OF_THREADS != 0) /* solve the raemainder issue */
     {
         range_size+=1;
     }
-    for (i = 0; i < NUM; i++)
+    for (i = 0; i < NUM_OF_THREADS; i++)
     {
        pthread_create(&id[i], NULL, routine, (void*)(arg));
        arg += range_size;
@@ -54,7 +55,7 @@ int main()
     }
     
     
-    for (i = 0; i < NUM; i++)
+    for (i = 0; i < NUM_OF_THREADS; i++)
     {
         pthread_join(id[i], &ret_val);
         sum+=(size_t)ret_val;
