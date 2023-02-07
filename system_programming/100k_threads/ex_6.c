@@ -20,7 +20,6 @@ int main()
             {
                 sum_of_divisors += i;
             }
-            printf("number of threads is %d\n", omp_get_num_threads());
         }
   
     end = time(NULL);
