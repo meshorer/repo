@@ -5,10 +5,9 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#define NUM 20000
-#define ARG  100000
+#define NUM 32753
+#define ARG  1000000076
 
-size_t arr[NUM] = {0};
 size_t range_size =  ARG / NUM;
 
 void *routine(void *arg)
@@ -16,15 +15,20 @@ void *routine(void *arg)
     size_t my_arg = (size_t)arg;
     size_t i = 0;
     size_t sum_of_divisors = 0;
-
-    for(i = my_arg ; i < my_arg+range_size; ++i)
+    size_t end = my_arg + range_size;
+    
+    for(i = my_arg ; i < end; ++i)
     {
           if (0 == ARG % i)
           {
               sum_of_divisors += i;
           }
-    }  
-    
+    } 
+    if (sum_of_divisors!= 0) 
+    {
+         printf("sum of divisors is %ld\n", sum_of_divisors);
+    }
+   
     return (void*)sum_of_divisors;
 }
 
@@ -33,13 +37,15 @@ int main()
     pthread_t id[NUM];
     size_t i = 0;
     time_t start, end;
-    int count = 0;
     size_t arg = 1;
     void *ret_val = 0;
     size_t sum = 0;
-
+   
     start = time(NULL);
-    
+    if (ARG %NUM != 0)
+    {
+        range_size+=1;
+    }
     for (i = 0; i < NUM; i++)
     {
        pthread_create(&id[i], NULL, routine, (void*)(arg));
