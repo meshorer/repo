@@ -1,6 +1,5 @@
 #include <pthread.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #define ARG 7611575250
 
