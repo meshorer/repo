@@ -1,8 +1,8 @@
 #include <pthread.h>
 #include <stdio.h>
-#include <omp.h>
+#include <omp.h>  /* also compile with -fopenmp*/
 
-#define ARG 7611575250
+#define ARG 16350000000
 
 int main()
 {
@@ -13,6 +13,7 @@ int main()
     time_t start, end;
     start = time(NULL);
     
+    
     #pragma omp parallel for 
     for (i = 1; i <= my_arg; ++i)
         {
@@ -21,7 +22,7 @@ int main()
                 sum_of_divisors += i;
             }
         }
-  
+    
     end = time(NULL);
     
     printf("%lu\n", sum_of_divisors);

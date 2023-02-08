@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-#define ARG 7611575250
+#define ARG 16350000000
 
 
 int main()

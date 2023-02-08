@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #define NUM_OF_THREADS 8 /* optimal number of threads */
-#define ARG  7611575250
+#define ARG  16350000000
 
 
 /* to measure the statistics with perf, use:
