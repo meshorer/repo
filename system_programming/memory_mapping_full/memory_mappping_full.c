@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include "memory_mappping_full.h"
 
+
+/*
+	to view in gdb:
+	info proc mappings
+	info files
+*/
 static void StaticFunc() {}
 void ExternFunc() {}
 

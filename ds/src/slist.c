@@ -260,16 +260,6 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 	assert(NULL != s_list);
 	assert(NULL != position);
 	
-	/*s_list_iterator_t head_iter = s_list->head; */
-	
-	/*
-	while (0 != IterCmp(head_iter,position) && (NULL != head_iter))
-	{
-		head_iter = head_iter->next;
-	} 
-	
-	*/
-	
 	new_node->data = position->data;
 	new_node->next = position->next;
 	
