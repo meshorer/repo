@@ -19,7 +19,7 @@ struct my_struct
     int data[10];
     int counter;
 };
- 
+
 void *Producer(void *arg)
 {
     struct my_struct *my_struct = (struct my_struct *)arg;
