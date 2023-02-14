@@ -87,7 +87,7 @@ int main()
     args.message = 0;
     args.counter_consume = NUM_THREDS - 1;
 
-    if (-1 == sem_init(&sem_read, 0, NUM_THREDS - 1))
+    if (-1 == sem_init(&sem_read, 0, 0))
     {
         perror("sem_init");
     }
