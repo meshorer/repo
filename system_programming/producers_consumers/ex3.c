@@ -6,7 +6,7 @@
 
 /*  gd ex2.c /home/daniel/git/ds/src/slist.c -I /home/daniel/git/ds/include
  */
-
+/* approved by Ravid */
 pthread_mutex_t lock = {0};
 sem_t sem = {0};
 

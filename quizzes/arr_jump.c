@@ -36,6 +36,7 @@ int main()
 
     int arr[9] = {2, 15, 1, 6, 37, 2, 4, 3, 5};
     int arr2[6] = {1, 3, 2, 1, 4, 3};
+    int arr3[9] = {2,4,1,6,4,2,4,3,5};
     int visited[MAX_SIZE] = {0};
 
     if (1 == (ArrJump(arr, 9, 0, visited)))
@@ -55,7 +56,15 @@ int main()
     {
         printf("No path from the start to the end of the array was found.\n");
     }
-
+	
+	 if (1 == (ArrJump(arr3, 9, 0, visited)))
+    {
+        printf("A path from the start to the end of the array was found.\n");
+    }
+    else
+    {
+        printf("No path from the start to the end of the array was found.\n");
+    }
     return 0;
 }
 
