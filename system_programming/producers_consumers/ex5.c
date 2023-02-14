@@ -3,13 +3,14 @@
 #include <semaphore.h>
 #include <errno.h>
 
-#define NUM_THREDS 30
-#define NUM_ELEMENTS 10
+#define NUM_THREDS 30000
+#define NUM_ELEMENTS 100
 
 /*  gd ex4.c /home/daniel/git/ds/src/slist.c -I /home/daniel/git/ds/include
  */
 
-pthread_mutex_t lock = {0};
+pthread_mutex_t lock_consumer = {0};
+pthread_mutex_t lock_producer = {0};
 sem_t sem_read = {0};
 sem_t sem_write = {0};
 
@@ -20,6 +21,30 @@ struct my_struct
     int index_read;
 };
 
+void Enqueue(int *index)
+{
+    if (*index == NUM_ELEMENTS -1)
+    {
+        *index = 0;
+    }
+    else
+    {
+        (*index)++;
+    }
+}
+
+void Dequeue(int *index)
+{
+    if (*index == NUM_ELEMENTS -1)
+    {
+        *index = 0;
+    }
+    else
+    {
+        (*index)++;
+    }
+}
+
 void *Producer(void *arg)
 {
     struct my_struct *my_struct = (struct my_struct *)arg;
@@ -29,7 +54,7 @@ void *Producer(void *arg)
         return NULL;
     }
 
-    if (0 != pthread_mutex_lock(&lock))
+    if (0 != pthread_mutex_lock(&lock_producer))
     {
         perror(" produxer pthread_mutex_lock");
     }
@@ -37,21 +62,14 @@ void *Producer(void *arg)
     my_struct->data[my_struct->index_write] = 1;
     printf("index write: %d\n", my_struct->index_write);
 
-    if (my_struct->index_write == NUM_ELEMENTS -1)
-    {
-        my_struct->index_write = 0;
-    }
-    else
-    {
-        my_struct->index_write++;
-    }
+    Enqueue(&my_struct->index_write);
 
     if (-1 == sem_post(&sem_read))
     {
         return NULL;
     }
 
-    if (0 != pthread_mutex_unlock(&lock))
+    if (0 != pthread_mutex_unlock(&lock_producer))
     {
         perror("pthread_mutex_unlock");
     }
@@ -68,28 +86,21 @@ void *Consumer(void *arg)
         return NULL;
     }
 
-    if (0 != pthread_mutex_lock(&lock))
+    if (0 != pthread_mutex_lock(&lock_consumer))
     {
         perror("pthread_mutex_lock");
     }
 
     printf("data consumed: %d i:%d\n", my_struct->data[my_struct->index_read],my_struct->index_read);
 
-    if (my_struct->index_read == NUM_ELEMENTS -1)
-    {
-        my_struct->index_read = 0;
-    }
-    else
-    {
-        my_struct->index_read++;
-    }
+    Dequeue(&my_struct->index_read);
 
     if (-1 == sem_post(&sem_write))
     {
         return NULL;
     }
 
-    if (0 != pthread_mutex_unlock(&lock))
+    if (0 != pthread_mutex_unlock(&lock_consumer))
     {
         perror("pthread_mutex_unlock");
     }
@@ -119,7 +130,12 @@ int main()
         perror("sem_init");
     }
 
-    if (0 != pthread_mutex_init(&lock, NULL))
+    if (0 != pthread_mutex_init(&lock_consumer, NULL))
+    {
+        perror("pthread_mutex_init");
+    }
+
+    if (0 != pthread_mutex_init(&lock_producer, NULL))
     {
         perror("pthread_mutex_init");
     }
@@ -148,11 +164,18 @@ int main()
         }
     }
     printf("finished threads\n");
-    if (0 != pthread_mutex_destroy(&lock))
+    if (0 != pthread_mutex_destroy(&lock_consumer))
     {
         perror("pthread_mutex_destroy");
         return -1;
     }
+
+    if (0 != pthread_mutex_destroy(&lock_producer))
+    {
+        perror("pthread_mutex_destroy");
+        return -1;
+    }
+
     if (0 != sem_destroy(&sem_read))
     {
         perror("sem_read destroy");
