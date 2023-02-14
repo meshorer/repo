@@ -14,6 +14,10 @@ SRC_MASKIT = src/vsamaskit.c test/vsa_test.c
 SRC_BST = src/bst.c test/bst_test.c
 SRC_BINARY_SEARCH = src/binary_search.c test/binary_search_test.c
 SRC_HASH_TABLE = src/hash_table.c test/hash_table_test.c
+SRC_QUEUE = src/queue.c test/queue_test.c
+
+queue.out: $(SRC_QUEUE)
+		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_QUEUE) -o queue.out
 
 hash_table.out: $(SRC_HASH_TABLE)
 		@$(CC) $(CPPFLAGS) -g $(CFLAGS) $(SRC_HASH_TABLE) src/slist.c -o hash_table.out
