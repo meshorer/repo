@@ -71,7 +71,8 @@ is_int(10.3)
 
 def FlipInt(num):
 	reverse_num = 0
-	while num> 0:
+	num = int(num)					# make it work also with string
+	while num > 0:
     		
    	 	digit = num % 10 			# find the remainder - the last digit
     		
@@ -81,10 +82,33 @@ def FlipInt(num):
     		
     		reverse_num = reverse_num + digit  	# add another digit
 
-	print ('The "inverse" number:', reverse_num)
-FlipInt(123)
+	print ('The reversed number:', reverse_num)
+FlipInt("1234")
+
+def grades(num):
+    if(num in range(0,10)):
+        print('F')
+    elif(num in range(10,30)):
+        print('E')
+    elif(num in range(30,50)):
+        print('D')
+    elif(num in range(50,70)):
+        print('C')
+    elif(num in range(70,90)):
+        print('B')
+    elif(num in range(90,101)):
+        print('A')
+
+grades(100)
 
 
+def Factorial(num):
+	if num == 1:
+		return 1
+		
+	return num * Factorial(num - 1)
+print(Factorial(5))
+	
 
 
 
