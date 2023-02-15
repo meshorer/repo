@@ -39,7 +39,7 @@ def int_to_asci():
 	my_int = 48
 	my_str = chr(my_int)
 	print(my_str)
-IntToAsci()
+int_to_asci()
 
 def is_even(num):
     if num % 2 == 0:
@@ -61,7 +61,7 @@ def is_leap_year(year):
 		print("leap")
 	else:
 		print("not leap")
-IsLeapYear(400)
+is_leap_year(400)
 		
 
 def is_int(num):
@@ -74,7 +74,7 @@ def flip_int(num):
 	num = num[::-1]		# flip the string
 	print(num)
 
-FlipInt(123.456)
+flip_int(123.456)
 
 def grades(num):
     if(num in range(0,10)):
