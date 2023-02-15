@@ -1,4 +1,4 @@
-#include <pthread.h>  /* for pthread_create and mutex*/
+#include <pthread.h> /* for pthread_create and mutex*/
 #include <stdio.h>
 #include <semaphore.h>
 #include <errno.h>
@@ -20,21 +20,26 @@ struct my_struct
 void *Producer(void *arg)
 {
     struct my_struct *my_struct = (struct my_struct *)arg;
+
     if (0 != pthread_mutex_lock(&lock))
-   {
-       perror(" produxer pthread_mutex_lock");
-   }
+    {
+        perror(" produxer pthread_mutex_lock");
+    }
+
     SListAdd(my_struct->my_list, SListEnd(my_struct->my_list), &my_struct->data[my_struct->counter]);
+
     my_struct->counter++;
+
     if (0 != pthread_mutex_unlock(&lock))
-   {
-       perror("pthread_mutex_unlock");
-   }
+    {
+        perror("pthread_mutex_unlock");
+    }
 
     if (-1 == sem_post(&sem))
     {
         return NULL;
     }
+
     return 0;
 }
 
@@ -46,15 +51,15 @@ void *Consumer(void *arg)
         return NULL;
     }
     if (0 != pthread_mutex_lock(&lock))
-   {
-       perror("pthread_mutex_lock");
-   }
+    {
+        perror("pthread_mutex_lock");
+    }
     printf("data consumed: %d\n", *(int *)SListGet(my_struct->my_list, SListBegin(my_struct->my_list)));
     SListRemove(my_struct->my_list, SListBegin(my_struct->my_list));
-   if (0 != pthread_mutex_unlock(&lock))
-   {
-       perror("pthread_mutex_unlock");
-   }
+    if (0 != pthread_mutex_unlock(&lock))
+    {
+        perror("pthread_mutex_unlock");
+    }
 
     return 0;
 }
@@ -109,15 +114,15 @@ int main()
     }
     printf("finished threads\n");
     SListDestroy(my_list);
-   if (0 != pthread_mutex_destroy(&lock))
-   {
-       perror("pthread_mutex_destroy");
-       return -1;
-   }
-   if (0 != sem_destroy(&sem))
-   {
-       perror("sem_destroy");
-       return errno;
-   }
+    if (0 != pthread_mutex_destroy(&lock))
+    {
+        perror("pthread_mutex_destroy");
+        return -1;
+    }
+    if (0 != sem_destroy(&sem))
+    {
+        perror("sem_destroy");
+        return errno;
+    }
     return 0;
 }

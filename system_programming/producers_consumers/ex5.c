@@ -60,6 +60,7 @@ void *Producer(void *arg)
     }
 
     my_struct->data[my_struct->index_write] = 1;
+    
     printf("index write: %d\n", my_struct->index_write);
 
     Enqueue(&my_struct->index_write);
