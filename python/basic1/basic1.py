@@ -35,7 +35,7 @@ def max_int():
 	
 max_int()
 
-def IntToAsci():
+def int_to_asci():
 	my_int = 48
 	my_str = chr(my_int)
 	print(my_str)
@@ -56,7 +56,7 @@ def StringCorrespondingInt(string, num):
 StringCorrespondingInt("daniel", 3)
 
 
-def IsLeapYear(year):
+def is_leap_year(year):
 	if (year % 4 == 0 and year % 100 != 0 or year % 400 == 0):
 		print("leap")
 	else:
@@ -69,21 +69,12 @@ def is_int(num):
 is_int(10.3)
 
 
-def FlipInt(num):
-	reverse_num = 0
-	num = int(num)					# make it work also with string
-	while num > 0:
-    		
-   	 	digit = num % 10 			# find the remainder - the last digit
-    		
-    		num = num // 10				# divide completely - remove the last digit
-    		
-    		reverse_num = reverse_num * 10		# increase the bit width of the second number
-    		
-    		reverse_num = reverse_num + digit  	# add another digit
+def flip_int(num):
+	num = str(num)		# convert to string
+	num = num[::-1]		# flip the string
+	print(num)
 
-	print ('The reversed number:', reverse_num)
-FlipInt("1234")
+FlipInt(123.456)
 
 def grades(num):
     if(num in range(0,10)):
@@ -102,7 +93,7 @@ def grades(num):
 grades(100)
 
 
-def Factorial(num):
+def factorial(num):
 
 	if num == 0:
 		return 1
