@@ -69,6 +69,22 @@ def is_int(num):
 is_int(10.3)
 
 
+def FlipInt(num):
+	reverse_num = 0
+	while num> 0:
+    		
+   	 	digit = num % 10 			# find the remainder - the last digit
+    		
+    		num = num // 10				# divide completely - remove the last digit
+    		
+    		reverse_num = reverse_num * 10		# increase the bit width of the second number
+    		
+    		reverse_num = reverse_num + digit  	# add another digit
+
+	print ('The "inverse" number:', reverse_num)
+FlipInt(123)
+
+
 
 
 
