@@ -70,11 +70,13 @@ is_int(10.3)
 
 
 def flip_int(num):
+
+
 	num = str(num)		# convert to string
 	num = num[::-1]		# flip the string
 	print(num)
 
-flip_int(123.456)
+flip_int("123.456")
 
 def grades(num):
     if(num in range(0,10)):
@@ -99,7 +101,7 @@ def factorial(num):
 		return 1
 		
 	return num * Factorial(num - 1)
-print(Factorial(0))
+print(factorial(0))
 	
 
 
