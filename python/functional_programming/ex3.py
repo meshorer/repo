@@ -14,6 +14,6 @@ print(seven_boom_list_comprehension(17))
 
 
 def seven_boomusing_map(num):
-    a =  list(map(lambda x: (x) if x % 7 == 0 or '7' in str(x) else None , range(num+1)))    
+    a =  list(map(lambda x: x if x % 7 == 0 or '7' in str(x) else None , range(num+1)))    
     return list(filter(lambda x: x is not None, a))
 print(seven_boomusing_map(17))
