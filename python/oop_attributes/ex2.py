@@ -1,6 +1,6 @@
 class  X(object):               # with __setattr__
     def __init__(self, a):
-        object.__setattr__(self, 'a', a)
+        object.__setattr__(self, 'a', a)   # this makes sure attribute a will be initialized despite __setattr__ method 
 
     def __setattr__(self, attr, value):
         if not hasattr(self, attr):
