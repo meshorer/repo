@@ -35,11 +35,11 @@ class Property:
         
         self.fset(obj, value)        # Otherwise, call the setter function with the object and value.
 
-    def Setter(self, fset):
-        # Set the descriptor's setter function to the given function.
+    def Setter(self, fset):          # Set the descriptor's setter function to the given function.
+        
         self.fset = fset
-        # Return the descriptor, so that it can be used as a decorator.
-        return self
+        
+        return self                  # Return the descriptor, so that it can be used as a decorator.
 
 class X:
     def __init__(self, val):
