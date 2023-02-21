@@ -13,23 +13,32 @@
 
 class Property:
     def __init__(self, fget=None):
-        self.fget = fget
-        self.fset = None
+        
+        self.fget = fget            # Initialize the descriptor with a getter function.
+        
+        self.fset = None            # Initialize the descriptor with no setter function.
 
     def __get__(self, obj, objtype=None):
+        # If the descriptor is accessed on a class rather than an instance,
+        # return the descriptor itself.
         if obj is None:
             return self
-        if self.fget is None:
+       
+        if self.fget is None:        # If the descriptor has a getter function, call it and return its value.
             raise AttributeError("unreadable attribute")
         return self.fget(obj)
 
     def __set__(self, obj, value):
-        if self.fset is None:
+       
+        if self.fset is None:        # If the descriptor has no setter function, raise an AttributeError.
             raise AttributeError("can't set attribute")
-        self.fset(obj, value)
+        
+        self.fset(obj, value)        # Otherwise, call the setter function with the object and value.
 
     def Setter(self, fset):
+        # Set the descriptor's setter function to the given function.
         self.fset = fset
+        # Return the descriptor, so that it can be used as a decorator.
         return self
 
 class X:
