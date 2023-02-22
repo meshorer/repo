@@ -3,6 +3,6 @@
 from functools import reduce 
 
 def increment_the_list(my_list):
-   return reduce(lambda x,y: x + y, my_list)
+   return list(map(lambda x: x + 1, my_list))
 
 print(increment_the_list([1,2,3]))

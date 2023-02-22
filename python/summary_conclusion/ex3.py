@@ -2,8 +2,7 @@
 
 def is_prime(number):
     if number == 0 or number == 1:
-        return False
-        
+        return False  
     i = 2
     while i < number:
         if number % i == 0:
@@ -11,4 +10,4 @@ def is_prime(number):
         i+=1
     return True
 
-print(is_prime())
+print(is_prime(7))
