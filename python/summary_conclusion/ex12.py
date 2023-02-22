@@ -5,7 +5,6 @@
 class DefaultDict(dict):
 
     def __init__(self,default_value):
-        super().__init__()
         self.default_value = default_value
 
     def __getitem__(self, key):
@@ -14,5 +13,5 @@ class DefaultDict(dict):
         return super().__getitem__(key)
 d = DefaultDict(0)
 d['a'] = "hello"
-print(d['b'])
+print(d['a'])
     
