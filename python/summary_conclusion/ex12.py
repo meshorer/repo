@@ -5,14 +5,14 @@
 class DefaultDict(dict):
 
     def __init__(self,default_value):
+        super().__init__()
         self.default_value = default_value
 
-    def __setitem__(self, key, value):
+    def __getitem__(self, key):
         if not key in self:
             return self.default_value
-        super().__setitem__(key, value)
-
+        return super().__getitem__(key)
 d = DefaultDict(0)
 d['a'] = "hello"
-print(d['a'])
+print(d['b'])
     
