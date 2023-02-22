@@ -1,23 +1,21 @@
 class LinkedList:
-    def __init__(self, nodes=None):
+    def __init__(self, *args):
         self.head = None
-        if nodes is not None:
-            node = Node(data=nodes.pop(0))
-            self.head = node
-            for elem in nodes:
-                node.next = Node(data=elem)
-                node = node.next
+        for i in args:
+            self.push_first(i)
+
                 
-    def __repr__(self):
-        node = self.head
-        nodes = []
-        while node is not None:
-            nodes.append(node.data)
-            node = node.next
-        nodes.append("None")
-        return " -> ".join(nodes)
+    # def __repr__(self):
+    #     node = self.head
+    #     nodes = []
+    #     while node is not None:
+    #         nodes.append(node.data)
+    #         node = node.next
+    #     nodes.append("None")
+    #     return " -> ".join(nodes)
     
-    def push_first(self, node):
+    def push_first(self, data):
+        node = Node(data)
         node.next = self.head
         self.head = node
         
@@ -41,7 +39,7 @@ class LinkedList:
                 previous_node.next = node.next
                 return
             previous_node = node
-            print("no data was found")
+        print("no data was found")
             
     def __iter__(self):
         node = self.head
@@ -52,7 +50,7 @@ class LinkedList:
         return self.head is None      
     def len(self):
         return (len(list(self)))
-    
+   
 
     def reverse(self):
         new_list = LinkedList()
@@ -60,7 +58,14 @@ class LinkedList:
             new_node = Node(node.data)
             new_list.push_first(new_node)
         return new_list
-    
+
+    def print_slist(self):
+        n = self.head
+        while n is not None:
+            print(n.data, end=" --> ")
+            n = n.next
+        print("None")
+
     def copy(self):
         rev = self.reverse()
         return rev.reverse()
@@ -92,19 +97,24 @@ class Node:
     def copy(self):
         return Node(self.data)  
     
-llist = LinkedList()
-print(bool(llist))
-llist = LinkedList(["a", "b", "c", "d", "e"])
-
-llist.push_first(Node("F"))
-print(llist)
-print(llist.len())
+print()
+llist = LinkedList("a", "b", "c", "d", "e",(1,5))
+llist.print_slist()
 llist.pop_first()
-llist.remove_node(None)
-print(llist)
+llist.print_slist()
+
+llist.remove_node("c")
+llist.print_slist()
 print(llist.len())
 print(bool(llist))
 newl = llist.copy()
 
-print(newl)
+newl.print_slist()
+rev = newl.reverse()
+rev.print_slist()
+
+
+
+
+
 
