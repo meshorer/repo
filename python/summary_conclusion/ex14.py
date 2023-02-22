@@ -42,8 +42,10 @@ class LinkedList:
         while node is not None:
             yield node
             node = node.next
+    
     def __bool__(self):
         return self.head is None      
+    
     def len(self):
         return (len(list(self)))
    
@@ -54,14 +56,7 @@ class LinkedList:
             new_node = Node(node.data)
             new_list.push_first(new_node)
         return new_list
-
-    def print_slist(self):
-        n = self.head
-        while n is not None:
-            print(n.data, end=" --> ")
-            n = n.next
-        print("None")
-
+        
     def copy(self):
         rev = self.reverse()
         return rev.reverse()
@@ -100,6 +95,8 @@ llist.pop_first()
 print(llist)
 
 llist.remove_node("c")
+llist.push_first("ravid is here")
+llist.push_first("maskit too")
 print(llist)
 print(llist.len())
 print(bool(llist))
