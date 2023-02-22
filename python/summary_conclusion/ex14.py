@@ -5,14 +5,10 @@ class LinkedList:
             self.push_first(i)
 
                 
-    # def __repr__(self):
-    #     node = self.head
-    #     nodes = []
-    #     while node is not None:
-    #         nodes.append(node.data)
-    #         node = node.next
-    #     nodes.append("None")
-    #     return " -> ".join(nodes)
+    def __repr__(self):
+        return  "{}".format("-> ".join(map(str, self))) + "-> none"
+        
+    
     
     def push_first(self, data):
         node = Node(data)
@@ -99,19 +95,19 @@ class Node:
     
 print()
 llist = LinkedList("a", "b", "c", "d", "e",(1,5))
-llist.print_slist()
+print(llist)
 llist.pop_first()
-llist.print_slist()
+print(llist)
 
 llist.remove_node("c")
-llist.print_slist()
+print(llist)
 print(llist.len())
 print(bool(llist))
 newl = llist.copy()
 
-newl.print_slist()
+print(newl)
 rev = newl.reverse()
-rev.print_slist()
+print(rev)
 
 
 
