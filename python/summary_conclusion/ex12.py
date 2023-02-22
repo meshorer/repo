@@ -11,7 +11,8 @@ class DefaultDict(dict):
         if not key in self:
             return self.default_value
         return super().__getitem__(key)
+
 d = DefaultDict(0)
 d['a'] = "hello"
 print(d['a'])
-    
+print(d['b'])
