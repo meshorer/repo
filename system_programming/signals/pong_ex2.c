@@ -18,7 +18,7 @@ void sig_hand_child(int sig)                                /* signal handle fun
 
 int child_process()
 {
-	while(1)
+	while(TRUE)
 	{
         pause();                                            /* wait for signal */
 		
