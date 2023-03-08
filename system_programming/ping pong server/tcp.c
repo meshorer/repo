@@ -44,10 +44,11 @@ int TcpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_addr
     int client_fd = 0;
     socklen_t addrlen = 0;
     addrlen = sizeof(struct sockaddr_in);
-
+    
     client_fd = accept(fd,(struct sockaddr *)src_address,&addrlen);
     if (client_fd < 0)
     {
+        printf("Failed to accept\n");
         return errno;
     }
 
