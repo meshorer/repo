@@ -35,7 +35,7 @@ int main(void)
     printf("Connected with server successfully\n");
 
     srand(time(0));
-    num_pings = rand() % (10 - 3);
+    num_pings = rand() % (10 - 3 +1) +3;
     printf("num ping is: %d\n", num_pings);
     for (i = 0; i < num_pings; i++)
     {

@@ -115,7 +115,7 @@ int main()
             }
         }
 
-        /*******************88*/
+        /*********************/
 
         if (FD_ISSET(tcp_fd, &rset))
         {
@@ -137,12 +137,11 @@ int main()
                     close(tcp_fd);
                     return -1;
                 }
+                  
                 memset(tcp_message_to_read, '\0', BUFFER_SIZE);
             }
         }
     }
-
-    close(client_fd);
     return 0;
 }
 
