@@ -122,24 +122,13 @@ int main()
             
             client_fd = TcpGetMessage(tcp_fd, tcp_message_to_read, BUFFER_SIZE, &tcp_src_address);
 
-            if (-1 == CheckMessage(tcp_message_to_read))
+            if (0 == TcpChat(client_fd,tcp_message_to_read,message_to_send,BUFFER_SIZE))
             {
-                printf("exit now..\n");
-                close(client_fd);
-                return 0;
+                printf("one closed\n");
             }
 
-            if (0 == CheckMessage(tcp_message_to_read))
-            {
-                if (-1 == TcpResponse(client_fd, message_to_send, strlen(message_to_send) + 1))
-                {
-                    close(client_fd);
-                    close(tcp_fd);
-                    return -1;
-                }
-                  
-                memset(tcp_message_to_read, '\0', BUFFER_SIZE);
-            }
+            memset(tcp_message_to_read, '\0', BUFFER_SIZE);
+         
         }
     }
     return 0;

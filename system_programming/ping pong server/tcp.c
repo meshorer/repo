@@ -46,19 +46,34 @@ int TcpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_addr
     addrlen = sizeof(struct sockaddr_in);
 
     client_fd = accept(fd,(struct sockaddr *)src_address,&addrlen);
-    printf("did accept\n");
+    
     if (client_fd < 0)
     {
         printf("Failed to accept\n");
         return errno;
     }
 
-    if (-1 == recv(client_fd,buffer,buflen,0))
-    {
-        return errno;
-    }
-    
     return client_fd;
+}
+
+int TcpChat(int fd,void *message_to_read,void *message_to_send,size_t buflen)
+{
+    while (1)
+    {
+        if (-1 == recv(fd,message_to_read,buflen,0))
+        {
+            return errno;
+        }
+
+        if (0 == CheckMessage(message_to_read))
+        {
+            if (-1 == send(fd,message_to_send,buflen,0))
+            {
+                return -1;
+            }
+        }
+    }
+    return 0;
 }
 
 int TcpResponse(int fd,const void *message,size_t message_len)
