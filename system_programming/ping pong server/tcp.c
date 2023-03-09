@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "tcp.h"
-
+extern int MAX_CLIENTS;
 #define BACKLOG 10
 
 int TcpCreateSocket(int port, struct sockaddr_in *address)
@@ -37,7 +37,7 @@ int TcpCreateSocket(int port, struct sockaddr_in *address)
         return errno;
     } 
 
-    if (-1 == listen(fd,BACKLOG)) /* backlog defines how many pending connections will be queued up before it will be refused.*/
+    if (-1 == listen(fd,1)) /* backlog defines how many pending connections will be queued up before it will be refused.*/
     {
         return errno;
     }
@@ -46,7 +46,7 @@ int TcpCreateSocket(int port, struct sockaddr_in *address)
 }
 
 
-int TcpGetMessage(int fd,struct sockaddr_in *src_address)
+int AcceptNewFD(int fd,struct sockaddr_in *src_address)
 {
     int client_fd = 0;
     socklen_t addrlen = 0;
@@ -67,16 +67,10 @@ int TcpGetMessage(int fd,struct sockaddr_in *src_address)
 int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen)
 {
     
-    return recv(fd,message_to_read,buflen,MSG_DONTWAIT);
+    return recv(fd,message_to_read,buflen,0);
 }
 
 int TcpSendMessage(int fd,void *message_to_send,size_t buflen)
 {
-    
-    if (-1 == send(fd,message_to_send,buflen,MSG_DONTWAIT))
-    {
-        return -1;
-    }
-
-    return 0;
+   return send(fd,message_to_send,buflen,0);
 }

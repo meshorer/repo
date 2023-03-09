@@ -40,7 +40,7 @@ int UdpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_addr
     {
         return -1;
     }
-    printf("server recieved message : %s\n",(char *)buffer);
+    printf("server recieved message from UDP : %s\n",(char *)buffer);
     return 0;
 }
 

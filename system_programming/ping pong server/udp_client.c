@@ -7,7 +7,7 @@ int main(void){
     int socket_desc;
     struct sockaddr_in server_addr;
     char server_message[2000], client_message[2000];
-    int server_struct_length = sizeof(server_addr);
+    socklen_t server_struct_length = sizeof(server_addr);
     
     /* Clean buffers: */
     memset(server_message, '\0', sizeof(server_message));
@@ -24,7 +24,7 @@ int main(void){
     
     /* Set port and IP: */
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(4323);
+    server_addr.sin_port = htons(1777);
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     
     /* Get input from the user: */

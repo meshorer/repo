@@ -3,26 +3,24 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/select.h> /* select*/
-#include <unistd.h>  /* stdin_fileno, close*/
+#include <unistd.h>     /* stdin_fileno, close*/
 
 #include "udp.h"
 #include "tcp.h"
 #include "stdin.h"
 #include "logger.h"
 
-
-#define UDP_PORT 1777
-#define TCP_PORT 4324
+#define PORT 1777
 #define BUFFER_SIZE 100
-#define MAX_CLIENTS 5
-
+int MAX_CLIENTS = 2;
+#define MAX_CLIENTS 2
 
 int CheckMessage(char *message_to_read);
 
 int main()
 {
-   
-    struct timeval timeout = {0,0};
+
+    struct timeval timeout = {0}; /* to count time if nothing happens (for select)*/
 
     struct sockaddr_in socket_address = {0};
     struct sockaddr_in tcp_src_address = {0};
@@ -35,7 +33,7 @@ int main()
     char *message_to_send = "pong";
 
     fd_set rset = {0};
-    int ret_select = 0;
+    int num_fds = 0;
     int maxfd = 0;
 
     int udp_fd = 0;
@@ -46,18 +44,16 @@ int main()
     int sd = 0;
     int recieve_retval = 0;
 
- 
-
-    tcp_fd = TcpCreateSocket(TCP_PORT, &socket_address);
-
+    tcp_fd = TcpCreateSocket(PORT, &socket_address);
     if (0 > tcp_fd)
     {
         return -1;
     }
-    udp_fd = UdpCreateSocket(UDP_PORT, &socket_address);
 
+    udp_fd = UdpCreateSocket(PORT, &socket_address);
     if (0 > udp_fd)
     {
+        close(udp_fd);
         return -1;
     }
 
@@ -65,10 +61,10 @@ int main()
     {
         client_socket[i] = -1;
     }
-    
+
     while (1)
     {
-        
+
         timeout.tv_sec = 7;
         timeout.tv_usec = 0;
 
@@ -77,14 +73,14 @@ int main()
         FD_SET(tcp_fd, &rset);
         FD_SET(STDIN_FILENO, &rset);
 
-        maxfd = udp_fd > tcp_fd ? udp_fd : tcp_fd ;
+        maxfd = udp_fd > tcp_fd ? udp_fd : tcp_fd; /* needed for select function */
 
-        for (i = 0; i < MAX_CLIENTS; i++)
+        for (i = 0; i < MAX_CLIENTS; i++) /* keep polling for I/O operations */
         {
-            sd = client_socket[i]; 
+            sd = client_socket[i];
             if (0 < sd)
             {
-                FD_SET(sd, &rset);
+                FD_SET(sd, &rset); /* if found, set it in the select readfds set*/
             }
             if (sd > maxfd)
             {
@@ -92,48 +88,49 @@ int main()
             }
         }
 
-        ret_select = select(maxfd+1, &rset, NULL, NULL, &timeout);
+        num_fds = select(maxfd + 1, &rset, NULL, NULL, &timeout); /* select should return the number of fd's in the sets */
 
-        if (0 == ret_select)
+        if (0 == num_fds)
         {
-            LogtoFile("nothing happens for 7 seconds");
+            LogtoFile("nothing happens for 7 seconds"); /* reval 0 means timeout expired before any file descriptors became ready */
         }
 
-        if (-1 == ret_select)
+        if (-1 == num_fds)
         {
             return errno;
         }
 
-        if (FD_ISSET(tcp_fd, &rset))
+        if (FD_ISSET(tcp_fd, &rset)) /* check if the master tcp file descriptor is still present in the set */
         {
-            
-            client_fd = TcpGetMessage(tcp_fd, &tcp_src_address);
 
-            for (i = 0; i < MAX_CLIENTS; i++)
+            client_fd = AcceptNewFD(tcp_fd, &tcp_src_address); /* accept the new connection in a new fd   */
+
+            for (i = 0; i < MAX_CLIENTS; i++) /* find a free element in the clients array and assign the new fd there */
             {
-                if( client_socket[i] == -1 )  
-                {  
-                    client_socket[i] = client_fd;  
-                    printf("Adding to list of sockets as %d\n" , i);         
-                    break;  
+                if (client_socket[i] == -1)
+                {
+                    client_socket[i] = client_fd;
+                    printf("Adding to list of sockets as %d\n", i);
+                    break;
                 }
             }
         }
         
-        for (i = 0; i < MAX_CLIENTS; i++)
+        for (i = 0; i < MAX_CLIENTS; i++)   /* check if there is a fd in the set and ready */
         {
             sd = client_socket[i];
             if (FD_ISSET(sd, &rset))
             {
-                recieve_retval = TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE);
-                
-                if (0 == recieve_retval)
+                recieve_retval = TcpRecieveMessage(sd, tcp_message_to_read, BUFFER_SIZE);  /* recv  */
+                printf("in server %d\n", recieve_retval);
+                if (0 == recieve_retval)        /* 0 means connection died */
                 {
                     printf("connnection died\n");
                     LogtoFile("tcp connect closed\n");
                     close(sd);
                     client_socket[i] = -1;
                     FD_CLR(sd, &rset);
+                    continue;
                 }
 
                 if (0 > recieve_retval)
@@ -141,29 +138,40 @@ int main()
                     printf("error recieving message\n");
                     return -1;
                 }
-
-                if (0 == CheckMessage(tcp_message_to_read))
+               
+                printf("server recieved message from TCP : %s\n", tcp_message_to_read);
+                if (0 == CheckMessage(tcp_message_to_read))   /* if we reciebve ping */
                 {
-                    if (0 < TcpSendMessage(sd,message_to_send,BUFFER_SIZE))
+                    if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
+                    {
+                        printf("error sendind message\n");
+                        close(sd);
+                        client_socket[i] = -1;
+                    }
+                    printf("message sent from server\n");
+                }
+                else  /* if no 'ping' was recieved */
+                {
+                    if (-1 == TcpSendMessage(sd, "gever you need to send ping ", BUFFER_SIZE))  /* send */
                     {
                         printf("error sendind message\n");
                         close(sd);
                         client_socket[i] = -1;
                     }
                 }
-                memset(tcp_message_to_read, '\0', BUFFER_SIZE);
+                memset(tcp_message_to_read, '\0', BUFFER_SIZE);  /*  clear the buffer to be able to read the next message properly */
             }
         }
 
         if (FD_ISSET(STDIN_FILENO, &rset))
         {
-            
+
             if (0 != StdinGetMessage(STDIN_FILENO, stdin_message_to_read, BUFFER_SIZE))
             {
                 return errno;
             }
 
-            printf("recieved: %s\n",stdin_message_to_read);
+            printf("recieved: %s\n", stdin_message_to_read);
 
             if (-1 == CheckMessage(stdin_message_to_read))
             {
@@ -189,24 +197,16 @@ int main()
                 }
             }
             memset(stdin_message_to_read, '\0', BUFFER_SIZE);
-
         }
         if (FD_ISSET(udp_fd, &rset))
         {
-           
+
             if (0 != UdpGetMessage(udp_fd, udp_message_to_read, BUFFER_SIZE, &udp_src_address))
             {
                 return errno;
             }
 
-            if (-1 == CheckMessage(udp_message_to_read))
-            {
-                printf("exit now..\n");
-                close(udp_fd);
-                return 0;
-            }
-
-            else if (0 == CheckMessage(udp_message_to_read))
+            if (0 == CheckMessage(udp_message_to_read))
             {
                 if (-1 == UdpResponse(udp_fd, message_to_send, strlen(message_to_send) + 1, &udp_src_address))
                 {
@@ -216,20 +216,19 @@ int main()
             }
         }
 
-        /*********************/
     }
     return 0;
 }
 
 int CheckMessage(char *message_to_read)
 {
-    
-    if (0 == strncmp(message_to_read, "quit",4))
+
+    if (0 == strncmp(message_to_read, "quit", 4))
     {
         return -1;
     }
 
-    if (0 == strncmp(message_to_read, "ping",4))
+    if (0 == strncmp(message_to_read, "ping", 4))
     {
         return 0;
     }

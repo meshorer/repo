@@ -6,7 +6,7 @@
 
 int TcpCreateSocket(int port, struct sockaddr_in *address);
 
-int TcpGetMessage(int fd,struct sockaddr_in *src_address);
+int AcceptNewFD(int fd,struct sockaddr_in *src_address);
 
 extern int CheckMessage(char *message_to_read);
 
