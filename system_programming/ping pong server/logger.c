@@ -14,7 +14,7 @@ int LogtoFile(void *data)
     time_t now = time (0);
     sTm = gmtime (&now);
 
-    fd = fopen(PATH, "a+");
+    fd = fopen(PATH, "a");
     if (NULL == fd)
     {
         return -1;
@@ -22,7 +22,9 @@ int LogtoFile(void *data)
 
     strftime (buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
 
-    fprintf(fd,"%s %s\n",buff,data);
+    fprintf(fd,"%s %s\n",buff,(char*)data);
+
+    fclose(fd);
 
     return 0;
 }

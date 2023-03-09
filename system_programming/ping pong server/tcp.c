@@ -70,7 +70,7 @@ int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen)
         {
             return errno;
         }
-    return 0;
+    return 1;
 }
 
 int TcpSendMessage(int fd,void *message_to_send,size_t buflen)

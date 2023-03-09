@@ -8,6 +8,8 @@
 #include "udp.h"
 #include "tcp.h"
 #include "stdin.h"
+#include "logger.h"
+
 
 #define UDP_PORT 4323
 #define TCP_PORT 4324
@@ -20,7 +22,7 @@ int CheckMessage(char *message_to_read);
 int main()
 {
    
-    struct timeval time_struct = {0};
+    struct timeval timeout = {0,0};
 
     struct sockaddr_in socket_address = {0};
     struct sockaddr_in tcp_src_address = {0};
@@ -43,11 +45,8 @@ int main()
     int client_socket[MAX_CLIENTS];
     int sd = 0;
 
-    time_struct.tv_sec = 7;
-    time_struct.tv_usec = 0;
+ 
 
-    LogtoFile("DID IT WORK?");
-    LogtoFile("SECOND");
     tcp_fd = TcpCreateSocket(TCP_PORT, &socket_address);
 
     if (0 > tcp_fd)
@@ -68,7 +67,10 @@ int main()
     
     while (1)
     {
-   
+        
+        timeout.tv_sec = 7;
+        timeout.tv_usec = 0;
+
         FD_ZERO(&rset);
         FD_SET(udp_fd, &rset);
         FD_SET(tcp_fd, &rset);
@@ -89,14 +91,18 @@ int main()
             }
         }
 
-        ret_select = select(maxfd+1, &rset, NULL, NULL, NULL);
+        ret_select = select(maxfd+1, &rset, NULL, NULL, &timeout);
+
+        if (0 == ret_select)
+        {
+            LogtoFile("nothing happens for 7 seconds");
+        }
 
         if (-1 == ret_select)
         {
             return errno;
         }
 
-        /* if == 0*/
         if (FD_ISSET(tcp_fd, &rset))
         {
             
@@ -119,11 +125,12 @@ int main()
             if (FD_ISSET(sd, &rset))
             {
                 
-                if (0 != TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE))
+                if (1 != TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE))
                 {
                     printf("error recieving message\n");
                     close(sd);
                     client_socket[i] = -1;
+                    FD_CLR(sd, &rset);
                 }
                 if (0 == CheckMessage(tcp_message_to_read))
                 {
