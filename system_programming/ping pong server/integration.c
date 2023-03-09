@@ -30,7 +30,7 @@ int main()
     char tcp_message_to_read[BUFFER_SIZE] = {0};
     char stdin_message_to_read[BUFFER_SIZE] = {0};
 
-    char *message_to_send = "pong";
+    char message_to_send [BUFFER_SIZE] = {0};
 
     fd_set rset = {0};
     int num_fds = 0;
@@ -142,26 +142,23 @@ int main()
                 tcp_message_to_read[strlen(tcp_message_to_read)] = '\0';
                 printf("server recieved message from TCP : %s\n", tcp_message_to_read);
 
-
                 if (0 == CheckMessage(tcp_message_to_read))   /* if we reciebve ping */
                 {
+                   memcpy(message_to_send,"pong",4);
+                   message_to_send[4] = '\0';
+                }
+
+                else  /* if no 'ping' was recieved */
+                {
+                    memcpy(message_to_send,"gever you need to send ping",27);
+                }
                     if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
                     {
                         printf("error sendind message\n");
                         close(sd);
                         client_socket[i] = -1;
                     }
-                }
-
-                else  /* if no 'ping' was recieved */
-                {
-                    if (-1 == TcpSendMessage(sd, "gever you need to send ping ", BUFFER_SIZE))  /* send */
-                    {
-                        printf("error sendind message\n");
-                        close(sd);
-                        client_socket[i] = -1;
-                    }
-                }
+                
                 memset(tcp_message_to_read, '\0', BUFFER_SIZE);  /*  clear the buffer to be able to read the next message properly */
             }
         }
@@ -212,12 +209,21 @@ int main()
 
             if (0 == CheckMessage(udp_message_to_read))
             {
-                if (-1 == UdpResponse(udp_fd, message_to_send, strlen(message_to_send) + 1, &udp_src_address))
-                {
-                    return -1;
-                }
-                memset(udp_message_to_read, '\0', BUFFER_SIZE);
+                memcpy(message_to_send,"pong",4);
+                message_to_send[4] = '\0';
             }
+
+            else  /* if no 'ping' was recieved */
+            {
+                memcpy(message_to_send,"gever you need to send ping",27);
+            }
+
+            if (-1 == UdpResponse(udp_fd, message_to_send, strlen(message_to_send) + 1, &udp_src_address))
+            {
+                return -1;
+            }
+            memset(udp_message_to_read, '\0', BUFFER_SIZE);
+            
         }
 
     }
