@@ -122,7 +122,7 @@ int main()
             if (FD_ISSET(sd, &rset))
             {
                 recieve_retval = TcpRecieveMessage(sd, tcp_message_to_read, BUFFER_SIZE);  /* recv  */
-                printf("in server %d\n", recieve_retval);
+                
                 if (0 == recieve_retval)        /* 0 means connection died */
                 {
                     printf("connnection died\n");
@@ -139,7 +139,10 @@ int main()
                     return -1;
                 }
                
+                tcp_message_to_read[strlen(tcp_message_to_read)] = '\0';
                 printf("server recieved message from TCP : %s\n", tcp_message_to_read);
+
+
                 if (0 == CheckMessage(tcp_message_to_read))   /* if we reciebve ping */
                 {
                     if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
@@ -148,8 +151,8 @@ int main()
                         close(sd);
                         client_socket[i] = -1;
                     }
-                    printf("message sent from server\n");
                 }
+
                 else  /* if no 'ping' was recieved */
                 {
                     if (-1 == TcpSendMessage(sd, "gever you need to send ping ", BUFFER_SIZE))  /* send */
@@ -171,9 +174,10 @@ int main()
                 return errno;
             }
 
+            stdin_message_to_read[strlen(stdin_message_to_read)-1] = '\0';
             printf("recieved: %s\n", stdin_message_to_read);
 
-            if (-1 == CheckMessage(stdin_message_to_read))
+            if (1 == CheckMessage(stdin_message_to_read))
             {
                 printf("exit now..\n");
                 close(tcp_fd);
@@ -223,15 +227,15 @@ int main()
 int CheckMessage(char *message_to_read)
 {
 
-    if (0 == strncmp(message_to_read, "quit", 4))
+    if (0 == strcmp(message_to_read, "quit"))
     {
-        return -1;
+        return 1;
     }
 
-    if (0 == strncmp(message_to_read, "ping", 4))
+    if (0 == strcmp(message_to_read, "ping"))
     {
         return 0;
     }
 
-    return 1;
+    return -1;
 }
