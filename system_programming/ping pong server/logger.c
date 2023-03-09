@@ -3,7 +3,7 @@
 #include <time.h>
 #include "logger.h"
 
-#define PATH "log.txt"
+#define PATH "log.log"
 
 int LogtoFile(void *data)
 {

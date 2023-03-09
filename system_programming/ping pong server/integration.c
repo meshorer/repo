@@ -11,7 +11,7 @@
 #include "logger.h"
 
 
-#define UDP_PORT 4323
+#define UDP_PORT 1777
 #define TCP_PORT 4324
 #define BUFFER_SIZE 100
 #define MAX_CLIENTS 5
@@ -44,6 +44,7 @@ int main()
     int i = 0;
     int client_socket[MAX_CLIENTS];
     int sd = 0;
+    int recieve_retval = 0;
 
  
 
@@ -124,17 +125,26 @@ int main()
             sd = client_socket[i];
             if (FD_ISSET(sd, &rset))
             {
+                recieve_retval = TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE);
                 
-                if (1 != TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE))
+                if (0 == recieve_retval)
                 {
-                    printf("error recieving message\n");
+                    printf("connnection died\n");
+                    LogtoFile("tcp connect closed\n");
                     close(sd);
                     client_socket[i] = -1;
                     FD_CLR(sd, &rset);
                 }
+
+                if (0 > recieve_retval)
+                {
+                    printf("error recieving message\n");
+                    return -1;
+                }
+
                 if (0 == CheckMessage(tcp_message_to_read))
                 {
-                    if (0 != TcpSendMessage(sd,message_to_send,BUFFER_SIZE))
+                    if (0 < TcpSendMessage(sd,message_to_send,BUFFER_SIZE))
                     {
                         printf("error sendind message\n");
                         close(sd);

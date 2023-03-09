@@ -66,15 +66,13 @@ int TcpGetMessage(int fd,struct sockaddr_in *src_address)
 
 int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen)
 {
-    if (0 >= recv(fd,message_to_read,buflen,MSG_DONTWAIT))
-        {
-            return errno;
-        }
-    return 1;
+    
+    return recv(fd,message_to_read,buflen,MSG_DONTWAIT);
 }
 
 int TcpSendMessage(int fd,void *message_to_send,size_t buflen)
 {
+    
     if (-1 == send(fd,message_to_send,buflen,MSG_DONTWAIT))
     {
         return -1;
