@@ -15,7 +15,9 @@
 int MAX_CLIENTS = 2;
 #define MAX_CLIENTS 2
 
-int CheckMessage(char *message_to_read);
+int CheckMessage(char *message_to_read, char* message_to_send);
+void Destroy(int tcp_fd,int udp_fd,int *client_socket);
+
 
 int main()
 {
@@ -142,22 +144,14 @@ int main()
                 tcp_message_to_read[strlen(tcp_message_to_read)] = '\0';
                 printf("server recieved message from TCP : %s\n", tcp_message_to_read);
 
-                if (0 == CheckMessage(tcp_message_to_read))   /* if we reciebve ping */
+                CheckMessage(tcp_message_to_read,message_to_send);  /* if we reciebve ping */
+                
+                if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
                 {
-                   memcpy(message_to_send,"pong",4);
-                   message_to_send[4] = '\0';
+                    printf("error sendind message\n");
+                    close(sd);
+                    client_socket[i] = -1;
                 }
-
-                else  /* if no 'ping' was recieved */
-                {
-                    memcpy(message_to_send,"gever you need to send ping",27);
-                }
-                    if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
-                    {
-                        printf("error sendind message\n");
-                        close(sd);
-                        client_socket[i] = -1;
-                    }
                 
                 memset(tcp_message_to_read, '\0', BUFFER_SIZE);  /*  clear the buffer to be able to read the next message properly */
             }
@@ -174,28 +168,18 @@ int main()
             stdin_message_to_read[strlen(stdin_message_to_read)-1] = '\0';
             printf("recieved: %s\n", stdin_message_to_read);
 
-            if (1 == CheckMessage(stdin_message_to_read))
+            if (1 == CheckMessage(stdin_message_to_read,message_to_send))
             {
                 printf("exit now..\n");
-                close(tcp_fd);
-                close(udp_fd);
 
-                for (i = 0; i < MAX_CLIENTS; i++)
-                {
-                    if (client_socket[i] != -1)
-                    {
-                        close(client_socket[i]);
-                    }
-                }
+                Destroy(tcp_fd,udp_fd,client_socket);
+              
                 return 0;
             }
 
-            else if (0 == CheckMessage(stdin_message_to_read))
+            if (-1 == StdinResponse(STDIN_FILENO, message_to_send, strlen(message_to_send) + 1))
             {
-                if (-1 == StdinResponse(STDIN_FILENO, message_to_send, strlen(message_to_send) + 1))
-                {
                     return -1;
-                }
             }
             memset(stdin_message_to_read, '\0', BUFFER_SIZE);
         }
@@ -207,16 +191,7 @@ int main()
                 return errno;
             }
 
-            if (0 == CheckMessage(udp_message_to_read))
-            {
-                memcpy(message_to_send,"pong",4);
-                message_to_send[4] = '\0';
-            }
-
-            else  /* if no 'ping' was recieved */
-            {
-                memcpy(message_to_send,"gever you need to send ping",27);
-            }
+            CheckMessage(udp_message_to_read,message_to_send);
 
             if (-1 == UdpResponse(udp_fd, message_to_send, strlen(message_to_send) + 1, &udp_src_address))
             {
@@ -230,7 +205,7 @@ int main()
     return 0;
 }
 
-int CheckMessage(char *message_to_read)
+int CheckMessage(char *message_to_read, char* message_to_send)
 {
 
     if (0 == strcmp(message_to_read, "quit"))
@@ -240,8 +215,25 @@ int CheckMessage(char *message_to_read)
 
     if (0 == strcmp(message_to_read, "ping"))
     {
+        memcpy(message_to_send,"pong\n",5);
+        message_to_send[5] = '\0';
         return 0;
     }
-
+    memcpy(message_to_send,"gever you need to send ping\n",28);
     return -1;
+}
+
+void Destroy(int tcp_fd,int udp_fd,int *client_socket)
+{
+    int i = 0;
+    close(tcp_fd);
+    close(udp_fd);
+
+    for (i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (client_socket[i] != -1)
+        {
+            close(client_socket[i]);
+        }
+    }
 }

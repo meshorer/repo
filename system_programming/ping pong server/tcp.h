@@ -8,8 +8,6 @@ int TcpCreateSocket(int port, struct sockaddr_in *address);
 
 int AcceptNewFD(int fd,struct sockaddr_in *src_address);
 
-extern int CheckMessage(char *message_to_read);
-
 int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen);
 
 int TcpSendMessage(int fd,void *message_to_send,size_t buflen);
