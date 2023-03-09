@@ -46,7 +46,7 @@ int TcpCreateSocket(int port, struct sockaddr_in *address)
 }
 
 
-int TcpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_address)
+int TcpGetMessage(int fd,struct sockaddr_in *src_address)
 {
     int client_fd = 0;
     socklen_t addrlen = 0;
@@ -63,23 +63,22 @@ int TcpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_addr
     return client_fd;
 }
 
-int TcpChat(int fd,void *message_to_read,void *message_to_send,size_t buflen)
+
+int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen)
 {
-    while (1)
-    {
-        if (0 >= recv(fd,message_to_read,buflen,0))
+    if (0 >= recv(fd,message_to_read,buflen,MSG_DONTWAIT))
         {
             return errno;
         }
+    return 0;
+}
 
-        if (0 == CheckMessage(message_to_read))
-        {
-            if (-1 == send(fd,message_to_send,buflen,0))
-            {
-                return -1;
-            }
-        }
-
+int TcpSendMessage(int fd,void *message_to_send,size_t buflen)
+{
+    if (-1 == send(fd,message_to_send,buflen,MSG_DONTWAIT))
+    {
+        return -1;
     }
+
     return 0;
 }

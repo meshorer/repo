@@ -12,13 +12,15 @@
 #define UDP_PORT 4323
 #define TCP_PORT 4324
 #define BUFFER_SIZE 100
-#define BACKLOG 10
+#define MAX_CLIENTS 5
 
 
 int CheckMessage(char *message_to_read);
 
 int main()
 {
+   
+    struct timeval time_struct = {0};
 
     struct sockaddr_in socket_address = {0};
     struct sockaddr_in tcp_src_address = {0};
@@ -38,10 +40,14 @@ int main()
     int tcp_fd = 0;
     int client_fd = 0;
     int i = 0;
-    int client_socket[30] = {0};
+    int client_socket[MAX_CLIENTS];
     int sd = 0;
-    int opt = 1;
 
+    time_struct.tv_sec = 7;
+    time_struct.tv_usec = 0;
+
+    LogtoFile("DID IT WORK?");
+    LogtoFile("SECOND");
     tcp_fd = TcpCreateSocket(TCP_PORT, &socket_address);
 
     if (0 > tcp_fd)
@@ -55,19 +61,22 @@ int main()
         return -1;
     }
 
+    for (i = 0; i < MAX_CLIENTS; i++)
+    {
+        client_socket[i] = -1;
+    }
     
     while (1)
     {
    
         FD_ZERO(&rset);
-
         FD_SET(udp_fd, &rset);
         FD_SET(tcp_fd, &rset);
         FD_SET(STDIN_FILENO, &rset);
 
-        maxfd = udp_fd > tcp_fd ? udp_fd + 1 : tcp_fd + 1;
+        maxfd = udp_fd > tcp_fd ? udp_fd : tcp_fd ;
 
-        for (i = 0; i < BACKLOG; i++)
+        for (i = 0; i < MAX_CLIENTS; i++)
         {
             sd = client_socket[i]; 
             if (0 < sd)
@@ -80,38 +89,53 @@ int main()
             }
         }
 
-        ret_select = select(maxfd, &rset, NULL, NULL, NULL);
+        ret_select = select(maxfd+1, &rset, NULL, NULL, NULL);
+
         if (-1 == ret_select)
         {
             return errno;
         }
 
-        if ((ret_select < 0) && (errno!=EINTR))  
-        {  
-            printf("select error");  
-        }  
-        
+        /* if == 0*/
         if (FD_ISSET(tcp_fd, &rset))
         {
             
-            client_fd = TcpGetMessage(tcp_fd, tcp_message_to_read, BUFFER_SIZE, &tcp_src_address);
+            client_fd = TcpGetMessage(tcp_fd, &tcp_src_address);
 
-            for (i = 0; i < BACKLOG; i++)
+            for (i = 0; i < MAX_CLIENTS; i++)
             {
-                if( client_socket[i] == 0 )  
+                if( client_socket[i] == -1 )  
                 {  
                     client_socket[i] = client_fd;  
                     printf("Adding to list of sockets as %d\n" , i);         
                     break;  
                 }
             }
-
-            if (0 == TcpChat(client_fd,tcp_message_to_read,message_to_send,BUFFER_SIZE))
+        }
+        
+        for (i = 0; i < MAX_CLIENTS; i++)
+        {
+            sd = client_socket[i];
+            if (FD_ISSET(sd, &rset))
             {
-                printf("one closed\n");
+                
+                if (0 != TcpRecieveMessage(sd,tcp_message_to_read,BUFFER_SIZE))
+                {
+                    printf("error recieving message\n");
+                    close(sd);
+                    client_socket[i] = -1;
+                }
+                if (0 == CheckMessage(tcp_message_to_read))
+                {
+                    if (0 != TcpSendMessage(sd,message_to_send,BUFFER_SIZE))
+                    {
+                        printf("error sendind message\n");
+                        close(sd);
+                        client_socket[i] = -1;
+                    }
+                }
+                memset(tcp_message_to_read, '\0', BUFFER_SIZE);
             }
-
-            memset(tcp_message_to_read, '\0', BUFFER_SIZE);
         }
 
         if (FD_ISSET(STDIN_FILENO, &rset))
@@ -127,6 +151,16 @@ int main()
             if (-1 == CheckMessage(stdin_message_to_read))
             {
                 printf("exit now..\n");
+                close(tcp_fd);
+                close(udp_fd);
+
+                for (i = 0; i < MAX_CLIENTS; i++)
+                {
+                    if (client_socket[i] != -1)
+                    {
+                        close(client_socket[i]);
+                    }
+                }
                 return 0;
             }
 

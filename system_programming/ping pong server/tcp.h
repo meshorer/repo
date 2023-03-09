@@ -6,11 +6,14 @@
 
 int TcpCreateSocket(int port, struct sockaddr_in *address);
 
-int TcpGetMessage(int fd,void *buffer,size_t buflen,struct sockaddr_in *src_address);
-
-int TcpChat(int fd,void *message_to_read,void *message_to_send,size_t buflen);
+int TcpGetMessage(int fd,struct sockaddr_in *src_address);
 
 extern int CheckMessage(char *message_to_read);
+
+int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen);
+
+int TcpSendMessage(int fd,void *message_to_send,size_t buflen);
+
 
 
 #endif /* _tcp_H__ILRD__CR3_ */
