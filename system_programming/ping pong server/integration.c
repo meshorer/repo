@@ -12,6 +12,8 @@
 #define UDP_PORT 4323
 #define TCP_PORT 4324
 #define BUFFER_SIZE 100
+#define BACKLOG 10
+
 
 int CheckMessage(char *message_to_read);
 
@@ -35,6 +37,10 @@ int main()
     int udp_fd = 0;
     int tcp_fd = 0;
     int client_fd = 0;
+    int i = 0;
+    int client_socket[30] = {0};
+    int sd = 0;
+    int opt = 1;
 
     tcp_fd = TcpCreateSocket(TCP_PORT, &socket_address);
 
@@ -49,19 +55,63 @@ int main()
         return -1;
     }
 
-    maxfd = udp_fd > tcp_fd ? udp_fd + 1 : tcp_fd + 1;
-    FD_ZERO(&rset);
-
+    
     while (1)
     {
+   
+        FD_ZERO(&rset);
+
         FD_SET(udp_fd, &rset);
         FD_SET(tcp_fd, &rset);
         FD_SET(STDIN_FILENO, &rset);
+
+        maxfd = udp_fd > tcp_fd ? udp_fd + 1 : tcp_fd + 1;
+
+        for (i = 0; i < BACKLOG; i++)
+        {
+            sd = client_socket[i]; 
+            if (0 < sd)
+            {
+                FD_SET(sd, &rset);
+            }
+            if (sd > maxfd)
+            {
+                maxfd = sd;
+            }
+        }
 
         ret_select = select(maxfd, &rset, NULL, NULL, NULL);
         if (-1 == ret_select)
         {
             return errno;
+        }
+
+        if ((ret_select < 0) && (errno!=EINTR))  
+        {  
+            printf("select error");  
+        }  
+        
+        if (FD_ISSET(tcp_fd, &rset))
+        {
+            
+            client_fd = TcpGetMessage(tcp_fd, tcp_message_to_read, BUFFER_SIZE, &tcp_src_address);
+
+            for (i = 0; i < BACKLOG; i++)
+            {
+                if( client_socket[i] == 0 )  
+                {  
+                    client_socket[i] = client_fd;  
+                    printf("Adding to list of sockets as %d\n" , i);         
+                    break;  
+                }
+            }
+
+            if (0 == TcpChat(client_fd,tcp_message_to_read,message_to_send,BUFFER_SIZE))
+            {
+                printf("one closed\n");
+            }
+
+            memset(tcp_message_to_read, '\0', BUFFER_SIZE);
         }
 
         if (FD_ISSET(STDIN_FILENO, &rset))
@@ -116,20 +166,6 @@ int main()
         }
 
         /*********************/
-
-        if (FD_ISSET(tcp_fd, &rset))
-        {
-            
-            client_fd = TcpGetMessage(tcp_fd, tcp_message_to_read, BUFFER_SIZE, &tcp_src_address);
-
-            if (0 == TcpChat(client_fd,tcp_message_to_read,message_to_send,BUFFER_SIZE))
-            {
-                printf("one closed\n");
-            }
-
-            memset(tcp_message_to_read, '\0', BUFFER_SIZE);
-         
-        }
     }
     return 0;
 }

@@ -12,6 +12,7 @@ int TcpCreateSocket(int port, struct sockaddr_in *address)
 {
     int fd = 0;
     socklen_t addrlen = 0;
+    int opt = 1;
 
     addrlen = sizeof(struct sockaddr_in);
 
@@ -20,6 +21,12 @@ int TcpCreateSocket(int port, struct sockaddr_in *address)
     {
         return -1;
     }
+
+    if( setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, 
+          sizeof(opt)) < 0 )  
+    {  
+        printf("setsockopt failed\n");
+    }  
 
     address->sin_family = AF_INET;
     address->sin_port = htons(port);
@@ -60,7 +67,7 @@ int TcpChat(int fd,void *message_to_read,void *message_to_send,size_t buflen)
 {
     while (1)
     {
-        if (-1 == recv(fd,message_to_read,buflen,0))
+        if (0 >= recv(fd,message_to_read,buflen,0))
         {
             return errno;
         }
@@ -72,18 +79,7 @@ int TcpChat(int fd,void *message_to_read,void *message_to_send,size_t buflen)
                 return -1;
             }
         }
+
     }
     return 0;
 }
-
-int TcpResponse(int fd,const void *message,size_t message_len)
-{
-   
-    if (-1 == send(fd,message,message_len,0))
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
