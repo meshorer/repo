@@ -10,7 +10,7 @@
 #include "stdin.h"
 #include "logger.h"
 
-#define PORT 1777
+#define PORT 8002
 #define BUFFER_SIZE 100
 int MAX_CLIENTS = 2;
 #define MAX_CLIENTS 2

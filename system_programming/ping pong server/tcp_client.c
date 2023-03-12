@@ -17,6 +17,9 @@ int main(void)
     int recieve_value = 0;
     int send_value = 0;
 
+    socklen_t val = 1;
+    socklen_t valen = sizeof(val);
+
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     
     if(socket_desc < 0){
@@ -27,7 +30,7 @@ int main(void)
     printf("Socket created successfully\n");
     
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(1777);
+    server_addr.sin_port = htons(1666);
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     
     if(connect(socket_desc, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){
@@ -51,6 +54,16 @@ int main(void)
             return -1;
         }
         
+        if (setsockopt(socket_desc, SOL_SOCKET, SO_KEEPALIVE, (void*)&val, valen))
+        {
+            printf("no connection established\n");
+        }
+
+        if (getsockopt(socket_desc, SOL_SOCKET, SO_KEEPALIVE, (void*)&val, &valen))
+        {
+            printf("no connection established\n");
+        }
+
         recieve_value = recv(socket_desc, server_message, sizeof(server_message), 0);
 
         printf("recieve_value %d\n",recieve_value);
