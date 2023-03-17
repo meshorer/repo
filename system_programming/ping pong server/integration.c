@@ -53,14 +53,18 @@ int main()
     tcp_fd = TcpCreateSocket(PORT, &socket_address);
     if (0 > tcp_fd)
     {
-        return -1;
+        return PROBLEM_MASTER_TCP_FD;
     }
 
     udp_fd = UdpCreateSocket(PORT, &socket_address);
     if (0 > udp_fd)
     {
-        close(tcp_fd);
-        return -1;
+        if ( 0 != close(tcp_fd) && errno != EBADF)
+        {
+            return PROBLEM_MASTER_TCP_FD;
+        }
+        
+        return PROBLEM_UDP_FD;
     }
 
     /* init all the tcp fd's*/
