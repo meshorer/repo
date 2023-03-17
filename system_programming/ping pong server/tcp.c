@@ -67,10 +67,10 @@ int AcceptNewFD(int fd,struct sockaddr_in *src_address)
 int TcpRecieveMessage(int fd,void *message_to_read,size_t buflen)
 {
     
-    return recv(fd,message_to_read,buflen,0);
+    return recv(fd,message_to_read,buflen,MSG_DONTWAIT);
 }
 
 int TcpSendMessage(int fd,void *message_to_send,size_t buflen)
 {
-   return send(fd,message_to_send,buflen,0);
+   return send(fd,message_to_send,buflen,MSG_DONTWAIT);
 }

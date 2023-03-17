@@ -30,7 +30,7 @@ int main(void)
     printf("Socket created successfully\n");
     
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(1666);
+    server_addr.sin_port = htons(1777);
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     
     if(connect(socket_desc, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){

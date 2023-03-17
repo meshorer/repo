@@ -4,19 +4,23 @@
 #include <stdio.h>
 #include <sys/select.h> /* select*/
 #include <unistd.h>     /* stdin_fileno, close*/
+#include <fcntl.h> /*fcntl*/
 
 #include "udp.h"
 #include "tcp.h"
 #include "stdin.h"
 #include "logger.h"
 
-#define PORT 8002
+#define PORT 1777
 #define BUFFER_SIZE 100
 int MAX_CLIENTS = 2;
 #define MAX_CLIENTS 2
+#define PROBLEM_MASTER_TCP_FD -1
+#define PROBLEM_UDP_FD -2
+#define PROBLEM_REGULAR_TCP_FD -3
 
 int CheckMessage(char *message_to_read, char* message_to_send);
-void Destroy(int tcp_fd,int udp_fd,int *client_socket);
+int Destroy(int tcp_fd,int udp_fd,int *client_socket);
 
 
 int main()
@@ -55,14 +59,28 @@ int main()
     udp_fd = UdpCreateSocket(PORT, &socket_address);
     if (0 > udp_fd)
     {
-        close(udp_fd);
+        close(tcp_fd);
         return -1;
     }
 
+    /* init all the tcp fd's*/
     for (i = 0; i < MAX_CLIENTS; i++)
     {
         client_socket[i] = -1;
     }
+
+    /*set stdin as nonblocking*/
+    if(fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) < 0)
+	{
+		return -1;
+	}
+	
+	/*set stdout as nonblocking*/
+	if(fcntl(STDOUT_FILENO, F_SETFL, O_NONBLOCK) < 0)
+	{
+		return -1;
+	}
+
 
     while (1)
     {
@@ -128,7 +146,10 @@ int main()
                 {
                     printf("connnection died\n");
                     LogtoFile("tcp connect closed\n");
-                    close(sd);
+                    if (0 != close(sd))
+                    {
+                        return -1;
+                    }
                     client_socket[i] = -1;
                     FD_CLR(sd, &rset);
                     continue;
@@ -149,7 +170,10 @@ int main()
                 if (-1 == TcpSendMessage(sd, message_to_send, BUFFER_SIZE))  /* send */
                 {
                     printf("error sendind message\n");
-                    close(sd);
+                    if (0 != close(sd))
+                    {
+                        return -1;
+                    }
                     client_socket[i] = -1;
                 }
                 
@@ -168,13 +192,10 @@ int main()
             stdin_message_to_read[strlen(stdin_message_to_read)-1] = '\0';
             printf("recieved: %s\n", stdin_message_to_read);
 
-            if (1 == CheckMessage(stdin_message_to_read,message_to_send))   /* check if client sent 'quit', or if not set proper answer */
+            if (1 == CheckMessage(stdin_message_to_read,message_to_send))           /* check if client sent 'quit', or if not set proper answer */
             {
                 printf("exit now..\n");
-
-                Destroy(tcp_fd,udp_fd,client_socket);                       /* close all the opened fd's*/
-              
-                return 0;
+                return Destroy(tcp_fd,udp_fd,client_socket);                           /* close all the opened fd's*/
             }
 
             if (-1 == StdinResponse(STDIN_FILENO, message_to_send, strlen(message_to_send))) 
@@ -223,17 +244,27 @@ int CheckMessage(char *message_to_read, char* message_to_send)
     return -1;
 }
 
-void Destroy(int tcp_fd,int udp_fd,int *client_socket)
+int Destroy(int tcp_fd,int udp_fd,int *client_socket)
 {
     int i = 0;
-    close(tcp_fd);
-    close(udp_fd);
+    int result = 0;
+    if (0 != close(tcp_fd) && errno != EBADF) /* verify that the fd is valid */
+    {
+        result = PROBLEM_MASTER_TCP_FD;
+    }
+
+    if (0 != close(udp_fd) && errno != EBADF) /* verify that the fd is valid */
+    {
+        result = PROBLEM_UDP_FD;
+    }
 
     for (i = 0; i < MAX_CLIENTS; i++)
     {
-        if (client_socket[i] != -1)
+        if (0 != close(client_socket[i]) && errno != EBADF) /* verify that the fd is valid */
         {
-            close(client_socket[i]);
+            result = PROBLEM_REGULAR_TCP_FD;
         }
     }
+    
+    return  result;
 }
