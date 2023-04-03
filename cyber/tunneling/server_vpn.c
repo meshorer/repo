@@ -14,7 +14,9 @@
 
 
 #define MTU 1400
-#define SERVER_HOST "10.8.0.4"
+#define PORT 1777
+
+
 
 int tun_alloc(char *dev)
 {
@@ -56,7 +58,7 @@ int ifconfig()
 {
     char cmd[1024];
 
-    sprintf(cmd,  "ifconfig tun0 10.8.0.2/24 mtu %d up", MTU);
+    sprintf(cmd,  "ifconfig tun0 10.8.0.1/24 mtu %d up", MTU);
     if (-1 == system(cmd))
     {
         return -1;
@@ -64,72 +66,90 @@ int ifconfig()
     return 0;
 }
 
-/*
- * Setup route table via `iptables` & `ip route`
- */
-int setup_route_table()
+void setup_route_table()
 {
-    char cmd[1024];
-    printf("start setup_routing_table\n");
-    system("sysctl -w net.ipv4.ip_forward=1");
-    system("iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE");
-    system("iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
-    printf("line 78\n");
-    system("iptables -I FORWARD 1 -o tun0 -j ACCEPT");
-    sprintf(cmd,"ip route add %s via $(route -n | grep 'UG[ \t]' | awk '{print $2}')", SERVER_HOST);
-    printf("line 80\n");
-    system(cmd);
-    printf("line 82\n");
-    system("ip route add 0/1 dev tun0");
-    system("ip route add 128/1 dev tun0");  /*  this ensures that all traffic is captured via the virtual interface */
+  system("sysctl -w net.ipv4.ip_forward=1");
 
-    return 0;
+  system("iptables -t nat -A POSTROUTING -s 10.8.0.0/16 ! -d 10.8.0.0/16 -m comment --comment 'vpndemo' -j MASQUERADE");
+  system("iptables -A FORWARD -s 10.8.0.0/16 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+  system("iptables -A FORWARD -d 10.8.0.0/16 -j ACCEPT");
 }
 
 
-int tcp_connect()
+void cleanup_route_table()
 {
-    int socket_desc = 0;
-    struct sockaddr_in server_addr;
+    system("iptables -t nat -D POSTROUTING -s 10.8.0.0/16 ! -d 10.8.0.0/16 -m comment --comment 'vpndemo' -j MASQUERADE");
+    system("iptables -D FORWARD -s 10.8.0.0/16 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+    system("iptables -D FORWARD -d 10.8.0.0/16 -j ACCEPT");
+}
 
-    /*socklen_t val = 1;
-    socklen_t valen = sizeof(val);*/
 
-    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    
-    if(socket_desc < 0){
-        printf("Unable to create socket\n");
+
+
+int TcpCreateSocket(int port, struct sockaddr_in *address)
+{
+    int fd = 0;
+    socklen_t addrlen = 0;
+    /*int opt = 1;*/
+
+    addrlen = sizeof(struct sockaddr_in);
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0)
+    {
         return -1;
     }
-    
-    printf("Socket created successfully\n");
-    
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(1777);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
-    
-    if(connect(socket_desc, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){
-        printf("Unable to connect\n");
+     printf("socket worked\n");
+    /*if( setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, 
+          sizeof(opt)) < 0 )  
+    {  
+        printf("setsockopt failed\n");
+    }*/
+
+    address->sin_family = AF_INET;
+    address->sin_port = htons(port);
+    address->sin_addr.s_addr =INADDR_ANY;
+
+    if (-1 == bind(fd,(struct sockaddr *)address,addrlen))
+    {
+        return -1;
+    } 
+     printf("bind worked\n");
+    if (-1 == listen(fd,1)) /* backlog defines how many pending connections will be queued up before it will be refused.*/
+    {
         return -1;
     }
-    return socket_desc;
+     printf("listen worked\n");
+
+    return fd;
 }
 
-void cleanup_route_table() {
-  char cmd[1024] = {0};
-  system("iptables -t nat -D POSTROUTING -o tun0 -j MASQUERADE");
-  system("iptables -D FORWARD -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
-  system("iptables -D FORWARD -o tun0 -j ACCEPT");
-  sprintf(cmd, "ip route del %s", SERVER_HOST);
-  system(cmd);
-  system("ip route del 0/1");
-  system("ip route del 128/1");
-}
 
-int main()
+int AcceptNewFD(int fd,struct sockaddr_in *src_address)
 {
+    int client_fd = 0;
+    socklen_t addrlen = 0;
+    addrlen = sizeof(struct sockaddr_in);
+
+    client_fd = accept(fd,(struct sockaddr *)src_address,&addrlen);
+    
+    if (client_fd < 0)
+    {
+        printf("Failed to accept\n");
+        return -1;
+    }
+
+    return client_fd;
+}
+
+
+ int main()
+{
+    struct sockaddr_in socket_address = {0};
+    struct sockaddr_in tcp_src_address = {0};
     int tcp_fd = 0;
     int tun_fd = 0;
+    int client_fd = 0;
     int maxfd = 0;
     int num_fds = 0;
     fd_set rset = {0};
@@ -143,7 +163,6 @@ int main()
     char tun_buf[MTU] = {0};
     char tcp_buf[MTU] = {0};
 
-    cleanup_route_table();
     if ((tun_fd = tun_alloc("tun0")) < 0)
     {
         return -1;
@@ -151,14 +170,25 @@ int main()
 
     ifconfig();
     setup_route_table();
-    tcp_fd = tcp_connect();
+    tcp_fd = TcpCreateSocket(PORT, &socket_address);
+    if (0 > tcp_fd)
+    {
+        return -1;
+    }
+
+    client_fd = AcceptNewFD(tcp_fd, &tcp_src_address);
+    if (-1 == client_fd)
+    {
+        return -1;
+    }
+    printf("accept worked\n");
     while (1)
     {
         FD_ZERO(&rset);                            /* clears all the fd's. because select within loop, the sets must be reinitialized  before each  call*/
-        FD_SET(tcp_fd, &rset);
+        FD_SET(client_fd, &rset);
         FD_SET(tun_fd, &rset);
 
-        maxfd = tcp_fd > tun_fd ? tcp_fd : tun_fd;
+        maxfd = client_fd > tun_fd ? tcp_fd : tun_fd;
 
         num_fds = select(maxfd + 1, &rset, NULL, NULL, NULL);
         if (-1 == num_fds)
@@ -181,10 +211,10 @@ int main()
                 printf("problem with write\n");
                 break;
             }
-            memset(tun_buf,0,MTU);
+            memset(tun_buf, 0, MTU);
         }
 
-        if (FD_ISSET(tcp_fd, &rset))
+        if (FD_ISSET(client_fd, &rset))
         {
             recieve_retval = read(tcp_fd,tcp_buf,MTU);
             if (recieve_retval < 0)
@@ -199,9 +229,9 @@ int main()
                 printf("problem with write\n");
                 break;
             }
-            memset(tcp_buf,0,MTU);
+            memset(tcp_buf, 0, MTU);
         }   
-	
+
     }
 
     close(tcp_fd);
