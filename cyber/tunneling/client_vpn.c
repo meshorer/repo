@@ -35,14 +35,13 @@ int tun_alloc(char *dev)
      */
     ifr.ifr_flags = IFF_TUN;
     if (*dev)
-        strscpy_pad(ifr.ifr_name, dev, IFNAMSIZ);
+       strncpy(ifr.ifr_name, dev, IFNAMSIZ);
 
     if ((err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0)
     {
         close(fd);
         return err;
     }
-    strcpy(dev, ifr.ifr_name);
     return fd;
 }
 
@@ -67,10 +66,12 @@ int ifconfig()
 int setup_route_table()
 {
     char cmd[1024];
-
+    printf("start setup_routing_table\n");
     system("sysctl -w net.ipv4.ip_forward=1");
     system("iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE");
+    printf("line 72\n");
     system("iptables -I  1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+    printf("line 74\n");
     system("iptables -I FORWARD 1 -o tun0 -j ACCEPT");
     snprintf(cmd, sizeof(cmd), "ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/\1/')", SERVER_HOST);
     system(cmd);
