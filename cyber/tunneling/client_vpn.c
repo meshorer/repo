@@ -1,20 +1,27 @@
+#define _POSIX_C_SOURCE 199309L
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h> /* system */
 #include <string.h> /* memset, strncpy */
 #include <unistd.h> /* close, read, write */
-/*#include <sys/socket.h> 
+#include <sys/socket.h> 
 #include <sys/types.h> 
-#include <sys/stat.h> */
+#include <sys/stat.h> 
 #include <sys/ioctl.h> /* ioctl */
 #include <fcntl.h>  /* open */
 #include <linux/if.h> /* ifr, IFNAMSIZ */
 #include <linux/if_tun.h> /* IFF_TUN; ,TUNSETIFF */
 #include <sys/select.h> /* select*/
 #include <arpa/inet.h> /* inet_addr*/
+#include <signal.h>
+#include <bits/sigaction.h>
+
 
 
 #define MTU 1400
-#define SERVER_HOST "10.8.0.4"
+#define SERVER_HOST "192.168.1.22"
+#define PORT 1777
+
 
 int tun_alloc(char *dev)
 {
@@ -76,7 +83,8 @@ int setup_route_table()
     system("iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
     printf("line 78\n");
     system("iptables -I FORWARD 1 -o tun0 -j ACCEPT");
-    sprintf(cmd,"ip route add %s via $(route -n | grep 'UG[ \t]' | awk '{print $2}')", SERVER_HOST);
+    /sprintf(cmd,"ip route add %s via $(route -n | grep 'UG[ \t]' | awk '{print $2}')", SERVER_HOST);/
+    sprintf(cmd,"ip route add %s dev ens160", SERVER_HOST);
     printf("line 80\n");
     system(cmd);
     printf("line 82\n");
@@ -105,7 +113,7 @@ int tcp_connect()
     printf("Socket created successfully\n");
     
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(1777);
+    server_addr.sin_port = htons(PORT);
     server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
     
     if(connect(socket_desc, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){
@@ -126,6 +134,33 @@ void cleanup_route_table() {
   system("ip route del 128/1");
 }
 
+void cleanup(int signo) {
+  printf("Goodbye, cruel world....\n");
+  if (signo == SIGHUP || signo == SIGINT || signo == SIGTERM) {
+    cleanup_route_table();
+    exit(0);
+  }
+}
+
+void cleanup_when_sig_exit()
+{
+  struct sigaction sa;
+  sa.sa_handler = &cleanup;
+  sa.sa_flags = SA_RESTART;
+  sigfillset(&sa.sa_mask);
+
+  if (sigaction(SIGHUP, &sa, NULL) < 0) {
+    perror("Cannot handle SIGHUP");
+  }
+  if (sigaction(SIGINT, &sa, NULL) < 0) {
+    perror("Cannot handle SIGINT");
+  }
+  if (sigaction(SIGTERM, &sa, NULL) < 0) {
+    perror("Cannot handle SIGTERM");
+  }
+}
+
+
 int main()
 {
     int tcp_fd = 0;
@@ -144,6 +179,15 @@ int main()
     char tcp_buf[MTU] = {0};
 
     cleanup_route_table();
+    /cleanup_when_sig_exit();/
+    tcp_fd = tcp_connect();
+    if (tcp_fd == -1)
+    {
+        printf("connect failed\n");
+        return -1;
+    }
+    printf("connect worked\n");
+
     if ((tun_fd = tun_alloc("tun0")) < 0)
     {
         return -1;
@@ -151,9 +195,10 @@ int main()
 
     ifconfig();
     setup_route_table();
-    tcp_fd = tcp_connect();
+
     while (1)
     {
+        printf("in while\n");
         FD_ZERO(&rset);                            /* clears all the fd's. because select within loop, the sets must be reinitialized  before each  call*/
         FD_SET(tcp_fd, &rset);
         FD_SET(tun_fd, &rset);
@@ -178,10 +223,10 @@ int main()
             send_value = write(tcp_fd,tun_buf,recieve_retval);
             if (send_value < 0)
             {
-                printf("problem with write\n");
+                printf("problem with write in tun to socket\n");
                 break;
             }
-            memset(tun_buf,0,MTU);
+            memset(tun_buf, 0, MTU);
         }
 
         if (FD_ISSET(tcp_fd, &rset))
@@ -189,23 +234,21 @@ int main()
             recieve_retval = read(tcp_fd,tcp_buf,MTU);
             if (recieve_retval < 0)
             {
-                printf("problem with recieve\n");
+                printf("problem with read from tcp socket\n");
                 break;
             }
-
             send_value = write(tun_fd,tcp_buf,recieve_retval);
             if (send_value < 0)
             {
-                printf("problem with write\n");
+                printf("problem with write in socket to tun\n");
                 break;
             }
-            memset(tcp_buf,0,MTU);
+            memset(tcp_buf, 0, MTU);
         }   
-	
+
     }
 
     close(tcp_fd);
     close(tun_fd);
     cleanup_route_table();
     return 0;
-}
