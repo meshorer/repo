@@ -1,0 +1,21 @@
+all:  add commit push 
+
+move:
+	cd /home/daniel/git
+
+add:
+	git add .
+	
+commit:
+	git commit 
+	
+push:
+
+	git push
+	
+user_name:
+	daniel.meshorer
+	
+
+password:
+	204341010
