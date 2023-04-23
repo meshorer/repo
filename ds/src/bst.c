@@ -7,7 +7,7 @@
 #define LEFT 1
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-
+ 
 struct bst_node
 {
     void *data;
