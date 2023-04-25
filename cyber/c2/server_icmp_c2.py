@@ -11,9 +11,6 @@ def commands_input():
             commands_que = input("\nEnter type and command (ex: run ls):\n").split ()
             print(commands_que)
 
-def check_type(packet):
-    return packet[0][ICMP].id
-
 def send_command(ip_adr):
     global commands_que
     if not commands_que:
@@ -41,7 +38,8 @@ def parse_packet(packet):
             write_to_file(opened_fd,data_recieved)  # write only the name of the command the the output commands log
         
         elif type_packet == BEGIN_FILE:             # a packet that tells the server to prepare; name of the file in the data extracted
-            opened_fd = open_file(data_recieved)
+            file_name = os.path.basename(data_recieved)
+            opened_fd = open_file(file_name)
             
         elif type_packet == IN_TRANSFER:
             write_to_file(opened_fd,data_recieved)  # write the content to the opened fd

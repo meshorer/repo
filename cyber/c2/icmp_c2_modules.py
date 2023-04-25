@@ -62,6 +62,10 @@ def write_to_file(fd,to_write):
         
 def close_file(fd):
     os.close(fd)
+    
+def check_type(packet):
+    return packet[0][ICMP].id
+
 
     
     
