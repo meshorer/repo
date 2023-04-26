@@ -25,14 +25,14 @@ LOG_OUTPUT = ".log_output.txt"
 
 
 def pkt_send(dest,data,icmp_type,id_packet):
-    # pkt = IP(dest)/ICMP(icmp_type)/data
-    # try:
-    #     frags=fragment(pkt,fragsize=1400)    # divide the packet into fragments if it's over 1400 bytes
-    #     for frg in frags:                    # by default, the router might send packets over 1500 bytes, which the computer cannot send forward
-    #         send(IP(dst=dest)/ICMP(type=icmp_type)/frg)                            # send each fragment independently
-    # except:
-    #        print("failed to send in frags")
-    send(IP(dst=dest)/ICMP(type="echo-request",id=id_packet)/data)
+    pkt = IP(dst=dest)/ICMP(type=icmp_type,id=id_packet)/data
+    try:
+        frags=fragment(pkt,fragsize=1400)    # divide the packet into fragments if it's over 1400 bytes
+        for frg in frags:                    # by default, the router might send packets over 1500 bytes, which the computer cannot send forward
+            send(frg)                            # send each fragment independently
+    except:
+           print("failed to send in frags")
+    # send(IP(dst=dest)/ICMP(type="echo-request",id=id_packet)/data)
 
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
