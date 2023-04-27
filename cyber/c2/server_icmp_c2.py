@@ -59,7 +59,7 @@ def parse_packet(packet):
             
                         
 def server_listen():
-    sniff_pkt(ICMP_REQUEST,parse_packet)
+    sniff_pkt(ICMP_REQUEST + " or (((ip[6:2] > 0) or (ip[7] > 0)) and (not ip[6] = 64))",parse_packet)
     
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -69,6 +69,7 @@ enter_command_thread.start()
 
 print("start listening")
 server_listen()    # Start sniffing packets
+
 
 
 

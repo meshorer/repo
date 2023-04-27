@@ -16,7 +16,7 @@ BEGIN_FILE = 0xBE       # server to open file - name of the file in the data
 IN_TRANSFER = 0xCCC     # server to continue writing to the opened file
 EF = 0xEF              # server to close the opened file
 
-SERVER_ADR = "192.168.1.22"
+SERVER_ADR = "127.0.0.1"
 ICMP_RESPONSE = "icmp[0]=0"
 ICMP_REQUEST = "icmp[0]=8"
 
@@ -25,15 +25,10 @@ LOG_OUTPUT = ".log_output.txt"
 
 
 def pkt_send(dest,data,icmp_type,id_packet):
-    pkt = IP(dst=dest)/ICMP(type=icmp_type,id=id_packet)/data
-
-    try:
-        frags=fragment(pkt,fragsize=1400)    # divide the packet into fragments if it's over 1400 bytes
-        for frg in frags:                    # by default, the router might send packets over 1500 bytes, which the computer cannot send forward
-            send(frg)                            # send each fragment independently
-    except:
-    	print("failed to send in frags")
-
+    for chunk in range(0, len(data), 1400):
+        x = chunk
+        pkt = IP(dst=dest)/ICMP(type=icmp_type,id=id_packet)/data[x:x+1400]
+        send(pkt)
 
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
@@ -44,7 +39,7 @@ def signal_handler(sig, frame):
     
 def extract_data(packet):
     try:
-        return packet[0][Raw].load.decode('utf-8')
+        return packet[0][Raw].load
     except:
         return str(None)
     
@@ -60,8 +55,9 @@ def open_file(file_name):
 	return fd
 
 def write_to_file(fd,to_write):
-	encoded_content = to_write.encode('utf-8')
-	os.write(fd,encoded_content)
+	#encoded_content = to_write.encode('utf-8')
+	#os.write(fd,encoded_content)
+	os.write(fd,to_write)
         
 def close_file(fd):
     os.close(fd)
