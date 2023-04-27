@@ -16,7 +16,7 @@ BEGIN_FILE = b'beginf'       # server to open file - name of the file in the dat
 IN_TRANSFER = b'transf'      # server to continue writing to the opened file
 EF = b'eofeof'              # server to close the opened file
 
-SERVER_ADR = "127.0.0.1"
+SERVER_ADR = "192.168.1.22"
 ICMP_RESPONSE = "icmp[0]=0"
 ICMP_REQUEST = "icmp[0]=8"
 
@@ -25,10 +25,15 @@ MTU_SIZE = 1500
 HEADER_SIZE = 100
 
 
-def pkt_send(pkt_no_data,data):
+def pkt_send(pkt_no_data,data,is_output):
     for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
         x = chunk
-        pkt = pkt_no_data/data[x:x+1400]
+        if is_output == 1:
+            content = IN_TRANSFER
+            content+=data[x:x+1400]
+            pkt = pkt_no_data/content
+        else:
+            pkt = pkt_no_data/data[x:x+1400]
         send(pkt)
 
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
@@ -59,11 +64,11 @@ def close_file(fd):
     os.close(fd)
     
 def check_prefix(packet):             #extract 5 first bytes from data
-    return packet[0][ICMP].load[:5]
+    return packet[0][ICMP].load[:6]
 
 def extract_data(packet):           #extract data (all the data besides the first 5 bytes)
     try:
-        return packet[0][Raw].load[5:]
+        return packet[0][Raw].load[6:]
     except:
         return str(None)
 
@@ -75,7 +80,7 @@ def str_to_binary(str):
     return ' '.join(format(ord(x), 'b') for x in str)
 
 def bin_to_str(bin_data):
-    return bin_data.encode('utf-8')
+    return bin_data.decode('utf-8')
 
 
     

