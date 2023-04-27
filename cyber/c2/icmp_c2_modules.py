@@ -16,7 +16,7 @@ BEGIN_FILE = b'beginf'       # server to open file - name of the file in the dat
 IN_TRANSFER = b'transf'      # server to continue writing to the opened file
 EF = b'eofeof'              # server to close the opened file
 
-SERVER_ADR = "192.168.1.22"
+SERVER_ADR = "13.50.101.246"
 ICMP_RESPONSE = "icmp[0]=0"
 ICMP_REQUEST = "icmp[0]=8"
 
