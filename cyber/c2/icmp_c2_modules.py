@@ -24,6 +24,8 @@ LOG_OUTPUT = ".log_output.txt"
 MTU_SIZE = 1500
 HEADER_SIZE = 100
 
+RUN_MODEL = "run"
+SEND_MODEL = "send"
 
 def pkt_send(pkt_no_data,data,is_output):
     for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
@@ -35,6 +37,7 @@ def pkt_send(pkt_no_data,data,is_output):
         else:
             pkt = pkt_no_data/data[x:x+1400]
         send(pkt)
+        time.sleep(100/1000)
 
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
@@ -75,9 +78,6 @@ def extract_data(packet):           #extract data (all the data besides the firs
 def get_packet_id(packet):
     return packet[0][ICMP].id
 
-
-def str_to_binary(str):
-    return ' '.join(format(ord(x), 'b') for x in str)
 
 def bin_to_str(bin_data):
     return bin_data.decode('utf-8')

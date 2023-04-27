@@ -47,8 +47,9 @@ def client_listen():
     print("client start listening")
     sniff_pkt(pfilter=ICMP_RESPONSE + " and host " + SERVER_ADR,handler=parse_packet)
     
-signal.signal(signal.SIGINT, signal_handler)
-beacon_thread = threading.Thread(target=send_beacon, args=(SERVER_ADR,BEACON))
-beacon_thread.start()
 
-client_listen()
+if __name__=="__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+    beacon_thread = threading.Thread(target=send_beacon, args=(SERVER_ADR,BEACON))
+    beacon_thread.start()
+    client_listen()
