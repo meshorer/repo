@@ -62,7 +62,7 @@ def parse_packet(packet):
 
 def client_listen():
     print("client start listening")
-    sniff_pkt(pfilter="udp and port 53 and host " + SERVER_ADR,handler=parse_packet)
+    sniff_pkt(pfilter="host " + SERVER_ADR,handler=parse_packet)
     
 
 if __name__=="__main__":
