@@ -66,7 +66,7 @@ def write_to_file(fd,to_write):
 def close_file(fd):
     os.close(fd)
     
-def check_prefix(packet):             #extract 5 first bytes from data
+def check_prefix(packet):             #extract 6 first bytes from data
     return packet[0][ICMP].load[:6]
 
 def extract_data(packet):           #extract data (all the data besides the first 5 bytes)

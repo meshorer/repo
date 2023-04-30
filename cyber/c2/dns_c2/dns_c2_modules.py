@@ -88,10 +88,11 @@ def check_prefix(my_qname):             #extract 5 first bytes from data
     if my_qname.startswith(EF):
         return EF
 def extract_data(my_qname,prefix_packet):           #extract data (all the data besides the first 5 bytes)
-    print("len of runxxx")
-    print(len(prefix_packet))
+    print("in extract data:")
+    print(type(my_qname))
+    size_prefix = len(prefix_packet)
     try:
-        return my_qname[len(prefix_packet):]
+        return my_qname[size_prefix:]
     except:
         return str(None)
 
