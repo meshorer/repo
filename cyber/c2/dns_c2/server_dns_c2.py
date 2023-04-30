@@ -46,8 +46,9 @@ def send_command(ip_adr,vic_sport,get_qname):
     
 def parse_packet(packet):
     global opened_fd
-    print("i am in parse")
+    
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0: 
+        print("i am in parse")
         victim_ip = packet[IP].src
         vic_sport = packet[UDP].sport
         get_qname = packet[DNS].qd.qname
