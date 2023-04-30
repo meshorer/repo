@@ -58,10 +58,11 @@ def parse_packet(packet):
         print("print qname:")
         print(get_qname)
         prefix_packet = check_prefix(get_qname)
-        prefix_packet.decode()
+        print(type(prefix_packet))  
+        int(prefix_packet.decode('base64'))
         print("print prefix:")
         print(prefix_packet)
-        print(type(prefix_packet))     
+           
         data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
         if prefix_packet == BEACON:
             
