@@ -28,7 +28,7 @@ HEADER_SIZE = 100
 RUN_MODEL = "run"
 SEND_MODEL = "send"
 
-def pkt_send(dest_adr,data,is_output): ##
+def pkt_send(dest_adr,data,is_output): 
     for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
         x = chunk
         if is_output == 1:                          # if in_transfer flag is required
@@ -57,7 +57,7 @@ def RunCommand(cmd):
     
 def open_file(file_name):
 	flags = os.O_WRONLY|os.O_CREAT|os.O_APPEND
-	fd = os.open(file_name,flags)
+	fd = os.open(file_name,flags)  
 	return fd
 
 def write_to_file(fd,to_write):
