@@ -56,10 +56,10 @@ def parse_packet(packet):
         vic_sport = packet[UDP].sport
         get_qname = packet[DNS].qd.qname
         print("print qname:")
-        print(get_qname)
-        print(type(get_qname))
-        prefix_packet = check_prefix(get_qname)
-        int(prefix_packet.decode('base64'))
+        print(get_qname)   # class bytes
+        prefix_packet = check_prefix(base64.b64decode(get_qname))
+        print("print qname again:")
+        print(get_qname) 
         print("print prefix:")
         print(prefix_packet)
            
