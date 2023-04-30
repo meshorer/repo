@@ -23,7 +23,7 @@ def parse_packet(packet):
     if  Raw in packet:
         global cond
         
-        if packet.haslayer(DNS) and packet.getlayer(DNS).rr == 0: 
+        if packet.haslayer(DNS): 
             cond = 1
             get_an = packet[DNS].qd.rdata
             prefix_packet = check_prefix(get_an)     
