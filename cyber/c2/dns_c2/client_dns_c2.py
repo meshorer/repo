@@ -32,7 +32,7 @@ def parse_packet(packet):
         prefix_packet = check_prefix(base64.b64decode(get_an[0]))
         print("prefix:")
         print(prefix_packet)
-        data_recieved = extract_data(get_an,prefix_packet)
+        data_recieved = extract_data(get_an[0],prefix_packet)
         print("data receieved:")
         print(data_recieved)
         #pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
