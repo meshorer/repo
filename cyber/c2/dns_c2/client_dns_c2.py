@@ -28,6 +28,7 @@ def parse_packet(packet):
         get_an =  packet[1][DNSRR].rdata
         print("answer:")
         print(get_an)
+        print(type(get_an))
         #prefix_packet = check_prefix(get_an)     
         prefix_packet = check_prefix(base64.b64decode(get_an))
         print("prefix:")
