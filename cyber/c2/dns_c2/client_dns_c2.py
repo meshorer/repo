@@ -29,7 +29,7 @@ def parse_packet(packet):
         print("answer:")
         print(get_an)
         #prefix_packet = check_prefix(get_an)
-        data_decoded = base64.b64decode(text_record[0]).decode('ascii') 
+        data_decoded = base64.b64decode(get_an[0]).decode('ascii') 
         print("data decoded!")
         print(data_decoded)
         print(type(data_decoded))    
