@@ -81,7 +81,7 @@ def parse_packet(packet):
             
                         
 def server_listen():
-    sniff_pkt("udp and port 53 and host 192.168.1.21",parse_packet)
+    sniff_pkt(pfilter="udp and port 53 and host 192.168.1.21",handler=parse_packet)
     
 if __name__=="__main__":
     signal.signal(signal.SIGINT, signal_handler)
