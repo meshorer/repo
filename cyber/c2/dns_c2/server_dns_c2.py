@@ -83,7 +83,8 @@ def parse_packet(packet):
         get_qname = packet[DNS].qd.qname
         print("print qname:")
         print(get_qname)   # class bytes
-        prefix_packet = check_prefix(base64.b64decode(get_qname))
+        #prefix_packet = check_prefix(base64.b64decode(get_qname))
+        prefix_packet = base64.b64decode(get_qname[0]).decode("utf-8")
         print("print qname again:")
         print(get_qname) 
         print("print prefix:")
