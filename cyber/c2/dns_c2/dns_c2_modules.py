@@ -73,7 +73,7 @@ def close_file(fd):
     os.close(fd)
     
 def check_prefix(my_qname):             #extract 5 first bytes from data
-    if my_qname.startswith(RUN):
+    if my_qname.startswith(str(RUN)):
         return RUN
     if my_qname.startswith(FILE):
         return FILE
