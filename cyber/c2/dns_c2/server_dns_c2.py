@@ -48,7 +48,8 @@ def send_command(ip_adr,vic_sport,get_qname,packet):
         prefix = RUN
     elif prefix == SEND_MODEL:
         prefix = FILE
-    bin_command = bytes(command_name.encode())
+    #bin_command = bytes(command_name.encode())
+    bin_command = command_name.encode('ascii')
     print(bin_command)
  
     combined = base64.b64encode(prefix) + base64.b64encode(bin_command)
