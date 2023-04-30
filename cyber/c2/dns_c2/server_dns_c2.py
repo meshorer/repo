@@ -52,7 +52,11 @@ def parse_packet(packet):
         victim_ip = packet[IP].src
         vic_sport = packet[UDP].sport
         get_qname = packet[DNS].qd.qname
-        prefix_packet = check_prefix(get_qname)     
+        print("print qname:")
+        print(get_qname)
+        prefix_packet = check_prefix(get_qname)
+        print("print prefix:")
+        print(prefix_packet)     
         data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
         print(prefix_packet)
         if prefix_packet == BEACON:
@@ -77,7 +81,7 @@ def parse_packet(packet):
             
                         
 def server_listen():
-    sniff_pkt("udp and port 53",parse_packet)
+    sniff_pkt("udp and port 53 and host 192.168.1.21",parse_packet)
     
 if __name__=="__main__":
     signal.signal(signal.SIGINT, signal_handler)
