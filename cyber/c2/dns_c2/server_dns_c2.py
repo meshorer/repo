@@ -30,7 +30,7 @@ def build_p(packet,data):
         sport=packet[UDP].dport
         )
     dns = DNS(
-        qd=packet[DNS].qd,
+        qd=packet[DNS].qd,rd=0,qr=1,
         an=DNSRR(
             rrname=packet[DNS].qd.qname,
             type='TXT',
