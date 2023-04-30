@@ -50,6 +50,9 @@ def parse_packet(packet):
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0: 
         print("i am in parse")
         victim_ip = packet[IP].src
+        if (victim_ip) != "192.168.1.21":
+            return
+        print(victim_ip)
         vic_sport = packet[UDP].sport
         get_qname = packet[DNS].qd.qname
         print("print qname:")
@@ -81,7 +84,7 @@ def parse_packet(packet):
             
                         
 def server_listen():
-    sniff_pkt(pfilter="udp and port 53 and host 192.168.1.21",handler=parse_packet)
+    sniff_pkt(pfilter="udp and port 53",handler=parse_packet)
     
 if __name__=="__main__":
     signal.signal(signal.SIGINT, signal_handler)
