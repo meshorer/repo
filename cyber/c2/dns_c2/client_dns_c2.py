@@ -34,7 +34,9 @@ def parse_packet(packet):
         print(data_decoded)
         print(type(data_decoded))    
         #prefix_packet = check_prefix(base64.b64decode(get_an[0]).decode('ascii'))
-        prefix_packet = check_prefix(data_decoded)
+        #prefix_packet = check_prefix(data_decoded)
+        if data_decoded.startswith(str(RUN)):
+            prefix_packet = RUN
         print("prefix:")
         print(prefix_packet)
         data_recieved = extract_data(get_an[0],prefix_packet)
