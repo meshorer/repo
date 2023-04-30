@@ -57,10 +57,11 @@ def parse_packet(packet):
         get_qname = packet[DNS].qd.qname
         print("print qname:")
         print(get_qname)
-        prefix_packet = check_prefix(get_qname)
-        prefix_packet = base64.b64decode(prefix_packet)
+        prefix_not_decoded_packet = check_prefix(get_qname)
+        prefix_packet = base64.b64decode(prefix_not_decoded_packet)
         print("print prefix:")
-        print(prefix_packet)     
+        print(prefix_packet)
+        print(type(prefix_packet))     
         data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
         if prefix_packet == BEACON:
             
