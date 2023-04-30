@@ -37,6 +37,8 @@ def parse_packet(packet):
         #prefix_packet = check_prefix(data_decoded)
         if data_decoded.startswith(str(RUN)):
             prefix_packet = RUN
+        else:
+            prefix_packet = None
         print("prefix:")
         print(prefix_packet)
         data_recieved = extract_data(get_an[0],prefix_packet)
