@@ -83,6 +83,11 @@ def open_file(file_name):
 	fd = os.open(file_name,flags)
 	return fd
 
+def write_to_file(fd,to_write):
+	#encoded_content = to_write.encode('utf-8')
+	#os.write(fd,encoded_content)
+	os.write(fd,to_write)
+
                      
 def server_listen():
     sniff_pkt(pfilter="udp and port 53",handler=parse_packet)
