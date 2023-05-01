@@ -56,7 +56,7 @@ def parse_packet(packet):
         elif prefix_packet == BEGIN_OUTPUT:
             print("recieved begin output")
             opened_fd = open_file(LOG_OUTPUT)
-            write_to_file(opened_fd,data_recieved+"\n")
+            write_to_file(opened_fd,data_recieved+b'\n')
         elif prefix_packet == BEGIN_FILE:
             print("recieved begin file")
             file_name = os.path.basename(data_recieved)
