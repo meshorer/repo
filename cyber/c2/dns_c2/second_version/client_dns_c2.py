@@ -50,11 +50,10 @@ def parse_packet(packet):
         print("client in parse")
         cond = 1
         #get_an = packet[DNS].qd.rdata
-        get_an =  packet[1][DNSRR].rdata
+        get_an = packet[1][DNSRR].rdata
         print("answer:")
         print(get_an)
-    if not get_an:
-        return
+
     if get_an.startswith(RUN):
         prefix_packet = RUN
         
