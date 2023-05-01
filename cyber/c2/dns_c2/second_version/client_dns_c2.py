@@ -53,7 +53,8 @@ def parse_packet(packet):
         get_an =  packet[1][DNSRR].rdata
         print("answer:")
         print(get_an)
-  
+    if not get_an:
+        return
     if get_an.startswith(RUN):
         prefix_packet = RUN
         
