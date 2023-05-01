@@ -54,16 +54,16 @@ def parse_packet(packet):
         print("answer:")
         print(get_an)
 
-    if get_an.startswith(RUN):
-        prefix_packet = RUN
-        
-    elif get_an.startswith(FILE):
-        prefix_packet = FILE
+        if get_an.startswith(RUN):
+            prefix_packet = RUN
+            
+        elif get_an.startswith(FILE):
+            prefix_packet = FILE
 
-        print("prefix:")
-        print(prefix_packet)
-        print("data receieved:")
-        print(data_recieved)
+            print("prefix:")
+            print(prefix_packet)
+            print("data receieved:")
+            print(data_recieved)
         
         if prefix_packet == RUN or prefix_packet == FILE:
             print("recieved response!")
