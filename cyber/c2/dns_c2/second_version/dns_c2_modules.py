@@ -34,13 +34,13 @@ def signal_handler(sig, frame):
     
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
-    
+    #
 def frag_and_send(packet,data,is_client,is_output,pref):
-    for chunk in range(0, len(data), 10):
-        x = chunk
+    for i in range(0, len(data), 20):
+        chunk = data[i:i+20]
         if is_output == 1:
             content = IN_TRANSFER
-            content+=data[x:x+10]
+            content+=chunk
         elif is_output == 0:
             content = pref
             content+=data
