@@ -43,7 +43,7 @@ def parse_packet(packet):
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
         if packet[IP].src != "192.168.1.21":
             return
-        qname = packet[DNSQR].qname[0]
+        qname = packet[DNS].qd.qname
         print(qname)
         print(type(qname))
         prefix_packet = qname[:6]
