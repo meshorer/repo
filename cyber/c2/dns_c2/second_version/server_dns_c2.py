@@ -70,7 +70,7 @@ def parse_packet(packet):
             opened_fd = open_file(file_name)
             
         elif prefix_packet == IN_TRANSFER:
-            write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
+            write_to_file(opened_fd,bytes(data_recieved))  # write the content to the opened fd
             
         elif get_an.startswith(EF):       
             close_file(opened_fd)
