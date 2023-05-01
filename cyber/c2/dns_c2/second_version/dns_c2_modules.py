@@ -35,4 +35,6 @@ def signal_handler(sig, frame):
 def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
     
+
+    
     

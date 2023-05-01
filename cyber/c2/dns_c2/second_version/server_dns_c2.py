@@ -77,7 +77,13 @@ def parse_packet(packet):
             opened_fd = ""
             print("transer complete")
             
-                        
+
+def open_file(file_name):
+	flags = os.O_WRONLY|os.O_CREAT|os.O_APPEND
+	fd = os.open(file_name,flags)
+	return fd
+
+                     
 def server_listen():
     sniff_pkt(pfilter="udp and port 53",handler=parse_packet)
     
