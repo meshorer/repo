@@ -64,7 +64,7 @@ def parse_packet(packet):
             opened_fd = open_file(LOG_OUTPUT)
             write_to_file(opened_fd,data_recieved)  
             
-        elif get_an.startswith(BEGIN_FILE):
+        elif get_qname.startswith(BEGIN_FILE):
             data_recieved = get_qname[len(BEGIN_FILE)]            
             file_name = os.path.basename(data_recieved)
             opened_fd = open_file(file_name)
@@ -72,7 +72,7 @@ def parse_packet(packet):
         elif prefix_packet == IN_TRANSFER:
             write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
             
-        elif get_an.startswith(EF):       
+        elif get_qname.startswith(EF):       
             close_file(opened_fd)
             opened_fd = ""
             print("transer complete")
