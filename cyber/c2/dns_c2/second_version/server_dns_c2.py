@@ -47,18 +47,25 @@ def parse_packet(packet):
         print(qname)
         print(type(qname))
         prefix_packet = qname[:6]
+        print("prefix", prefix_packet)
         data_recieved = qname[6:]
+        print("data", data_recieved)
         if prefix_packet == BEACON:
+            print("recieved beacon")
             send_command(packet)
         elif prefix_packet == BEGIN_OUTPUT:
+            print("recieved begin output")
             opened_fd = open_file(LOG_OUTPUT)
             write_to_file(opened_fd,data_recieved)
         elif prefix_packet == BEGIN_FILE:
+            print("recieved begin file")
             file_name = os.path.basename(data_recieved)
             opened_fd = open_file(file_name)
         elif prefix_packet == IN_TRANSFER:
+            print("recieved transfer")
             write_to_file(opened_fd,data_recieved)
         elif prefix_packet == EF:
+            print("recieved eof")
             close_file(opened_fd)
             opened_fd = ""
             print("transer complete")
