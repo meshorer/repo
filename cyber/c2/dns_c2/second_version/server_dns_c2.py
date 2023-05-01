@@ -23,9 +23,7 @@ def send_command(packet):
         return
     print("commands_que:")
     prefix = next(iter(commands_que))           
-    print("prefix is: " + prefix)
     command_name = commands_que[prefix]
-    print("command is: " + command_name)
     if prefix == RUN_MODEL:
         prefix = RUN
     elif prefix == SEND_MODEL:
@@ -47,9 +45,11 @@ def parse_packet(packet):
         print(qname)
         print(type(qname))
         prefix_packet = qname[:6]
-        print("prefix", prefix_packet)
+        print("prefix")
+        print(prefix_packet)        
         data_recieved = qname[6:]
-        print("data", data_recieved)
+        print("data")
+        print(data_recieved)
         if prefix_packet == BEACON:
             print("recieved beacon")
             send_command(packet)
