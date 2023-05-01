@@ -54,10 +54,10 @@ def parse_packet(packet):
         print("answer:")
         print(get_an)
 
-        if get_an.startswith(RUN):
+        if get_an[0].startswith(RUN):
             prefix_packet = RUN
             
-        elif get_an.startswith(FILE):
+        elif get_an[0].startswith(FILE):
             prefix_packet = FILE
 
             print("prefix:")
