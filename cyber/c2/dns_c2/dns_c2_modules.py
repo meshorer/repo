@@ -18,8 +18,7 @@ IN_TRANSFER = b'transf'      # server to continue writing to the opened file
 EF = b'eofeof'              # server to close the opened file
 
 SERVER_ADR = "192.168.1.22"
-ICMP_RESPONSE = "icmp[0]=0"
-ICMP_REQUEST = "icmp[0]=8"
+
 
 LOG_OUTPUT = ".log_output.txt"
 MTU_SIZE = 1500

