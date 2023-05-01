@@ -71,7 +71,7 @@ def parse_packet(packet):
             print("recieved response!")
             data_recieved = get_an[len(prefix_packet):]
             data_recieved = bytes(data_recieved)
-            print("data recieved:" + data_recieved)
+            print(data_recieved)
             print(type(data_recieved))
             txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
             if prefix_packet == RUN:
