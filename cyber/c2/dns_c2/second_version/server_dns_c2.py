@@ -88,7 +88,7 @@ def write_to_file(fd,to_write):
     print(type(to_write))
 	#encoded_content = to_write.encode('utf-8')
 	#os.write(fd,encoded_content)
-	os.write(fd,to_write)
+    os.write(fd,to_write)
 
                      
 def server_listen():
