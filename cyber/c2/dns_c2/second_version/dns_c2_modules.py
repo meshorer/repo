@@ -28,6 +28,8 @@ RUN_MODEL = "run"
 SEND_MODEL = "send"
 
 
-    
+def signal_handler(sig, frame):
+    print(' Exiting...')
+    sys.exit(0)
     
     
