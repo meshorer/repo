@@ -19,7 +19,7 @@ def send_qery(dest_adr,data,is_output):
         if is_output == 1:                          # if in_transfer flag is required
             content = IN_TRANSFER
             content+=data[x:x+1400]
-            pkt = IP(dst=dest_adr)/UDP(sport="1234")/DNS(qd=DNSQR(qtype="TXT", qname=content))
+            pkt = IP(dst=dest_adr)/UDP(sport=1234)/DNS(qd=DNSQR(qtype="TXT", qname=content))
         else:
             pkt = IP(dst=dest_adr)/UDP()/DNS(qd=DNSQR(qtype="TXT", qname=data))
         send(pkt)
