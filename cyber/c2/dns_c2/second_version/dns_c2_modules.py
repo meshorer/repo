@@ -12,7 +12,7 @@ import threading
 FILE = b'filexx'           # module to send file
 RUN = b'runxxx'            # module to run command
 BEACON = b'beacon'          # client is ready to recieve command
-BEGIN_OUTPUT = b'beginou'    # server to open output_file
+BEGIN_OUTPUT = b'begino'    # server to open output_file
 BEGIN_FILE = b'beginf'       # server to open file - name of the file in the data
 IN_TRANSFER = b'transf'      # server to continue writing to the opened file
 EF = b'eofeof'              # server to close the opened file
