@@ -55,9 +55,11 @@ def parse_packet(packet):
         print(get_an)
  
         if get_an[0].startswith(RUN):
+            print("model run")
             prefix_packet = RUN
             
         elif get_an[0].startswith(FILE):
+            print("model file")
             prefix_packet = FILE
 
             print("prefix:")
