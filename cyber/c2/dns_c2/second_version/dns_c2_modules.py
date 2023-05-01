@@ -40,7 +40,7 @@ def frag_and_send(packet,data,is_client,is_output,pref):
         x = chunk
         if is_output == 1:
             content = IN_TRANSFER
-            content+=data[x:x+1400]
+            content+=data[x:x+10]
         elif is_output == 0:
             content = pref
             content+=data
