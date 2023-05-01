@@ -45,10 +45,9 @@ def parse_packet(packet):
         print(qname)
         print(type(qname))
         prefix_packet = qname[:6]
-        print("prefix")
         print(prefix_packet)        
-        data_recieved = qname[6:]
-        print("data")
+        data_recieved = qname[6:-1]
+        print("data:")
         print(data_recieved)
         if prefix_packet == BEACON:
             print("recieved beacon")
