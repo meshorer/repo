@@ -70,7 +70,7 @@ def parse_packet(packet):
             opened_fd = open_file(file_name)
             
         elif prefix_packet == IN_TRANSFER:
-            write_to_file(opened_fd,bytes(data_recieved))  # write the content to the opened fd
+            write_to_file(opened_fd,data_recieved)  # write the content to the opened fd
             
         elif get_an.startswith(EF):       
             close_file(opened_fd)
@@ -88,7 +88,7 @@ def write_to_file(fd,to_write):
     print(type(to_write))
 	#encoded_content = to_write.encode('utf-8')
 	#os.write(fd,encoded_content)
-    os.write(fd,to_write)
+    os.write(fd,(bytes)to_write)
 
                      
 def server_listen():
