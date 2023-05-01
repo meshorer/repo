@@ -53,12 +53,12 @@ def parse_packet(packet):
         get_an = packet[1][DNSRR].rdata
         print("answer:")
         print(get_an)
- 
-        if get_an[0].startswith(RUN):
+        get_an = get_an[0]
+        if get_an.startswith(RUN):
             print("model run")
             prefix_packet = RUN
             
-        elif get_an[0].startswith(FILE):
+        elif get_an.startswith(FILE):
             print("model file")
             prefix_packet = FILE
 
