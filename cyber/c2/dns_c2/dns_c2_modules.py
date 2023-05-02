@@ -56,11 +56,11 @@ def close_file(fd):
     os.close(fd)
     
     
-def add_padding(received_base64_string):
-    padding_needed = len(received_base64_string) % 4
+def add_padding(received_base64_data):
+    padding_needed = len(received_base64_data) % 4
     if padding_needed > 0:
-        received_base64_string += '=' * (4 - padding_needed)
-    return received_base64_string
+        received_base64_data += b'=' * (4 - padding_needed)
+    return received_base64_data
     
     
             
