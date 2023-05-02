@@ -35,8 +35,8 @@ def sniff_pkt(pfilter,handler,cnt=30,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
     #
 def frag_and_send(packet,data,is_client,is_output,pref):
-    for i in range(0, len(data), 20):
-        chunk = data[i:i+20]
+    for i in range(0, len(data), 30):
+        chunk = data[i:i+30]
         if is_output == 1:
             content = IN_TRANSFER
             content+=chunk
