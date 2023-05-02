@@ -45,6 +45,7 @@ def parse_packet(packet):
         print(base64_qname)
         print(type(base64_qname))
         base64_qname_padded = add_padding(base64_qname)
+        print(len(base64_qname_padded))
         print("Padded Base64: ", base64_qname_padded)
         qname = base64.b64decode(base64_qname_padded)
         prefix_packet = qname[:6]
