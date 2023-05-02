@@ -54,6 +54,15 @@ def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
         
 def close_file(fd):
     os.close(fd)
+    
+    
+def add_padding(received_base64_string):
+    padding_needed = len(received_base64_string) % 4
+    if padding_needed > 0:
+        received_base64_string += '=' * (4 - padding_needed)
+    return received_base64_string
+    
+    
             
     
     

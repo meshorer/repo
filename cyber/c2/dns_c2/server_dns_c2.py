@@ -44,10 +44,11 @@ def parse_packet(packet):
         base64_qname = packet[DNS].qd.qname
         print(base64_qname)
         print(type(base64_qname))
-        qname = base64.b64decode(base64_qname)
+        base64_qname_padded = add_padding(base64_qname)
+        qname = base64.b64decode(base64_qname_padded)
         prefix_packet = qname[:6]
         print(prefix_packet)        
-        data_recieved = qname[6:-1]
+        data_recieved = qname[6:-1]  ##
         print("data:")
         print(data_recieved)
         if prefix_packet == BEACON:
@@ -66,6 +67,7 @@ def parse_packet(packet):
             write_to_file(opened_fd,data_recieved)
         elif prefix_packet == EF:
             print("recieved eof")
+            write_to_file(opened_fd,b'\n')
             close_file(opened_fd)
             opened_fd = ""
             print("transer complete")
