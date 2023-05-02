@@ -37,8 +37,8 @@ def sniff_pkt(pfilter,handler,cnt=1000,timer=1000):
 def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
     data = base64.b64encode(bin_data).decode('ascii')
     pref = base64.b64encode(bin_pref).decode('ascii')
-    for i in range(0, len(data), 40):
-        chunk = data[i:i+40]
+    for i in range(0, len(data), 24):
+        chunk = data[i:i+24]
         if is_output == 1:
             content = base64.b64encode(IN_TRANSFER).decode('ascii')
             content+=chunk
