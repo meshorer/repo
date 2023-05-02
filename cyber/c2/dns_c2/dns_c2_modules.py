@@ -31,9 +31,9 @@ def signal_handler(sig, frame):
     print(' Exiting...')
     sys.exit(0)
     
-def sniff_pkt(pfilter,handler,cnt=1000,timer=1000):
-    capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
-    #
+def sniff_pkt(pfilter,handler):
+    capture = sniff(filter=pfilter,prn=handler)
+    
 def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
     data = base64.b64encode(bin_data).decode('ascii')
     pref = base64.b64encode(bin_pref).decode('ascii')
@@ -55,15 +55,23 @@ def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
 def close_file(fd):
     os.close(fd)
     
+def open_file(file_name):
+	flags = os.O_WRONLY|os.O_CREAT|os.O_APPEND
+	fd = os.open(file_name,flags)
+	return fd
+
+def read_file(file_name):
+    with open(file_name, "rb") as f:
+        return f.read()
+
+def write_to_file(fd,to_write):
+    os.write(fd,bytes(to_write))
     
 def add_padding(received_base64_data):
-    print(len(received_base64_data))
     padding_needed = len(received_base64_data) % 4
     if padding_needed > 0:
         received_base64_data += b'=' * (4 - padding_needed)
-    print(len(received_base64_data))
     received_base64_data = received_base64_data.replace(b'\n', b'').replace(b'\r', b'').replace(b' ', b'')
-    print(len(received_base64_data))
     return received_base64_data
     
     
