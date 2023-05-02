@@ -34,7 +34,9 @@ def signal_handler(sig, frame):
 def sniff_pkt(pfilter,handler,cnt=1000,timer=1000):
     capture = sniff(filter=pfilter,count=cnt,prn=handler,timeout=timer)
     #
-def frag_and_send(packet,data,is_client,is_output,pref):
+def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
+    data = base64.b64encode(bin_data).decode('ascii')
+    pref = base64.b64encode(bin_pref).decode('ascii')
     for i in range(0, len(data), 30):
         chunk = data[i:i+30]
         if is_output == 1:
