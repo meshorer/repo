@@ -50,7 +50,7 @@ def parse_packet(packet):
         qname = base64.b64decode(base64_qname_padded)
         prefix_packet = qname[:6]
         print(prefix_packet)        
-        data_recieved = qname[6:-1]  ##
+        data_recieved = qname[6:]  ##[6:-1]
         print("data:")
         print(data_recieved)
         if prefix_packet == BEACON:
