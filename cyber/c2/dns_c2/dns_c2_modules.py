@@ -57,9 +57,13 @@ def close_file(fd):
     
     
 def add_padding(received_base64_data):
+    print(len(received_base64_data))
     padding_needed = len(received_base64_data) % 4
     if padding_needed > 0:
         received_base64_data += b'=' * (4 - padding_needed)
+    print(len(received_base64_data))
+    received_base64_data = received_base64_data.replace(b'\n', b'').replace(b'\r', b'').replace(b' ', b'')
+    print(len(received_base64_data))
     return received_base64_data
     
     
