@@ -63,7 +63,7 @@ def parse_packet(packet):
             opened_fd = open_file(file_name)
         elif prefix_packet == IN_TRANSFER:
             print("recieved transfer number", counter)
-            counter=+1
+            counter+=1
             write_to_file(opened_fd,data_recieved)
         elif prefix_packet == EF:
             print("recieved eof")
