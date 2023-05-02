@@ -42,6 +42,7 @@ def parse_packet(packet):
         if packet[IP].src != "192.168.1.21":
             return
         base64_qname = packet[DNS].qd.qname
+        base64_qname = base64_qname[:-1]
         print(base64_qname)
         print(type(base64_qname))
         base64_qname_padded = add_padding(base64_qname)
