@@ -25,6 +25,8 @@ LOG_OUTPUT = ".log_output.txt"
 
 RUN_MODEL = "run"
 SEND_MODEL = "send"
+PREFIX_SIZE = 6
+
 
 
 def signal_handler(sig, frame):

