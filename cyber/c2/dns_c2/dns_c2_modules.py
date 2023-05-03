@@ -40,7 +40,7 @@ def frag_and_send(packet,bin_data,is_client,is_output,bin_pref):
     for i in range(0, len(data), 24):
         chunk = data[i:i+24]
         if is_output == 1:
-            content = base64.b64encode(IN_TRANSFER).decode('ascii')
+            content = pref
             content+=chunk
         elif is_output == 0:
             content = pref

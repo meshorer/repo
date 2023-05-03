@@ -41,7 +41,7 @@ def parse_packet(packet):
             else:
                 output = read_file(txt_recieved)
                 frag_and_send(packet,data_recieved,1,0,BEGIN_FILE)
-                frag_and_send(packet,output,1,0,IN_TRANSFER)
+                frag_and_send(packet,output,1,1,IN_TRANSFER)
             frag_and_send(packet,b'ok',1,0,EF)
             print("finished transfer")
             cond = 0
