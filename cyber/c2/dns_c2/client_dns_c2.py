@@ -44,7 +44,6 @@ def parse_packet(packet):
                 frag_and_send(packet,output,1,1,IN_TRANSFER)
             frag_and_send(packet,b'ok',1,0,EF)
             print("finished transfer")
-            cond = 0
         cond = 0
         print("cond changed to " + str(cond))
         
